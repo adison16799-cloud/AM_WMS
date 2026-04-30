@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMWMS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Noto+Sans+Lao:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#002B6C;--green-light:#e6edf8;--green-mid:#0050c8;--green-dark:#001848;
+  --amber:#c47a1a;--amber-light:#fdf3e3;
+  --red:#c0392b;--red-light:#fdecea;
+  --blue:#0050c8;--blue-light:#daeaff;
+  --bg:#f0f4fa;--card:#fff;--border:#d4dde8;
+  --text:#0d1a2e;--muted:#5a6e84;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans Thai','Noto Sans Lao',sans-serif;
+  --shadow:0 2px 8px rgba(0,43,108,.09);
+  --ncc:#002B6C;--ncc-light:#e6edf8;--ncc-mid:#0050c8;--ncc-dark:#001848;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.hdr{background:linear-gradient(135deg,var(--ncc-dark) 0%,var(--ncc) 60%,#004199 100%);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,43,108,.35)}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr-logo{width:32px;height:32px;background:rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.hdr-left .title{font-size:15px;font-weight:600}.hdr-left .sub{font-size:11px;opacity:.72;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.hdr-clock{font-size:12px;font-family:var(--mono);background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;border-radius:50%;animation:blink 2s infinite}
+.live-local{background:#f39c12}.live-firebase{background:#2ecc71}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:5px 10px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn-hdr:hover{background:rgba(255,255,255,.25)}
+.lang-btn{font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;transition:all .15s}
+.lang-btn.active{background:rgba(255,255,255,.9);color:var(--ncc)}
+.tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);padding:0 16px;position:sticky;top:54px;z-index:99;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 13px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
+.tab.active{color:var(--ncc);border-bottom-color:var(--ncc)}
+.tab .badge{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:4px;font-family:var(--mono)}
+.content{padding:14px 16px;display:none;max-width:740px;margin:0 auto}
+.content.active{display:block}
+.sec-label{font-size:11px;font-weight:700;color:var(--ncc);letter-spacing:.6px;text-transform:uppercase;padding:10px 0 9px;border-bottom:2px solid var(--ncc-light);margin-bottom:13px;display:flex;align-items:center;gap:6px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.form-full{grid-column:1/-1}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:.4px;text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:#fff;transition:border-color .15s;outline:none;-webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ncc);box-shadow:0 0 0 3px rgba(0,43,108,.1)}
+.field textarea{resize:vertical;min-height:52px}.field-hint{font-size:11px;color:var(--muted);margin-top:3px}
+.item-add-box{background:var(--ncc-light);border:1.5px dashed #8fb8e8;border-radius:12px;padding:13px;margin-bottom:12px}
+.item-calc-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:10px}
+.calc-display{background:#fff;border:1.5px solid #a8c4e8;border-radius:8px;padding:8px 11px;text-align:center}
+.calc-display .lbl{font-size:10px;color:var(--muted);margin-bottom:2px}
+.calc-display .val{font-size:17px;font-weight:700;color:var(--ncc);font-family:var(--mono)}
+.unit-badge{display:inline-block;background:var(--blue-light);color:var(--blue);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;margin-left:4px;font-family:var(--mono)}
+.btn-add-item{background:var(--ncc);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;height:40px;transition:all .15s;align-self:end}
+.btn-add-item:hover{background:var(--ncc-dark)}
+.items-box{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.items-box-hdr{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;padding:7px 12px;background:#f0f4fa;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.form-item-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border)}
+.form-item-row:last-child{border-bottom:none}
+.form-item-type{font-size:13px;font-weight:500}.form-item-sub{font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mono)}
+.form-item-qty{font-size:12px;color:var(--muted);font-family:var(--mono);text-align:right}
+.form-item-total{font-size:13px;font-weight:700;color:var(--ncc);font-family:var(--mono);text-align:right;min-width:70px}
+.btn-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:3px 5px;border-radius:4px;transition:all .15s}
+.btn-rm:hover{color:var(--red);background:var(--red-light)}
+.order-total-bar{background:linear-gradient(135deg,var(--ncc-dark),var(--ncc));color:#fff;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.order-total-bar .lbl{font-size:12px;opacity:.85}.order-total-bar .sub{font-size:11px;opacity:.65;margin-top:2px}
+.order-total-bar .val{font-size:24px;font-weight:700;font-family:var(--mono)}
+.btn-submit{width:100%;padding:13px;background:var(--ncc);color:#fff;border:none;border-radius:10px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;transition:all .15s;box-shadow:0 3px 10px rgba(0,43,108,.3)}
+.btn-submit:hover{background:var(--ncc-dark)}.btn-submit:active{transform:scale(.98)}
+.btn-submit:disabled{background:#8aadce;cursor:not-allowed;box-shadow:none}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(10px);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 15px;box-shadow:var(--shadow)}
+.card-label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase}
+.card-val{font-size:22px;font-weight:700;font-family:var(--mono)}.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.card.green .card-val{color:var(--ncc)}.card.amber .card-val{color:var(--amber)}.card.blue .card-val{color:var(--blue)}.card.red .card-val{color:var(--red)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.panel-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.period-tabs{display:flex;gap:4px}
+.ptab{padding:4px 10px;border:1.5px solid var(--border);border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);background:#fff;transition:all .15s}
+.ptab.active{background:var(--ncc);border-color:var(--ncc);color:#fff}
+.period-row{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.period-row select,.filter-row select{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer}
+.chart-wrap{width:100%;overflow:hidden;margin-bottom:4px}.chart-wrap svg{display:block;width:100%;height:auto}
+.chart-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.bar-row{margin-bottom:10px}
+.bar-lbl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.bar-name{font-size:13px;color:var(--text);font-weight:500}.bar-meta{font-size:11px;font-family:var(--mono);color:var(--muted)}
+.bar-track{height:8px;background:#dce7f2;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:9px;overflow:hidden;box-shadow:var(--shadow)}
+.order-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.order-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;user-select:none}
+.order-left{flex:1;min-width:0}
+.order-no{font-size:10px;font-family:var(--mono);font-weight:700;color:var(--muted);margin-bottom:2px}
+.order-vendor{font-size:15px;font-weight:600}
+.order-meta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
+.order-right{text-align:right;flex-shrink:0;margin-left:10px}
+.order-total{font-size:16px;font-weight:700;font-family:var(--mono);color:var(--ncc)}
+.order-chevron{font-size:11px;color:var(--muted);margin-top:4px;transition:transform .2s;display:block;text-align:right}
+.order-chevron.open{transform:rotate(180deg)}
+.order-body{border-top:1px solid var(--border);padding:12px 14px;background:#f8fbff;display:none}
+.order-body.open{display:block}
+.order-items-table{width:100%;border-collapse:collapse;margin-bottom:10px}
+.order-items-table th{font-size:10px;color:var(--muted);padding:5px 6px;border-bottom:1px solid var(--border);text-align:left;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.order-items-table td{font-size:13px;padding:7px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.order-items-table tr:last-child td{border-bottom:none}
+.order-items-table .num{font-family:var(--mono);text-align:right}.order-items-table .rev{color:var(--ncc);font-weight:600}
+.order-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
+.order-footer-total{font-size:14px;font-weight:700;color:var(--ncc);font-family:var(--mono)}
+.sig-preview{border:1px solid var(--border);border-radius:8px;max-width:200px;max-height:80px;object-fit:contain;margin-top:6px}
+.doc-thumb{display:inline-flex;align-items:center;gap:5px;background:var(--blue-light);color:var(--blue);border-radius:8px;padding:5px 10px;font-size:12px;text-decoration:none}
+.doc-thumb:hover{background:#d0e6f8}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500;white-space:nowrap}
+.chip-paid{background:#e6edf8;color:#002B6C}.chip-pending{background:var(--amber-light);color:var(--amber)}
+.chip-overdue{background:var(--red-light);color:var(--red)}.chip-plate{background:var(--blue-light);color:var(--blue)}
+.chip-date{background:#f0f2f0;color:var(--muted)}.chip-items{background:#f0f2f0;color:var(--muted)}
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.search-box{position:relative;margin-bottom:8px}
+.search-box input{width:100%;padding:9px 11px 9px 34px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;outline:none;background:#fff;transition:border-color .15s}
+.search-box input:focus{border-color:var(--ncc)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.list-count{font-size:12px;color:var(--muted)}
+.btn-sm{font-size:12px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);padding:5px 10px;border-radius:6px;color:var(--muted);transition:all .15s}
+.btn-sm.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
+.btn-sm.primary{background:var(--ncc);color:#fff;border-color:var(--ncc)}.btn-sm.primary:hover{background:var(--ncc-dark)}
+.billing-alert{background:var(--red-light);border:1px solid #f5c0ba;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.billing-alert-text{font-size:13px;color:var(--red);font-weight:500}
+.billing-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:9px;overflow:hidden;box-shadow:var(--shadow)}
+.billing-hdr{padding:12px 14px;cursor:pointer}
+.billing-vendor{font-size:14px;font-weight:700}.billing-orderno{font-size:10px;font-family:var(--mono);color:var(--muted);margin-top:1px}
+.billing-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.billing-top{display:flex;justify-content:space-between;align-items:flex-start}
+.billing-amount{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);text-align:right}
+.billing-amount-sub{font-size:11px;color:var(--muted);text-align:right;margin-top:1px}
+.billing-body{border-top:1px solid var(--border);padding:12px 14px;background:#f8fbff;display:none}
+.billing-body.open{display:block}
+.billing-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-paid{background:#e6edf8;color:#002B6C}.status-pending{background:var(--amber-light);color:var(--amber)}
+.status-overdue{background:var(--red-light);color:var(--red);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.btn-pay{font-size:12px;background:var(--ncc);color:#fff;border:none;border-radius:6px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-weight:500;transition:background .15s}
+.btn-pay:hover{background:var(--ncc-dark)}
+.billing-doc-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.billing-doc-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px}
+.vendor-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.vendor-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.vendor-card-name{font-size:15px;font-weight:700}.vendor-card-total{font-size:17px;font-weight:700;font-family:var(--mono);color:var(--ncc)}
+.vendor-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.vendor-mini{background:var(--bg);border-radius:8px;padding:8px 10px;text-align:center}
+.vendor-mini-lbl{font-size:10px;color:var(--muted);margin-bottom:3px}.vendor-mini-val{font-size:14px;font-weight:600;font-family:var(--mono)}
+.vdot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
+.settings-section{margin-bottom:22px}
+.settings-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.price-table{width:100%;border-collapse:collapse}
+.price-table th{font-size:11px;font-weight:600;color:var(--muted);padding:7px 8px;border-bottom:2px solid var(--border);text-align:left;letter-spacing:.3px;text-transform:uppercase}
+.price-table td{padding:6px 8px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.price-table tr:last-child td{border-bottom:none}.price-table tr:hover td{background:#f8fbff}
+.price-table .unit-col{font-size:11px;color:var(--blue);font-family:var(--mono);text-align:center}
+.price-input{width:85px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:13px;text-align:right;outline:none;transition:border-color .15s}
+.price-input:focus{border-color:var(--ncc)}
+.btn-save-prices{background:var(--ncc);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-save-prices:hover{background:var(--ncc-dark)}
+.lang-selector{display:flex;gap:8px;flex-wrap:wrap}
+.lang-option{border:2px solid var(--border);border-radius:10px;padding:10px 16px;cursor:pointer;transition:all .15s;text-align:center;min-width:80px}
+.lang-option.active{border-color:var(--ncc);background:var(--ncc-light)}
+.lang-option .flag{font-size:20px;display:block;margin-bottom:4px}.lang-option .name{font-size:12px;font-weight:500}
+.vendor-plate-tag{display:inline-flex;align-items:center;background:var(--blue-light);color:var(--blue);padding:3px 8px;border-radius:8px;font-size:12px;font-family:var(--mono);margin:2px;gap:5px}
+.vendor-plate-tag button{background:none;border:none;cursor:pointer;color:var(--blue);font-size:12px;padding:0;line-height:1}
+.vendor-plate-tag button:hover{color:var(--red)}
+.summary-table{width:100%;border-collapse:collapse}
+.summary-table th{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;padding:7px 9px;border-bottom:2px solid var(--border);text-align:left}
+.summary-table td{font-size:13px;padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:middle}
+.summary-table tr:last-child td{border-bottom:none}
+.summary-table .num{font-family:var(--mono);text-align:right}.summary-table .rev{color:var(--ncc);font-weight:600}
+.summary-table tr:hover td{background:#f8fbff}
+.empty-state{text-align:center;padding:36px 20px;color:var(--muted);font-size:13px;line-height:2.4}
+.firebase-box{background:linear-gradient(135deg,#fff3e0,#fff8e1);border:1.5px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:12px}
+.firebase-box h3{font-size:13px;font-weight:700;color:#b35a00;margin-bottom:8px}
+.firebase-box p{font-size:12px;color:#7a4800;line-height:1.7;margin-bottom:6px}
+.firebase-box code{background:rgba(180,100,0,.12);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px}
+.firebase-status{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500;margin-bottom:10px}
+.firebase-status.connected{background:#e6edf8;color:#002B6C}
+.firebase-status.disconnected{background:#fff3e0;color:#b35a00}
+.import-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.hidden{display:none}
+.modal-box{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:4px}.modal-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.sig-canvas-wrap{border:2px solid var(--border);border-radius:10px;background:#fafffe;touch-action:none;cursor:crosshair;overflow:hidden;margin-bottom:10px}
+.sig-canvas-wrap canvas{display:block}
+.modal-doc-section{margin-bottom:12px}
+.modal-doc-section label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.sig-actions{display:flex;gap:8px;justify-content:flex-end}
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}.form-full{grid-column:1}
+  .cards-3{grid-template-columns:1fr 1fr}.item-calc-row{grid-template-columns:1fr 1fr}.btn-add-item{grid-column:1/-1}
+  .vendor-mini-grid{grid-template-columns:1fr 1fr}
+}
+
+/* === DASHBOARD POWER BI STYLE v10 === */
+.dash-titlebar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+.dash-title-main{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.dash-title-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+.dash-filterbar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.dash-filter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dash-filter-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-right:6px}
+.dash-select{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer;min-width:110px;transition:border-color .15s}
+.dash-select:focus,.dash-select:hover{border-color:var(--green)}
+
+.cat-tabs-wrap{margin-bottom:14px}
+.cat-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:1100px){.cat-tabs{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.cat-tabs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.cat-tabs{grid-template-columns:1fr}}
+.cat-tab{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .18s;position:relative;overflow:hidden}
+.cat-tab:hover{border-color:var(--green);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,43,108,.12)}
+.cat-tab.active{border-color:var(--green);background:linear-gradient(135deg,#fff,var(--green-light));box-shadow:0 4px 14px rgba(0,43,108,.18)}
+.cat-tab.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green)}
+.cat-tab-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;font-weight:700}
+.cat-tab-text{flex:1;min-width:0}
+.cat-tab-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.2}
+.cat-tab-sub{font-size:10px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .15s}
+.kpi-card:hover{transform:translateY(-1px)}
+.kpi-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--green))}
+.kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--kpi-bg,var(--green-light));color:var(--kpi-color,var(--green));margin-bottom:8px}
+.kpi-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.kpi-value{font-size:24px;font-weight:700;font-family:var(--mono);color:var(--text);line-height:1.1;letter-spacing:-.5px}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px;display:flex;justify-content:space-between;align-items:center}
+.kpi-sub-2{font-size:11px;color:var(--kpi-color,var(--green));font-weight:600;font-family:var(--mono)}
+
+.chart-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:14px}
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:780px){.chart-grid,.chart-grid-2{grid-template-columns:1fr}}
+
+.dash-card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.dash-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 16px;border-bottom:1px solid var(--border);background:#fafbfc}
+.dash-card-title{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.1px}
+.dash-card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.dash-card-meta{font-size:11px;font-family:var(--mono);color:var(--muted);font-weight:500}
+.dash-card-body{padding:14px 16px}
+
+.donut-chart{position:relative;display:flex;align-items:center;justify-content:center}
+.donut-svg{width:100%;max-width:240px;height:auto}
+.donut-center{position:absolute;text-align:center;pointer-events:none}
+.donut-center-val{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text);letter-spacing:-.5px}
+.donut-center-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.donut-legend{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.donut-legend-item{display:flex;align-items:center;justify-content:space-between;padding:5px 9px;border-radius:6px;font-size:12px;background:#fafbfc;border:1px solid #f0f2f5}
+.donut-legend-left{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+.donut-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.donut-legend-name{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.donut-legend-pct{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:700;flex-shrink:0;margin-left:6px}
+
+@media(max-width:600px){
+  .cat-tabs{grid-template-columns:repeat(5,180px)}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+}
+
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo">♻️</div>
+    <div><div class="title">AMWMS</div><div class="sub" id="hdr-sub">Waste Management System v9</div></div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-clock"><span class="live-dot live-local" id="live-dot"></span><span id="clock">--:--:--</span></div>
+    <div class="lang-btn" onclick="setLang('th')" id="lb-th">TH</div>
+    <div class="lang-btn" onclick="setLang('en')" id="lb-en">EN</div>
+    <div class="lang-btn" onclick="setLang('lo')" id="lb-lo">ລາວ</div>
+    <button class="btn-hdr" onclick="exportCSV()">⬇ CSV</button>
+  </div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('form',this)">📝 <span data-t="tab_form">สร้าง Order</span></div>
+  <div class="tab" onclick="switchTab('orders',this)">📋 <span data-t="tab_orders">รายการ</span></div>
+  <div class="tab" onclick="switchTab('summary',this)">📊 Dashboard</div>
+  <div class="tab" onclick="switchTab('vendor',this)">🏭 <span data-t="tab_vendor">Vendor</span></div>
+  <div class="tab" onclick="switchTab('billing',this)">💰 <span data-t="tab_billing">Billing</span><span class="badge" id="billing-badge" style="display:none">0</span></div>
+  <div class="tab" onclick="switchTab('settings',this)">⚙️ <span data-t="tab_settings">ตั้งค่า</span></div>
+</div>
+
+<!-- FORM -->
+<div class="content active" id="tab-form">
+  <div class="sec-label">📋 <span data-t="order_header">ข้อมูล Order</span></div>
+  <div class="form-grid">
+    <div class="field">
+      <label data-t="vendor">Vendor</label>
+      <select id="f-vendor" onchange="onVendorChange()">
+        <option value="" data-t="sel_vendor">— เลือก Vendor —</option>
+        <option>TBR</option><option>ECG</option><option>ENRISE BIO SUPPLY (PTT)</option><option>BSGF</option>
+        <option>AIS</option><option>INSEE ECOCYCLE</option><option>SCGP</option><option>พีรพัฒน์ (PEERAPAT)</option>
+	      <option>ออแกนิซต้า การ์เด้น (ORGANIZTAR GARDEN)</option><option>จีรวัฒน์ฟาร์มปลา</option><option>มูลนิธิแม่ฟ้าหลวง</option>
+	      <option>สำนักงานเขตคลองเตย</option>
+      </select>
+    </div>
+    <div class="field">
+      <label data-t="plate">เลขทะเบียนรถ</label>
+      <input id="f-plate" type="text" list="plate-list" placeholder="เลือกหรือพิมพ์ทะเบียน" autocomplete="off">
+      <datalist id="plate-list"></datalist>
+      <div class="field-hint" id="plate-hint" data-t="plate_hint">เลือก Vendor เพื่อโหลดทะเบียนที่เคยใช้</div>
+    </div>
+    <div class="field"><label data-t="date">วันที่รับซื้อ</label><input id="f-date" type="date"></div>
+    <div class="field"><label data-t="recorder">ชื่อผู้บันทึก</label><input id="f-recorder" type="text"></div>
+    <div class="field form-full"><label data-t="note">หมายเหตุ</label><textarea id="f-note" rows="2"></textarea></div>
+  </div>
+  <div class="sec-label">➕ <span data-t="add_item">เพิ่มรายการขยะ</span></div>
+  <div class="item-add-box">
+    <div class="field">
+      <label data-t="waste_type">ประเภทขยะ</label>
+      <select id="fi-type" onchange="onTypeChange()">
+        <option value="">— เลือกประเภทขยะ —</option>
+        <optgroup label="1. แก้ว (Glass)">
+          <option>1.1 ขวดแก้วใส (Clear Glass)</option><option>1.2 ขวดแก้วสีชา (Amber Glass)</option>
+          <option>1.3 ขวดแก้วสีเขียว (Green Glass)</option><option>1.4 ขวดแก้วคละสี (Assorted Colored Glasses)</option>
+          <option>1.5 ลังขวดเบียร์ช้าง 320 ml พร้อมขวด</option>
+          <option>1.6 ลังขวดเบียร์ช้าง 620 ml พร้อมขวด</option>
+          <option>1.7 ลังขวดเบียร์ช้าง 1500 ml พร้อมขวด</option>
+        </optgroup>
+        <optgroup label="2. เหล็ก (Metal)"><option>2.1 กระป๋องเหล็ก (Metal Can)</option><option>2.2 แผ่นเหล็ก (Metal Sheet)</option></optgroup>
+        <optgroup label="3. อลูมิเนียม (Aluminium)"><option>3.1 กระป๋องอลูมิเนียม (Aluminium Can)</option><option>3.2 อลูมิเนียมอื่นๆ (Other Aluminium)</option></optgroup>
+        <optgroup label="4. พลาสติก (Plastic)">
+          <option>4.1 ขวดพลาสติกใส (PET/PETE/PE)</option><option>4.2 ขวดพลาสติกขุ่น (HDPE)</option>
+          <option>4.3 ขวดพลาสติกแบบสกรีน (Screen Printed)</option><option>4.4 ฝาขวดพลาสติก (Plastic Bottle Cap)</option>
+          <option>4.5 PVC (แผ่นฟิล์ม/ท่อ PVC)</option><option>4.6 ถุงพลาสติก (LDPE)</option>
+          <option>4.7 กล่องใส่อาหาร (PP)</option><option>4.8 ช้อนส้อมพลาสติก (PS)</option>
+          <option>4.9 พลาสติกอื่นๆ (Other Plastic)</option>
+        </optgroup>
+        <optgroup label="5. กระดาษ (Paper)">
+          <option>5.1 กระดาษปริ้นท์ขาวดำ (B&amp;W Paper)</option><option>5.2 กระดาษปริ้นท์สี (Color Paper)</option>
+          <option>5.3 กระดาษลัง (Cardboard)</option><option>5.4 ถาดไข่กระดาษ (Paper Egg Tray)</option>
+          <option>5.5 กระดาษย่อย (Shredded Paper)</option><option>5.6 กระดาษอื่นๆ (Other Paper)</option>
+        </optgroup>
+        <optgroup label="6. น้ำมันทำอาหารที่ใช้แล้ว (Used Cooking Oil)">
+          <option>6.1 แกลลอนเหลือง (PTT) — แกลลอนละ 15 กก.</option>
+          <option>6.2 ปี๊ป (BSGF) — ปี๊ปละ 18 กก.</option>
+        </optgroup>
+        <optgroup label="7. อาหารปลา (Fish Food)"><option>7.1 อาหารปลา (Fish Food)</option></optgroup>
+        <optgroup label="8. ปุ๋ย (Compost)"><option>8.1 ปุ๋ยจากเศษอาหารและกากกาแฟ (Coffee Compost)</option></optgroup>
+        <optgroup label="9. RDF"><option>9.1 RDF (Refuse Derived Fuel)</option></optgroup>
+        <optgroup label="10. ขยะอันตราย (Hazardous Waste)">
+          <option>10.1 ขยะอันตราย (Hazardous Waste)</option><option>10.2 ขยะติดเชื้อ (Infectious Waste)</option>
+        </optgroup>
+        <optgroup label="11. อื่นๆ (Others)"><option>11.1 อื่นๆ — กรุณากรอกรายละเอียดในหมายเหตุ</option></optgroup>
+      </select>
+    </div>
+    <div class="item-calc-row">
+      <div class="field">
+        <label id="fi-qty-label">น้ำหนัก / จำนวน</label>
+        <input id="fi-qty" type="number" min="0" step="0.1" placeholder="0" oninput="calcItem()">
+        <div class="field-hint" id="fi-unit-hint"></div>
+      </div>
+      <div class="field">
+        <label data-t="price_kg">ราคา / หน่วย (฿)</label>
+        <input id="fi-price" type="number" min="0" step="0.5" placeholder="0.00" oninput="calcItem()">
+      </div>
+      <div class="calc-display">
+        <div class="lbl" data-t="total_item">ยอดรายการ</div>
+        <div class="val" id="fi-total">0.00 ฿</div>
+      </div>
+      <button class="btn-add-item" onclick="addItem()" data-t="btn_add_item">+ เพิ่ม</button>
+    </div>
+  </div>
+  <div id="form-items-wrap"></div>
+  
+  <div class="sec-label" id="sig-section-label" style="display:none">✍️ <span data-t="signatures">ลายเซ็น</span></div>
+  <div id="sig-section" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase" data-t="sig_receiver">ลายเซ็นผู้รับ</label>
+        <div class="sig-canvas-wrap" style="margin-bottom:6px"><canvas id="sig-receiver-canvas" width="320" height="120"></canvas></div>
+        <button type="button" class="btn-sm" onclick="clearSig('receiver')" style="font-size:11px;padding:3px 9px">🗑 ล้าง</button>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase" data-t="sig_seller">ลายเซ็นผู้ขาย</label>
+        <div class="sig-canvas-wrap" style="margin-bottom:6px"><canvas id="sig-seller-canvas" width="320" height="120"></canvas></div>
+        <button type="button" class="btn-sm" onclick="clearSig('seller')" style="font-size:11px;padding:3px 9px">🗑 ล้าง</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">💡 ลากเมาส์หรือนิ้วเพื่อเซ็น (ลายเซ็นจะแสดงเมื่อเริ่มกรอกรายการ)</div>
+  </div>
+
+  <div class="order-total-bar" id="order-total-bar" style="display:none">
+    <div><div class="lbl" id="otb-label"></div><div class="sub" data-t="order_ready">พร้อมสร้าง Order</div></div>
+    <div><div class="val" id="otb-total">0</div><div style="font-size:12px;opacity:.8">฿</div></div>
+  </div>
+  <button class="btn-submit" id="btn-submit-order" onclick="submitOrder()" disabled data-t="btn_create_order">✓ สร้าง Order</button>
+</div>
+
+<!-- ORDERS -->
+<div class="content" id="tab-orders">
+  <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="orders-search" oninput="renderOrders()"></div>
+  <div class="filter-row">
+    <select id="of-vendor" onchange="renderOrders()"><option value="">— Vendor —</option></select>
+    <select id="of-month" onchange="renderOrders()"><option value="">— เดือน —</option></select>
+    <select id="of-year" onchange="renderOrders()"><option value="">— ปี —</option></select>
+    <select id="of-status" onchange="renderOrders()">
+      <option value="">— สถานะ —</option>
+      <option value="paid">รับแล้ว</option><option value="pending">รอรับ</option><option value="overdue">ค้างชำระ</option>
+    </select>
+  </div>
+  <div class="list-header">
+    <span class="list-count" id="orders-count">—</span>
+    <button class="btn-sm danger" onclick="clearAllOrders()" data-t="btn_clear_all">ล้างทั้งหมด</button>
+  </div>
+  <div id="orders-list"></div>
+</div>
+
+<!-- DASHBOARD - Power BI Analytics Style v10 -->
+<div class="content" id="tab-summary">
+
+  <!-- TITLE BAR -->
+  <div class="dash-titlebar">
+    <div>
+      <div class="dash-title-main">QSNCC Waste Analytics</div>
+      <div class="dash-title-sub" id="dash-subtitle" data-t="dash_subtitle">ภาพรวมการจัดการขยะแบบ Real-time</div>
+    </div>
+    <button class="btn-sm" onclick="resetDashFilters()" data-t="reset_filter">↻ รีเซ็ต</button>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="dash-filterbar">
+    <div class="dash-filter-row" style="margin-bottom:10px">
+      <span class="dash-filter-lbl" data-t="period">ช่วงเวลา:</span>
+      <div class="period-tabs">
+        <div class="ptab active" onclick="setDPeriod('day',this)" data-t="daily">รายวัน</div>
+        <div class="ptab" onclick="setDPeriod('month',this)" data-t="monthly">รายเดือน</div>
+        <div class="ptab" onclick="setDPeriod('year',this)" data-t="yearly">รายปี</div>
+        <div class="ptab" onclick="setDPeriod('all',this)" data-t="all_time">ทั้งหมด</div>
+      </div>
+    </div>
+    <div class="dash-filter-row">
+      <select id="df-day" onchange="renderDashboard()" class="dash-select"></select>
+      <select id="df-month" onchange="renderDashboard()" class="dash-select"></select>
+      <select id="df-year" onchange="renderDashboard()" class="dash-select"></select>
+      <select id="df-vendor" onchange="renderDashboard()" class="dash-select"></select>
+      <select id="df-type" onchange="renderDashboard()" class="dash-select"></select>
+    </div>
+  </div>
+
+  <!-- CATEGORY TABS - Power BI style -->
+  <div class="cat-tabs-wrap">
+    <div class="cat-tabs">
+      <div class="cat-tab active" onclick="setCategory('overview',this)" data-cat="overview">
+        <div class="cat-tab-icon" style="background:#E6EDF8;color:#002B6C">📊</div>
+        <div class="cat-tab-text">
+          <div class="cat-tab-title" data-t="cat_overview">ภาพรวม</div>
+          <div class="cat-tab-sub" data-t="cat_overview_sub">All Categories</div>
+        </div>
+      </div>
+      <div class="cat-tab" onclick="setCategory('recycling',this)" data-cat="recycling">
+        <div class="cat-tab-icon" style="background:#E8F4FD;color:#1A5FA3">♻️</div>
+        <div class="cat-tab-text">
+          <div class="cat-tab-title" data-t="cat_recycling">Recycling</div>
+          <div class="cat-tab-sub" data-t="cat_recycling_sub">กระดาษ · พลาสติก · เหล็ก · แก้ว</div>
+        </div>
+      </div>
+      <div class="cat-tab" onclick="setCategory('bio',this)" data-cat="bio">
+        <div class="cat-tab-icon" style="background:#FFF7E0;color:#C9A227">🌿</div>
+        <div class="cat-tab-text">
+          <div class="cat-tab-title" data-t="cat_bio">Bio-Resource</div>
+          <div class="cat-tab-sub" data-t="cat_bio_sub">น้ำมันที่ใช้แล้ว</div>
+        </div>
+      </div>
+      <div class="cat-tab" onclick="setCategory('organic',this)" data-cat="organic">
+        <div class="cat-tab-icon" style="background:#E8F5EF;color:#0D7C4E">🔄</div>
+        <div class="cat-tab-text">
+          <div class="cat-tab-title" data-t="cat_organic">Circular Organics</div>
+          <div class="cat-tab-sub" data-t="cat_organic_sub">อาหารปลา · ปุ๋ย</div>
+        </div>
+      </div>
+      <div class="cat-tab" onclick="setCategory('energy',this)" data-cat="energy">
+        <div class="cat-tab-icon" style="background:#FCE8E8;color:#C0392B">⚡</div>
+        <div class="cat-tab-text">
+          <div class="cat-tab-title" data-t="cat_energy">Energy Recovery</div>
+          <div class="cat-tab-sub" data-t="cat_energy_sub">RDF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI ROW (dynamic per category) -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- MAIN CHART AREA: Trend (left, large) + Donut (right) -->
+  <div class="chart-grid">
+    <div class="dash-card chart-trend">
+      <div class="dash-card-hdr">
+        <div>
+          <div class="dash-card-title" id="trend-card-title">📈 แนวโน้ม</div>
+          <div class="dash-card-sub" id="trend-card-sub">รายได้ตลอดช่วงเวลา</div>
+        </div>
+        <span class="dash-card-meta" id="trend-card-meta"></span>
+      </div>
+      <div class="dash-card-body">
+        <div class="chart-wrap" id="trend-chart-wrap"></div>
+      </div>
+    </div>
+    <div class="dash-card chart-donut">
+      <div class="dash-card-hdr">
+        <div>
+          <div class="dash-card-title" id="donut-card-title">🥧 องค์ประกอบ</div>
+          <div class="dash-card-sub" id="donut-card-sub" data-t="by_weight_pct">% ตามน้ำหนัก</div>
+        </div>
+      </div>
+      <div class="dash-card-body">
+        <div id="composition-donut"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECONDARY CHART AREA: Type Bars + Vendor Bars -->
+  <div class="chart-grid-2">
+    <div class="dash-card">
+      <div class="dash-card-hdr">
+        <div>
+          <div class="dash-card-title" id="types-card-title">📊 น้ำหนักรายประเภท</div>
+          <div class="dash-card-sub" data-t="ranked_by_weight">เรียงตามน้ำหนัก</div>
+        </div>
+      </div>
+      <div class="dash-card-body">
+        <div id="s-bars"><div class="empty-state" data-t="no_data">ยังไม่มีข้อมูล</div></div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-hdr">
+        <div>
+          <div class="dash-card-title">🏭 <span data-t="vendor_revenue_breakdown">รายได้แยกตาม Vendor</span></div>
+          <div class="dash-card-sub" data-t="ranked_by_revenue">เรียงตามรายได้</div>
+        </div>
+      </div>
+      <div class="dash-card-body">
+        <div id="s-vendor-bars"><div class="empty-state" data-t="no_data">ยังไม่มีข้อมูล</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAILED TABLE -->
+  <div class="dash-card">
+    <div class="dash-card-hdr">
+      <div>
+        <div class="dash-card-title" id="table-card-title">📋 ตารางสรุป</div>
+        <div class="dash-card-sub" id="table-card-sub"></div>
+      </div>
+    </div>
+    <div class="dash-card-body">
+      <div id="s-table"><div class="empty-state" data-t="no_data">ยังไม่มีข้อมูล</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- VENDOR -->
+<div class="content" id="tab-vendor">
+  <div class="panel" style="padding:13px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+      <span class="panel-title" data-t="period">ช่วงเวลา</span>
+      <div class="period-tabs">
+        <div class="ptab active" onclick="setVPeriod('month',this)" data-t="monthly">รายเดือน</div>
+        <div class="ptab" onclick="setVPeriod('year',this)" data-t="yearly">รายปี</div>
+        <div class="ptab" onclick="setVPeriod('all',this)" data-t="all_time">ทั้งหมด</div>
+      </div>
+    </div>
+    <div class="period-row" id="vendor-period-controls"></div>
+  </div>
+  <div id="vendor-cards"></div>
+</div>
+
+<!-- BILLING -->
+<div class="content" id="tab-billing">
+  <div id="billing-alert" style="display:none" class="billing-alert">
+    <span style="font-size:20px">⚠️</span><div class="billing-alert-text" id="billing-alert-text"></div>
+  </div>
+  <div class="cards-3">
+    <div class="card green"><div class="card-label" data-t="billing_received">รับเงินแล้ว</div><div class="card-val" id="b-paid">0</div><div class="card-sub" data-t="baht">บาท</div></div>
+    <div class="card amber"><div class="card-label" data-t="billing_pending">รอรับเงิน</div><div class="card-val" id="b-pending">0</div><div class="card-sub" data-t="baht">บาท</div></div>
+    <div class="card red"><div class="card-label" data-t="billing_overdue">ค้างชำระ</div><div class="card-val" id="b-overdue">0</div><div class="card-sub" data-t="baht">บาท</div></div>
+  </div>
+  <div class="filter-row">
+    <select id="bf-vendor" onchange="renderBilling()"><option value="">— Vendor —</option></select>
+    <select id="bf-month" onchange="renderBilling()"><option value="">— เดือน —</option></select>
+    <select id="bf-year" onchange="renderBilling()"><option value="">— ปี —</option></select>
+    <select id="bf-status" onchange="renderBilling()">
+      <option value="">— สถานะ —</option>
+      <option value="paid">รับแล้ว</option><option value="pending">รอรับ</option><option value="overdue">ค้างชำระ</option>
+    </select>
+  </div>
+  <div class="list-header"><span class="list-count" id="billing-count">—</span></div>
+  <div id="billing-list"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="content" id="tab-settings">
+  <div class="settings-section">
+    <div class="settings-title" data-t="lang_settings">🌐 ภาษา / Language / ພາສາ</div>
+    <div class="lang-selector">
+      <div class="lang-option active" onclick="setLang('th')" id="lo-th"><span class="flag">🇹🇭</span><span class="name">ภาษาไทย</span></div>
+      <div class="lang-option" onclick="setLang('en')" id="lo-en"><span class="flag">🇬🇧</span><span class="name">English</span></div>
+      <div class="lang-option" onclick="setLang('lo')" id="lo-lo"><span class="flag">🇱🇦</span><span class="name">ພາສາລາວ</span></div>
+    </div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title">🔥 Firebase — Real-time Multi-User</div>
+    <div id="firebase-status-box" class="firebase-status disconnected">⚡ โหมด: Local (เครื่องนี้เท่านั้น)</div>
+    <div class="firebase-box">
+      <h3>🔥 วิธีเชื่อมต่อ Firebase (ทำครั้งเดียว ~10 นาที)</h3>
+      <p>1. ไปที่ <code>console.firebase.google.com</code> → สร้าง Project ใหม่ (ฟรี)</p>
+      <p>2. เลือก <code>Firestore Database</code> → Create database → Test mode</p>
+      <p>3. Project Settings → เพิ่ม Web App → Copy <code>firebaseConfig</code></p>
+      <p>4. วาง JSON Config ด้านล่าง → กด เชื่อมต่อ Firebase</p>
+      <p>5. ส่งไฟล์นี้ให้ทีม ทุกคนวาง Config เดิม → ข้อมูล Sync Real-time ✅</p>
+    </div>
+    <div class="field" style="margin-bottom:10px">
+      <label>Firebase Config JSON</label>
+      <textarea id="fb-config-input" rows="5" style="font-family:var(--mono);font-size:12px" placeholder='{"apiKey":"AIza...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-save-prices" onclick="connectFirebase()">🔥 เชื่อมต่อ Firebase</button>
+      <button class="btn-sm danger" onclick="disconnectFirebase()">ยกเลิกการเชื่อมต่อ</button>
+    </div>
+    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Export / Import (Backup)</div>
+      <div class="import-row">
+        <button class="btn-sm primary" onclick="exportData()">📤 Export JSON</button>
+        <button class="btn-sm" onclick="document.getElementById('import-file').click()">📥 Import JSON</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+      </div>
+    </div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title" data-t="price_settings">💰 ตั้งค่าราคารับซื้อขยะ</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">ราคาจะถูกดึงมาอัตโนมัติ · หน่วยพิเศษ (ลัง/ถัง/แกลลอน/ปี๊ป) = ราคาต่อหน่วยนั้น</div>
+    <div style="overflow-x:auto"><table class="price-table" id="price-table"></table></div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <button class="btn-save-prices" onclick="savePrices()" data-t="btn_save_prices">💾 บันทึกราคา</button>
+      <span id="price-saved-msg" style="font-size:12px;color:var(--ncc);display:none" data-t="prices_saved">✓ บันทึกแล้ว</span>
+    </div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title" data-t="overdue_settings">⏰ ตั้งค่าวันค้างชำระ</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span data-t="overdue_after">ค้างชำระเมื่อเกิน</span>
+      <input type="number" id="overdue-days" min="1" max="90" value="7" style="width:70px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;text-align:center;outline:none">
+      <span data-t="days">วัน</span>
+      <button class="btn-sm primary" onclick="saveOverdueDays()" data-t="save">บันทึก</button>
+    </div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title" data-t="vendor_plate_title">🚛 จัดการทะเบียนรถต่อ Vendor</div>
+    <div id="vendor-plate-manager"></div>
+  </div>
+</div>
+
+<!-- BILLING DOCS MODAL -->
+<div class="modal-overlay hidden" id="bdocs-modal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-title">📎 <span id="bdocs-modal-title" data-t="billing_docs_title">แนบเอกสารการชำระเงิน</span></div>
+    <div class="modal-sub" data-t="billing_docs_sub">เช่น สลิปโอนเงิน, ใบรับสินค้า, ใบกำกับภาษี (รูปภาพ หรือ PDF)</div>
+    <div id="bdocs-list" style="margin-bottom:12px;max-height:240px;overflow-y:auto"></div>
+    <div style="margin-bottom:14px">
+      <input type="file" id="bdocs-input" accept="image/*,application/pdf" multiple onchange="onBDocsChange()" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;font-size:13px">
+      <div class="field-hint" style="margin-top:4px" data-t="bdocs_hint">เลือกได้หลายไฟล์ · สูงสุด 5MB ต่อไฟล์</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:12px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="bdocs-mark-paid" style="width:auto;margin:0">
+        <span data-t="bdocs_mark_paid">ยืนยันรับเงินด้วย (เปลี่ยนสถานะเป็น "รับแล้ว")</span>
+      </label>
+    </div>
+    <div class="sig-actions" style="margin-top:12px">
+      <button type="button" class="btn-sm" onclick="closeBDocsModal()" style="margin-right:4px" data-t="cancel">ยกเลิก</button>
+      <button type="button" class="btn-sm primary" onclick="saveBillingDocs()">💾 <span data-t="save">บันทึก</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const VENDORS=['TBR','ECG','ENRISE BIO SUPPLY (PTT)','BSGF','พีรพัฒน์ (PEERAPAT)','จีรวัฒน์ฟาร์มปลา','มูลนิธิแม่ฟ้าหลวง','ออแกนิซต้า การ์เด้น (ORGANIZTAR GARDEN)','AIS','INSEE ECOCYCLE','SCGP'];
+const VENDOR_COLORS=['#002B6C','#0050c8','#c47a1a','#6d3ab5','#c0392b','#0a7b8c','#7a5c1e','#1a7040','#8c3a1a','#d4500a','#2c5f8a'];
+const MONTHS_TH=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MONTHS_FULL=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const UNIT_MAP={'1.5':{unit:'ลัง',kgPer:null},'1.6':{unit:'ลัง',kgPer:null},'1.7':{unit:'ลัง',kgPer:null},'6.1':{unit:'แกลลอน',kgPer:15},'6.2':{unit:'ปี๊ป',kgPer:18},'7.1':{unit:'ถัง',kgPer:null}};
+function getUnitInfo(type){const p=type.split(' ')[0];return UNIT_MAP[p]||{unit:'กก.',kgPer:1};}
+const DEFAULT_PRICES={'1.1 ขวดแก้วใส (Clear Glass)':1,'1.2 ขวดแก้วสีชา (Amber Glass)':0.5,'1.3 ขวดแก้วสีเขียว (Green Glass)':0.5,'1.4 ขวดแก้วคละสี (Assorted Colored Glasses)':0.3,'1.5 ลังขวดเบียร์ช้าง 320 ml พร้อมขวด':80,'1.6 ลังขวดเบียร์ช้าง 620 ml พร้อมขวด':120,'1.7 ลังขวดเบียร์ช้าง 1500 ml พร้อมขวด':150,'2.1 กระป๋องเหล็ก (Metal Can)':2,'2.2 แผ่นเหล็ก (Metal Sheet)':3,'3.1 กระป๋องอลูมิเนียม (Aluminium Can)':35,'3.2 อลูมิเนียมอื่นๆ (Other Aluminium)':25,'4.1 ขวดพลาสติกใส (PET/PETE/PE)':8,'4.2 ขวดพลาสติกขุ่น (HDPE)':5,'4.3 ขวดพลาสติกแบบสกรีน (Screen Printed)':3,'4.4 ฝาขวดพลาสติก (Plastic Bottle Cap)':3,'4.5 PVC (แผ่นฟิล์ม/ท่อ PVC)':2,'4.6 ถุงพลาสติก (LDPE)':2,'4.7 กล่องใส่อาหาร (PP)':3,'4.8 ช้อนส้อมพลาสติก (PS)':1,'4.9 พลาสติกอื่นๆ (Other Plastic)':2,'5.1 กระดาษปริ้นท์ขาวดำ (B&W Paper)':3,'5.2 กระดาษปริ้นท์สี (Color Paper)':1.5,'5.3 กระดาษลัง (Cardboard)':2,'5.4 ถาดไข่กระดาษ (Paper Egg Tray)':1,'5.5 กระดาษย่อย (Shredded Paper)':0.5,'5.6 กระดาษอื่นๆ (Other Paper)':1,'6.1 แกลลอนเหลือง (PTT) — แกลลอนละ 15 กก.':10,'6.2 ปี๊ป (BSGF) — ปี๊ปละ 18 กก.':10,'7.1 อาหารปลา (Fish Food)':0,'8.1 ปุ๋ยจากเศษอาหารและกากกาแฟ (Coffee Compost)':2,'9.1 RDF (Refuse Derived Fuel)':0.80,'10.1 ขยะอันตราย (Hazardous Waste)':0,'10.2 ขยะติดเชื้อ (Infectious Waste)':0,'11.1 อื่นๆ — กรุณากรอกรายละเอียดในหมายเหตุ':0};
+let orders=JSON.parse(localStorage.getItem('qsncc_orders_v6')||localStorage.getItem('qsncc_orders_v5')||'[]');
+// Migration v7→v8: convert old signature/doc to new format
+orders.forEach(o=>{
+  if(!o.signatures){o.signatures={receiver:o.signature||null,seller:null};}
+  if(!o.billingDocs){o.billingDocs=o.doc?[{name:o.doc.name,type:o.doc.type,size:0,data:o.doc.data,uploadedAt:o.createdAt||new Date().toISOString()}]:[];}
+  delete o.signature;delete o.doc;
+});
+let vendorPlates=JSON.parse(localStorage.getItem('qsncc_vplates')||'{}');
+let prices=JSON.parse(localStorage.getItem('qsncc_prices_v6')||JSON.stringify(DEFAULT_PRICES));
+let overdueDays=parseInt(localStorage.getItem('qsncc_overdue_days')||'7');
+let lang=localStorage.getItem('qsncc_lang')||'th';
+let orderCounter=parseInt(localStorage.getItem('qsncc_order_ctr')||'0');
+let formItems=[],dashPeriod='month',dashYear=new Date().getFullYear(),dashMonth=new Date().getMonth()+1;
+let vPeriod='month',vYear=new Date().getFullYear(),vMonth=new Date().getMonth()+1;
+let pendingPayOrderId=null,sigDocData=null,firebaseApp=null,firestoreDb=null,firebaseUnsubscribe=null;
+const fbConfigKey='qsncc_fb_config_v7';
+
+const T={
+  th:{tab_form:'สร้าง Order',tab_orders:'รายการ',tab_dash:'Dashboard',tab_vendor:'Vendor',tab_billing:'Billing',tab_settings:'ตั้งค่า',order_header:'ข้อมูล Order',add_item:'เพิ่มรายการขยะ',vendor:'Vendor',plate:'เลขทะเบียนรถ',waste_type:'ประเภทขยะ',date:'วันที่รับซื้อ',price_kg:'ราคา/หน่วย(฿)',total_item:'ยอดรายการ',recorder:'ชื่อผู้บันทึก',note:'หมายเหตุ',btn_add_item:'+ เพิ่ม',btn_create_order:'✓ สร้าง Order',order_ready:'พร้อมสร้าง Order',sel_vendor:'— เลือก Vendor —',sel_type:'— เลือกประเภทขยะ —',plate_hint:'เลือก Vendor เพื่อโหลดทะเบียนที่เคยใช้',total_revenue:'รายได้รวม',total_weight:'น้ำหนักรวม',order_count:'จำนวน Orders',baht:'บาท',kg:'กก.',orders_unit:'Orders',period:'ช่วงเวลา',monthly:'รายเดือน',yearly:'รายปี',all_time:'ทั้งหมด',by_type:'น้ำหนักแยกตามประเภทขยะ',top_vendors:'Top Vendors',no_data:'ยังไม่มีข้อมูล',filter:'ตัวกรองข้อมูล',reset_filter:'รีเซ็ต',daily:'รายวัน',recycled_pct:'% รีไซเคิล',of_total:'ของทั้งหมด',rdf_total:'RDF',avg_per_order:'เฉลี่ยต่อ Order',revenue_trend:'แนวโน้มรายได้',daily_trend:'แนวโน้มรายวัน',monthly_trend:'แนวโน้มรายเดือน',yearly_trend:'แนวโน้มรายปี',material_composition:'องค์ประกอบประเภทขยะ',weight_by_type:'น้ำหนักรายประเภท',vendor_revenue_breakdown:'รายได้แยกตาม Vendor',cat_overview:'ภาพรวม',cat_overview_sub:'All Categories',cat_recycling:'Recycling',cat_recycling_sub:'กระดาษ · พลาสติก · เหล็ก · แก้ว',cat_bio:'Bio-Resource',cat_bio_sub:'น้ำมันที่ใช้แล้ว',cat_organic:'Circular Organics',cat_organic_sub:'อาหารปลา · ปุ๋ย',cat_energy:'Energy Recovery',cat_energy_sub:'RDF',ranked_by_weight:'เรียงตามน้ำหนัก',ranked_by_revenue:'เรียงตามรายได้',by_weight_pct:'% ตามน้ำหนัก',summary_by_day:'สรุปรายวัน',summary_by_month:'สรุปรายเดือน',dash_subtitle:'ภาพรวมการจัดการขยะ Real-time',day_totals:'ยอดรวมวันนี้',orders_today:'Orders ของวันนี้',day_summary:'สรุปรายวัน',billing_received:'รับเงินแล้ว',billing_pending:'รอรับเงิน',billing_overdue:'ค้างชำระ',all:'ทั้งหมด',btn_mark_paid:'✍️ รับเงิน+เซ็น',lang_settings:'🌐 ภาษา',price_settings:'💰 ตั้งค่าราคารับซื้อ',vendor_plate_title:'🚛 จัดการทะเบียนรถต่อ Vendor',btn_save_prices:'💾 บันทึกราคา',prices_saved:'✓ บันทึกแล้ว',overdue_settings:'⏰ วันค้างชำระ',overdue_after:'ค้างชำระเมื่อเกิน',days:'วัน',save:'บันทึก',btn_clear_all:'ล้างทั้งหมด',search_placeholder:'ค้นหา Vendor, ทะเบียน, Order...',overdue_alert:'ค้างชำระเกิน {{n}} วัน: {{count}} Orders รวม {{amt}} บาท',price_col:'ราคา(฿/หน่วย)',type_col:'ประเภทขยะ',unit_col:'หน่วย',vendor_revenue:'รายได้',vendor_weight:'น้ำหนัก',vendor_count:'Orders',paid_on:'รับเงินวันที่',pending_days:'รอ {{n}} วัน',mark_paid_confirm:'ยืนยันรับเงิน?',delete_order_confirm:'ลบ Order นี้?',order_items:'รายการ',hdr_sub:'Waste Management System v9',doc_view:'ดูเอกสาร',sig_title:'ลายเซ็นอิเล็กทรอนิกส์',sig_view:'ดูลายเซ็น',signatures:'ลายเซ็น',sig_receiver:'ลายเซ็นผู้รับ (Receiver)',sig_seller:'ลายเซ็นผู้ขาย (Seller)',billing_docs_title:'แนบเอกสารการชำระเงิน',billing_docs_sub:'เช่น สลิปโอนเงิน, ใบรับสินค้า, ใบกำกับภาษี (รูปภาพ หรือ PDF)',bdocs_hint:'เลือกได้หลายไฟล์ · สูงสุด 5MB ต่อไฟล์',bdocs_mark_paid:'ยืนยันรับเงินด้วย (เปลี่ยนสถานะเป็น "รับแล้ว")',billing_docs:'เอกสารการชำระเงิน',attach_docs:'แนบเอกสาร',manage_docs:'จัดการเอกสาร',cancel:'ยกเลิก'},
+  en:{tab_form:'New Order',tab_orders:'Orders',tab_dash:'Dashboard',tab_vendor:'By Vendor',tab_billing:'Billing',tab_settings:'Settings',order_header:'Order Details',add_item:'Add Waste Items',vendor:'Vendor',plate:'License Plate',waste_type:'Waste Type',date:'Date',price_kg:'Price/Unit(฿)',total_item:'Item Total',recorder:'Recorded by',note:'Notes',btn_add_item:'+ Add',btn_create_order:'✓ Create Order',order_ready:'Ready to create',sel_vendor:'— Select Vendor —',sel_type:'— Select Type —',plate_hint:'Select vendor to load saved plates',total_revenue:'Total Revenue',total_weight:'Total Weight',order_count:'Orders',baht:'THB',kg:'kg',orders_unit:'Orders',period:'Period',monthly:'Monthly',yearly:'Yearly',all_time:'All Time',by_type:'Weight by Waste Type',top_vendors:'Top Vendors',no_data:'No data available',filter:'Filters',reset_filter:'Reset',daily:'Daily',recycled_pct:'Recycled %',of_total:'of total',rdf_total:'RDF',avg_per_order:'Avg per Order',revenue_trend:'Revenue Trend',daily_trend:'Daily Trend',monthly_trend:'Monthly Trend',yearly_trend:'Yearly Trend',material_composition:'Material Composition',weight_by_type:'Weight by Type',vendor_revenue_breakdown:'Vendor Revenue Breakdown',cat_overview:'Overview',cat_overview_sub:'All Categories',cat_recycling:'Recycling',cat_recycling_sub:'Paper · Plastic · Metal · Glass',cat_bio:'Bio-Resource',cat_bio_sub:'Used Cooking Oil',cat_organic:'Circular Organics',cat_organic_sub:'Fish Food · Compost',cat_energy:'Energy Recovery',cat_energy_sub:'RDF',ranked_by_weight:'Ranked by Weight',ranked_by_revenue:'Ranked by Revenue',by_weight_pct:'% by Weight',summary_by_day:'Summary by Day',summary_by_month:'Summary by Month',dash_subtitle:'Real-time Waste Management Insights',day_totals:'Day Totals',orders_today:'Orders Today',day_summary:'Day Summary',billing_received:'Received',billing_pending:'Pending',billing_overdue:'Overdue',all:'All',btn_mark_paid:'✍️ Receive+Sign',lang_settings:'🌐 Language',price_settings:'💰 Price Settings',vendor_plate_title:'🚛 Vendor Plate Management',btn_save_prices:'💾 Save Prices',prices_saved:'✓ Saved',overdue_settings:'⏰ Overdue Settings',overdue_after:'Overdue after',days:'days',save:'Save',btn_clear_all:'Clear All',search_placeholder:'Search vendor, plate, order...',overdue_alert:'Overdue ({{n}}+ days): {{count}} orders, {{amt}} THB',price_col:'Price(฿/unit)',type_col:'Waste Type',unit_col:'Unit',vendor_revenue:'Revenue',vendor_weight:'Weight',vendor_count:'Orders',paid_on:'Paid on',pending_days:'Waiting {{n}} days',mark_paid_confirm:'Confirm payment?',delete_order_confirm:'Delete this order?',order_items:'items',hdr_sub:'Waste Management System v9',doc_view:'View Document',sig_title:'Electronic Signature',sig_view:'View Signature',signatures:'Signatures',sig_receiver:'Receiver Signature (QSNCC)',sig_seller:'Seller Signature (Vendor)',billing_docs_title:'Attach Payment Documents',billing_docs_sub:'e.g. Bank slips, receipts, invoices (Images or PDF)',bdocs_hint:'Multiple files allowed · Max 5MB each',bdocs_mark_paid:'Mark as paid (change status to "Received")',billing_docs:'Payment Documents',attach_docs:'Attach Documents',manage_docs:'Manage Documents',cancel:'Cancel'},
+  lo:{tab_form:'ສ້າງ Order',tab_orders:'ລາຍການ',tab_dash:'Dashboard',tab_vendor:'ຜູ້ຂາຍ',tab_billing:'ການຊຳລະ',tab_settings:'ຕັ້ງຄ່າ',order_header:'ຂໍ້ມູນ',add_item:'ເພີ່ມ',vendor:'ຜູ້ຂາຍ',plate:'ທະບຽນ',waste_type:'ປະເພດ',date:'ວັນທີ',price_kg:'ລາຄາ',total_item:'ຍອດ',recorder:'ຜູ້ບັນທຶກ',note:'ໝາຍເຫດ',btn_add_item:'+ ເພີ່ມ',btn_create_order:'✓ ສ້າງ',order_ready:'ພ້ອມ',sel_vendor:'— ຜູ້ຂາຍ —',sel_type:'— ປະເພດ —',plate_hint:'ເລືອກຜູ້ຂາຍ',total_revenue:'ລາຍຮັບ',total_weight:'ນ້ຳໜັກ',order_count:'Orders',baht:'ບາດ',kg:'ກກ',orders_unit:'Orders',period:'ໄລຍະ',monthly:'ລາຍເດືອນ',yearly:'ລາຍປີ',all_time:'ທັງໝົດ',by_type:'ນ້ຳໜັກ',top_vendors:'Top Vendors',no_data:'ຍັງບໍ່ມີ',filter:'ກັ່ນຕອງ',reset_filter:'ຣີເຊັດ',daily:'ລາຍວັນ',recycled_pct:'% ຣີໄຊເຄີນ',of_total:'ຂອງທັງໝົດ',rdf_total:'RDF',avg_per_order:'ສະເລ່ຍຕໍ່ Order',revenue_trend:'ແນວໂນ້ມລາຍຮັບ',daily_trend:'ແນວໂນ້ມລາຍວັນ',monthly_trend:'ແນວໂນ້ມລາຍເດືອນ',yearly_trend:'ແນວໂນ້ມລາຍປີ',material_composition:'ອົງປະກອບປະເພດຂີ້ເຫຍື້ອ',weight_by_type:'ນ້ຳໜັກລາຍປະເພດ',vendor_revenue_breakdown:'ລາຍຮັບແຍກຕາມ Vendor',cat_overview:'ພາບລວມ',cat_overview_sub:'ທຸກໝວດ',cat_recycling:'Recycling',cat_recycling_sub:'ເຈ້ຍ · ພລາສຕິກ · ເຫຼັກ',cat_bio:'Bio-Resource',cat_bio_sub:'ນ້ຳມັນໃຊ້ແລ້ວ',cat_organic:'Circular Organics',cat_organic_sub:'ອາຫານປາ · ຝຸ່ນ',cat_energy:'Energy Recovery',cat_energy_sub:'RDF',ranked_by_weight:'ຈັດອັນດັບຕາມນ້ຳໜັກ',ranked_by_revenue:'ຈັດອັນດັບຕາມລາຍຮັບ',by_weight_pct:'% ຕາມນ້ຳໜັກ',summary_by_day:'ສະຫຼຸບລາຍວັນ',summary_by_month:'ສະຫຼຸບລາຍເດືອນ',dash_subtitle:'ພາບລວມ Real-time',day_totals:'ຍອດຮວມວັນນີ້',orders_today:'Orders ມື້ນີ້',day_summary:'ສະຫຼຸບລາຍວັນ',billing_received:'ຮັບແລ້ວ',billing_pending:'ລໍຖ້າ',billing_overdue:'ຄ້າງ',all:'ທັງໝົດ',btn_mark_paid:'✍️ ຮັບ+ເຊັນ',lang_settings:'🌐 ພາສາ',price_settings:'💰 ລາຄາ',vendor_plate_title:'🚛 ທະບຽນ',btn_save_prices:'💾 ບັນທຶກ',prices_saved:'✓',overdue_settings:'⏰ ຄ້າງ',overdue_after:'ຄ້າງ',days:'ວັນ',save:'ບັນທຶກ',btn_clear_all:'ລຶບ',search_placeholder:'ຄົ້ນຫາ...',overdue_alert:'ຄ້າງ {{n}} ວັນ: {{count}} {{amt}} ບາດ',price_col:'ລາຄາ',type_col:'ປະເພດ',unit_col:'ໜ່ວຍ',vendor_revenue:'ລາຍຮັບ',vendor_weight:'ນ້ຳໜັກ',vendor_count:'Orders',paid_on:'ຮັບ',pending_days:'ລໍ {{n}} ວັນ',mark_paid_confirm:'ຢືນຢັນ?',delete_order_confirm:'ລຶບ?',order_items:'ລາຍການ',hdr_sub:'ລະບົບ v7',doc_view:'ເບິ່ງ',sig_title:'ລາຍເຊັນ',sig_view:'ເຊັນ',signatures:'ລາຍເຊັນ',sig_receiver:'ລາຍເຊັນຜູ້ຮັບ (QSNCC)',sig_seller:'ລາຍເຊັນຜູ້ຂາຍ (Vendor)',billing_docs_title:'ແນບເອກະສານ',billing_docs_sub:'ສະລິບໂອນເງິນ, ໃບຮັບ (ຮູບ ຫຼື PDF)',bdocs_hint:'ຫຼາຍໄຟລ໌ · ສູງສຸດ 5MB',bdocs_mark_paid:'ຢືນຢັນຮັບເງິນ',billing_docs:'ເອກະສານ',attach_docs:'ແນບເອກະສານ',manage_docs:'ຈັດການເອກະສານ',cancel:'ຍົກເລີກ'}
+};
+function t(k,v){let s=(T[lang]||T.th)[k]||(T.th[k]||k);if(v)Object.entries(v).forEach(([a,b])=>{s=s.replace('{{'+a+'}}',b);});return s;}
+
+function save(){localStorage.setItem('qsncc_orders_v6',JSON.stringify(orders));if(firestoreDb)syncToFirebase();}
+function saveVP(){localStorage.setItem('qsncc_vplates',JSON.stringify(vendorPlates));}
+
+async function connectFirebase(){
+  const cfgText=document.getElementById('fb-config-input').value.trim();
+  if(!cfgText){showToast('⚠ กรุณาวาง Config JSON',true);return;}
+  let cfg;try{cfg=JSON.parse(cfgText);}catch(e){showToast('⚠ JSON ไม่ถูกต้อง',true);return;}
+  try{
+    const{initializeApp,getApps}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const{getFirestore,collection,onSnapshot,doc,setDoc,deleteDoc}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const ex=getApps();firebaseApp=ex.length?ex[0]:initializeApp(cfg);
+    firestoreDb=getFirestore(firebaseApp);window._fbFs={collection,onSnapshot,doc,setDoc,deleteDoc};
+    localStorage.setItem(fbConfigKey,cfgText);
+    for(const o of orders)await setDoc(doc(firestoreDb,'orders_qsncc',String(o.id)),o);
+    if(firebaseUnsubscribe)firebaseUnsubscribe();
+    firebaseUnsubscribe=onSnapshot(collection(firestoreDb,'orders_qsncc'),(snap)=>{
+      orders=snap.docs.map(d=>d.data()).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+      localStorage.setItem('qsncc_orders_v6',JSON.stringify(orders));
+      updateBillingBadge();buildFilterDropdowns();
+      const aid=document.querySelector('.content.active')?.id;
+      if(aid==='tab-orders')renderOrders();if(aid==='tab-billing')renderBilling();
+      if(aid==='tab-summary'){buildPeriodControls();renderDashboard();}if(aid==='tab-vendor')renderVendorDashboard();
+    });
+    setFirebaseUI(true);showToast('🔥 Firebase เชื่อมต่อสำเร็จ!');
+  }catch(e){showToast('⚠ Firebase Error: '+e.message,true);console.error(e);}
+}
+async function syncToFirebase(){
+  if(!firestoreDb||!window._fbFs)return;
+  const{doc,setDoc}=window._fbFs;
+  for(const o of orders)await setDoc(doc(firestoreDb,'orders_qsncc',String(o.id)),o);
+}
+function disconnectFirebase(){
+  if(firebaseUnsubscribe){firebaseUnsubscribe();firebaseUnsubscribe=null;}
+  firestoreDb=null;firebaseApp=null;localStorage.removeItem(fbConfigKey);setFirebaseUI(false);showToast('ยกเลิก Firebase');
+}
+function setFirebaseUI(connected){
+  const box=document.getElementById('firebase-status-box');const dot=document.getElementById('live-dot');
+  if(connected){box.className='firebase-status connected';box.textContent='🔥 Firebase เชื่อมต่ออยู่ — Real-time Sync';dot.className='live-dot live-firebase';}
+  else{box.className='firebase-status disconnected';box.textContent='⚡ โหมด: Local (เครื่องนี้เท่านั้น)';dot.className='live-dot live-local';}
+}
+(async function(){const s=localStorage.getItem(fbConfigKey);if(!s)return;document.getElementById('fb-config-input').value=s;await connectFirebase();})();
+
+document.getElementById('f-date').valueAsDate=new Date();
+const savedRec=localStorage.getItem('qsncc_recorder');if(savedRec)document.getElementById('f-recorder').value=savedRec;
+document.getElementById('overdue-days').value=overdueDays;
+buildPriceTable();updateBillingBadge();applyLang();renderFormItems();startClock();buildFilterDropdowns();
+
+function startClock(){function tick(){const n=new Date();document.getElementById('clock').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')+':'+n.getSeconds().toString().padStart(2,'0');}tick();setInterval(tick,1000);}
+function setLang(l){lang=l;localStorage.setItem('qsncc_lang',l);applyLang();}
+function applyLang(){
+  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');const v=t(k);if(el.tagName==='INPUT'&&el.hasAttribute('placeholder'))el.placeholder=v;else el.textContent=v;});
+  const si=document.getElementById('orders-search');if(si)si.placeholder=t('search_placeholder');
+  document.getElementById('hdr-sub').textContent=t('hdr_sub');
+  ['th','en','lo'].forEach(l2=>{document.getElementById('lb-'+l2)?.classList.toggle('active',l2===lang);document.getElementById('lo-'+l2)?.classList.toggle('active',l2===lang);});
+  buildPriceTable();buildVendorPlateManager();
+  const aid=document.querySelector('.content.active')?.id;
+  if(aid==='tab-orders')renderOrders();if(aid==='tab-billing')renderBilling();
+  if(aid==='tab-summary')renderDashboard();if(aid==='tab-vendor')renderVendorDashboard();
+}
+function switchTab(name,el){
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t2=>t2.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');el.classList.add('active');
+  if(name==='summary'){buildFilterDropdowns();buildPeriodControls();renderDashboard();}
+  if(name==='orders'){buildFilterDropdowns();renderOrders();}
+  if(name==='vendor'){buildVendorPeriodControls();renderVendorDashboard();}
+  if(name==='billing'){buildFilterDropdowns();renderBilling();}
+  if(name==='settings'){buildPriceTable();buildVendorPlateManager();}
+}
+function onVendorChange(){
+  const vendor=document.getElementById('f-vendor').value;const plates=vendorPlates[vendor]||[];
+  document.getElementById('plate-list').innerHTML=plates.map(p=>`<option value="${esc(p)}">`).join('');
+  const hint=document.getElementById('plate-hint');
+  if(plates.length>0){hint.textContent=plates.length+' ทะเบียน: '+plates.join(', ');if(plates.length===1)document.getElementById('f-plate').value=plates[0];}
+  else hint.textContent=t('plate_hint');
+}
+function onTypeChange(){
+  const type=document.getElementById('fi-type').value;const ui=getUnitInfo(type);
+  const p=prices[type];if(type&&p!==undefined)document.getElementById('fi-price').value=p;else document.getElementById('fi-price').value='';
+  const qL=document.getElementById('fi-qty-label');const uH=document.getElementById('fi-unit-hint');
+  if(ui.unit==='กก.'){qL.textContent='น้ำหนัก (กก.)';uH.textContent='';}
+  else if(ui.kgPer){qL.innerHTML=`จำนวน <span class="unit-badge">${ui.unit}</span>`;uH.textContent=`1 ${ui.unit} = ${ui.kgPer} กก. | ราคาต่อ กก.`;}
+  else{qL.innerHTML=`จำนวน <span class="unit-badge">${ui.unit}</span>`;uH.textContent=`ราคาต่อ ${ui.unit}`;}
+  calcItem();
+}
+function calcItem(){
+  const qty=parseFloat(document.getElementById('fi-qty').value)||0;const p=parseFloat(document.getElementById('fi-price').value)||0;
+  const type=document.getElementById('fi-type').value;const ui=getUnitInfo(type);
+  document.getElementById('fi-total').textContent=(ui.kgPer?qty*ui.kgPer*p:qty*p).toLocaleString('th-TH',{minimumFractionDigits:2})+' ฿';
+}
+function addItem(){
+  const type=document.getElementById('fi-type').value;const qty=parseFloat(document.getElementById('fi-qty').value);const price=parseFloat(document.getElementById('fi-price').value)||0;
+  if(!type){showToast('⚠ '+t('waste_type'),true);return;}if(!qty||qty<=0){showToast('⚠ กรุณากรอกจำนวน',true);return;}
+  const ui=getUnitInfo(type);const kgWeight=ui.kgPer?qty*ui.kgPer:ui.unit==='กก.'?qty:0;
+  const total=ui.kgPer?kgWeight*price:qty*price;
+  formItems.push({id:Date.now()+Math.random(),type,qty,unit:ui.unit,kgWeight,price,total:Math.round(total*100)/100});
+  document.getElementById('fi-type').value='';document.getElementById('fi-qty').value='';
+  document.getElementById('fi-price').value='';document.getElementById('fi-total').textContent='0.00 ฿';
+  document.getElementById('fi-unit-hint').textContent='';document.getElementById('fi-qty-label').textContent='น้ำหนัก / จำนวน';
+  renderFormItems();
+}
+function removeItem(id){formItems=formItems.filter(i=>i.id!==id);renderFormItems();}
+function renderFormItems(){
+  const wrap=document.getElementById('form-items-wrap');const totalBar=document.getElementById('order-total-bar');const btn=document.getElementById('btn-submit-order');
+  if(!formItems.length){wrap.innerHTML=`<div class="items-box" style="margin-bottom:10px"><div class="empty-state" style="padding:18px;font-size:12px">${t('no_data')}</div></div>`;totalBar.style.display='none';btn.disabled=true;const sl=document.getElementById('sig-section-label');const ss=document.getElementById('sig-section');if(sl)sl.style.display='none';if(ss)ss.style.display='none';return;}
+  const totalW=formItems.reduce((a,i)=>a+(i.kgWeight||0),0);const totalAmt=formItems.reduce((a,i)=>a+i.total,0);
+  const rows=formItems.map(item=>`<div class="form-item-row"><div><div class="form-item-type">${esc(item.type.length>36?item.type.substring(0,36)+'…':item.type)}</div><div class="form-item-sub">${item.qty} ${item.unit} × ${item.price} ฿${item.unit!=='กก.'&&!item.kgPer?' — ไม่ทราบน้ำหนัก':''}</div></div><div class="form-item-qty">${item.qty} ${item.unit}</div><div class="form-item-total">${item.total.toLocaleString('th-TH',{minimumFractionDigits:2})} ฿</div><button class="btn-rm" onclick="removeItem(${item.id})">✕</button></div>`).join('');
+  wrap.innerHTML=`<div class="items-box" style="margin-bottom:10px"><div class="items-box-hdr"><div>${t('waste_type')}</div><div>${t('kg')}</div><div>฿</div><div></div></div>${rows}</div>`;
+  document.getElementById('otb-label').textContent=`รวม ${formItems.length} ${t('order_items')}${totalW>0?' · '+totalW.toFixed(1)+' '+t('kg'):''}`;
+  document.getElementById('otb-total').textContent=totalAmt.toLocaleString('th-TH',{minimumFractionDigits:2});
+  totalBar.style.display='flex';btn.disabled=false;
+  // Show signature section when items exist
+  const sigLbl=document.getElementById('sig-section-label');const sigSec=document.getElementById('sig-section');
+  if(sigLbl)sigLbl.style.display='flex';if(sigSec)sigSec.style.display='block';
+}
+function mergeFormItems(items){const map={};items.forEach(i=>{if(map[i.type]){map[i.type].qty+=i.qty;map[i.type].kgWeight+=i.kgWeight;map[i.type].total+=i.total;}else map[i.type]={...i};});return Object.values(map).map(i=>({...i,total:Math.round(i.total*100)/100,kgWeight:Math.round(i.kgWeight*100)/100}));}
+function submitOrder(){
+  const vendor=document.getElementById('f-vendor').value,plate=document.getElementById('f-plate').value.trim(),date=document.getElementById('f-date').value;
+  const recorder=document.getElementById('f-recorder').value.trim(),note=document.getElementById('f-note').value.trim();
+  if(!vendor){showToast('⚠ '+t('sel_vendor'),true);return;}if(!plate){showToast('⚠ '+t('plate'),true);return;}
+  if(!date){showToast('⚠ '+t('date'),true);return;}if(!formItems.length){showToast('⚠ '+t('add_item'),true);return;}
+  if(!vendorPlates[vendor])vendorPlates[vendor]=[];if(!vendorPlates[vendor].includes(plate))vendorPlates[vendor].push(plate);
+  saveVP();if(recorder)localStorage.setItem('qsncc_recorder',recorder);
+  const mi=mergeFormItems(formItems);const wm=mi.length<formItems.length;
+  orderCounter++;localStorage.setItem('qsncc_order_ctr',orderCounter);
+  const sigReceiver=getSigData('receiver');const sigSeller=getSigData('seller');
+  const order={id:Date.now(),orderNo:'ORD-'+String(orderCounter).padStart(4,'0'),vendor,plate,date,recorder,note,items:mi,
+    totalWeight:Math.round(mi.reduce((a,i)=>a+(i.kgWeight||0),0)*100)/100,
+    totalAmount:Math.round(mi.reduce((a,i)=>a+i.total,0)*100)/100,
+    payStatus:'pending',paidDate:null,
+    signatures:{receiver:sigReceiver,seller:sigSeller},
+    billingDocs:[],
+    createdAt:new Date().toISOString()};
+  orders.unshift(order);save();formItems=[];renderFormItems();
+  ['f-vendor','f-plate','f-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-date').valueAsDate=new Date();document.getElementById('plate-list').innerHTML='';
+  document.getElementById('plate-hint').textContent=t('plate_hint');document.getElementById('fi-type').value='';
+  document.getElementById('fi-qty').value='';document.getElementById('fi-price').value='';document.getElementById('fi-total').textContent='0.00 ฿';
+  document.getElementById('fi-unit-hint').textContent='';
+  clearSig('receiver');clearSig('seller');
+  updateBillingBadge();buildFilterDropdowns();showToast('✓ '+order.orderNo+(wm?' (รวมรายการซ้ำ)':''));
+}
+function buildFilterDropdowns(){
+  const vendors=[...new Set(orders.map(o=>o.vendor))].sort();
+  const years=[...new Set(orders.map(o=>o.date.slice(0,4)))].sort().reverse();
+  const bV=c=>'<option value="">— Vendor —</option>'+vendors.map(v=>`<option value="${esc(v)}"${v===c?'selected':''}>${esc(v)}</option>`).join('');
+  const bM=c=>'<option value="">— เดือน —</option>'+MONTHS_FULL.slice(1).map((m,i)=>`<option value="${i+1}"${String(i+1)===c?'selected':''}>${m}</option>`).join('');
+  const bY=c=>'<option value="">— ปี —</option>'+years.map(y=>`<option value="${y}"${y===c?'selected':''}>${parseInt(y)+543}</option>`).join('');
+  [['of-vendor',bV],['of-month',bM],['of-year',bY],['bf-vendor',bV],['bf-month',bM],['bf-year',bY]].forEach(([id,fn])=>{const el=document.getElementById(id);if(el){const c=el.value;el.innerHTML=fn(c);}});
+  // Dashboard vendor filter
+  const dfV=document.getElementById('df-vendor');if(dfV){const c=dfV.value;dfV.innerHTML='<option value="">🏭 Vendor ทั้งหมด</option>'+vendors.map(v=>`<option value="${esc(v)}"${v===c?'selected':''}>${esc(v)}</option>`).join('');}
+}
+function getPayStatus(o){if(o.payStatus==='paid')return 'paid';return Math.floor((new Date()-new Date(o.date))/(864e5))>=overdueDays?'overdue':'pending';}
+function renderOrders(){
+  const search=(document.getElementById('orders-search').value||'').toLowerCase();
+  const fV=document.getElementById('of-vendor').value,fM=document.getElementById('of-month').value;
+  const fY=document.getElementById('of-year').value,fS=document.getElementById('of-status').value;
+  const filtered=orders.filter(o=>{
+    if(fV&&o.vendor!==fV)return false;if(fY&&!o.date.startsWith(fY))return false;
+    if(fM&&fY&&!o.date.startsWith(fY+'-'+String(fM).padStart(2,'0')))return false;
+    if(fS&&getPayStatus(o)!==fS)return false;
+    return !search||(o.vendor||'').toLowerCase().includes(search)||(o.plate||'').toLowerCase().includes(search)||o.orderNo.toLowerCase().includes(search)||o.items.some(i=>i.type.toLowerCase().includes(search));
+  });
+  document.getElementById('orders-count').textContent=filtered.length+' Orders'+(filtered.length!==orders.length?' (filtered)':'');
+  if(!filtered.length){document.getElementById('orders-list').innerHTML=`<div class="empty-state">${t('no_data')}</div>`;return;}
+  const sChip={'paid':`<span class="chip chip-paid">✓ ${t('billing_received')}</span>`,'pending':`<span class="chip chip-pending">⏳ ${t('billing_pending')}</span>`,'overdue':`<span class="chip chip-overdue">⚠ ${t('billing_overdue')}</span>`};
+  document.getElementById('orders-list').innerHTML=filtered.map(o=>{
+    const status=getPayStatus(o);
+    return `<div class="order-card">
+      <div class="order-hdr" onclick="toggleEl('obody-${o.id}','chevron-${o.id}')">
+        <div class="order-left">
+          <div class="order-no">${esc(o.orderNo)}</div>
+          <div class="order-vendor">${esc(o.vendor)}</div>
+          <div class="order-meta">${o.plate?`<span class="chip chip-plate">🚛 ${esc(o.plate)}</span>`:''}<span class="chip chip-date">📅 ${formatDate(o.date)}</span><span class="chip chip-items">📦 ${o.items.length} ${t('order_items')}</span>${sChip[status]}</div>
+        </div>
+        <div class="order-right">
+          <div class="order-total">${o.totalAmount.toLocaleString('th-TH',{minimumFractionDigits:2})} ฿</div>
+          <div style="font-size:11px;color:var(--muted);text-align:right;margin-top:2px">${o.totalWeight>0?o.totalWeight.toFixed(1)+' '+t('kg'):''}</div>
+          <div class="order-chevron" id="chevron-${o.id}">▼</div>
+        </div>
+      </div>
+      <div class="order-body" id="obody-${o.id}">
+        <table class="order-items-table">
+          <thead><tr><th>${t('type_col')}</th><th style="text-align:right">จำนวน</th><th style="text-align:right">${t('kg')}</th><th style="text-align:right">฿/หน่วย</th><th style="text-align:right">${t('baht')}</th></tr></thead>
+          <tbody>${o.items.map(item=>`<tr><td>${esc(item.type)}</td><td class="num">${item.qty} ${item.unit||'กก.'}</td><td class="num">${item.kgWeight>0?item.kgWeight.toFixed(1):'—'}</td><td class="num">${item.price}</td><td class="num rev">${item.total.toLocaleString('th-TH',{minimumFractionDigits:2})}</td></tr>`).join('')}</tbody>
+          <tfoot><tr><td colspan="2" style="font-size:12px;color:var(--muted)">${o.recorder?'📝 '+esc(o.recorder):''}</td><td class="num" style="font-size:11px;color:var(--muted)">${o.totalWeight>0?o.totalWeight.toFixed(1)+' '+t('kg'):''}</td><td></td><td class="num rev" style="font-weight:700;font-size:14px">${o.totalAmount.toLocaleString('th-TH',{minimumFractionDigits:2})} ฿</td></tr></tfoot>
+        </table>
+        ${o.note?`<div style="font-size:12px;color:var(--muted);font-style:italic;padding:6px 4px;border-top:1px solid var(--border)">💬 ${esc(o.note)}</div>`:''}
+        ${(o.signatures&&(o.signatures.receiver||o.signatures.seller))?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">✍️ ${t('signatures')}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${o.signatures.receiver?`<div><div style="font-size:10px;color:var(--ncc);margin-bottom:3px;font-weight:600">${t('sig_receiver')}</div><img src="${o.signatures.receiver}" class="sig-preview" style="max-width:100%"></div>`:'<div></div>'}${o.signatures.seller?`<div><div style="font-size:10px;color:var(--blue);margin-bottom:3px;font-weight:600">${t('sig_seller')}</div><img src="${o.signatures.seller}" class="sig-preview" style="max-width:100%"></div>`:'<div></div>'}</div></div>`:''}
+        <div class="order-footer">
+          <div class="order-footer-total">${o.totalAmount.toLocaleString('th-TH',{minimumFractionDigits:2})} ฿</div>
+          <div style="display:flex;gap:7px">
+            ${status!=='paid'?`<button class="btn-pay" onclick="openBDocsModal(${o.id})">${t('btn_mark_paid')}</button>`:''}
+            <button class="btn-sm danger" onclick="deleteOrder(${o.id})">${lang==='en'?'Delete':'ลบ'}</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleEl(bodyId,chevId){const b=document.getElementById(bodyId);const c=document.getElementById(chevId);if(!b)return;const o=b.classList.contains('open');b.classList.toggle('open',!o);c?.classList.toggle('open',!o);}
+function deleteOrder(id){
+  if(!confirm(t('delete_order_confirm')))return;
+  orders=orders.filter(o=>o.id!==id);
+  if(firestoreDb&&window._fbFs){const{doc,deleteDoc}=window._fbFs;deleteDoc(doc(firestoreDb,'orders_qsncc',String(id)));}
+  save();updateBillingBadge();buildFilterDropdowns();renderOrders();showToast('✓');
+}
+function clearAllOrders(){if(!orders.length)return;if(!confirm(t('btn_clear_all')+' ('+orders.length+')?'))return;orders=[];save();updateBillingBadge();buildFilterDropdowns();renderOrders();}
+
+// SIGNATURE PADS (Receiver + Seller in form)
+const sigPads={receiver:{canvas:null,ctx:null,drawing:false},seller:{canvas:null,ctx:null,drawing:false}};
+
+function setupSigPad(role){
+  const canvas=document.getElementById('sig-'+role+'-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  ctx.strokeStyle=role==='receiver'?'#002B6C':'#0050c8';
+  ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+  sigPads[role].canvas=canvas;sigPads[role].ctx=ctx;
+  
+  const getPos=(e,r)=>{
+    const t=e.touches?e.touches[0]:e;
+    return{x:(t.clientX-r.left)*(canvas.width/r.width),y:(t.clientY-r.top)*(canvas.height/r.height)};
+  };
+  const start=e=>{e.preventDefault();sigPads[role].drawing=true;ctx.beginPath();const r=canvas.getBoundingClientRect();const p=getPos(e,r);ctx.moveTo(p.x,p.y);};
+  const move=e=>{if(!sigPads[role].drawing)return;e.preventDefault();const r=canvas.getBoundingClientRect();const p=getPos(e,r);ctx.lineTo(p.x,p.y);ctx.stroke();};
+  const end=()=>{sigPads[role].drawing=false;};
+  
+  canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);
+  canvas.addEventListener('mouseup',end);canvas.addEventListener('mouseleave',end);
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',move,{passive:false});
+  canvas.addEventListener('touchend',end);
+}
+
+function initSignaturePadV2(){
+  setupSigPad('receiver');
+  setupSigPad('seller');
+}
+
+function clearSig(role){
+  const p=sigPads[role];if(!p.ctx)return;
+  p.ctx.clearRect(0,0,p.canvas.width,p.canvas.height);
+}
+
+function isSigBlank(role){
+  const p=sigPads[role];if(!p.ctx)return true;
+  const data=p.ctx.getImageData(0,0,p.canvas.width,p.canvas.height).data;
+  return !data.some(v=>v!==0);
+}
+
+function getSigData(role){
+  if(isSigBlank(role))return null;
+  return sigPads[role].canvas.toDataURL('image/png');
+}
+
+// BILLING DOCS MODAL (for slips, receipts, etc)
+let pendingDocsOrderId=null;
+let pendingNewDocs=[];
+
+function openBDocsModal(orderId){
+  pendingDocsOrderId=orderId;pendingNewDocs=[];
+  document.getElementById('bdocs-input').value='';
+  document.getElementById('bdocs-mark-paid').checked=false;
+  const o=orders.find(o=>o.id===orderId);
+  if(o&&o.payStatus==='paid'){
+    document.getElementById('bdocs-mark-paid').parentElement.style.display='none';
+  }else{
+    document.getElementById('bdocs-mark-paid').parentElement.style.display='flex';
+  }
+  renderBDocsList();
+  document.getElementById('bdocs-modal').classList.remove('hidden');
+}
+
+function closeBDocsModal(){
+  document.getElementById('bdocs-modal').classList.add('hidden');
+  pendingDocsOrderId=null;pendingNewDocs=[];
+}
+
+function renderBDocsList(){
+  const o=orders.find(o=>o.id===pendingDocsOrderId);
+  const existing=o&&o.billingDocs?o.billingDocs:[];
+  const all=[...existing.map((d,i)=>({...d,_existing:true,_idx:i})),...pendingNewDocs.map((d,i)=>({...d,_new:true,_idx:i}))];
+  const list=document.getElementById('bdocs-list');
+  if(!all.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">ยังไม่มีเอกสาร</div>';return;}
+  list.innerHTML=all.map(d=>{
+    const isImg=d.type&&d.type.startsWith('image/');
+    const preview=isImg?`<img src="${d.data}" style="width:40px;height:40px;object-fit:cover;border-radius:6px">`:'<div style="width:40px;height:40px;background:var(--blue-light);color:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:#fff">
+      ${preview}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(d.name)}</div>
+        <div style="font-size:11px;color:var(--muted)">${d._new?'<span style="color:var(--ncc)">● ใหม่</span>':'<span>บันทึกแล้ว</span>'} · ${(d.size/1024).toFixed(0)} KB</div>
+      </div>
+      <button type="button" class="btn-rm" onclick="removeBDoc('${d._existing?'e':'n'}',${d._idx})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeBDoc(type,idx){
+  if(type==='e'){
+    const o=orders.find(o=>o.id===pendingDocsOrderId);
+    if(o&&o.billingDocs)o.billingDocs.splice(idx,1);
+  }else{
+    pendingNewDocs.splice(idx,1);
+  }
+  renderBDocsList();
+}
+
+function onBDocsChange(){
+  const files=Array.from(document.getElementById('bdocs-input').files);
+  files.forEach(file=>{
+    if(file.size>5*1024*1024){showToast('⚠ '+file.name+' ใหญ่เกิน 5MB',true);return;}
+    const reader=new FileReader();
+    reader.onload=e=>{
+      pendingNewDocs.push({name:file.name,type:file.type,size:file.size,data:e.target.result,uploadedAt:new Date().toISOString()});
+      renderBDocsList();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('bdocs-input').value='';
+}
+
+function saveBillingDocs(){
+  const o=orders.find(o=>o.id===pendingDocsOrderId);if(!o)return;
+  if(!o.billingDocs)o.billingDocs=[];
+  o.billingDocs.push(...pendingNewDocs);
+  const markPaid=document.getElementById('bdocs-mark-paid').checked;
+  if(markPaid&&o.payStatus!=='paid'){
+    o.payStatus='paid';
+    o.paidDate=new Date().toISOString().slice(0,10);
+  }
+  save();updateBillingBadge();closeBDocsModal();
+  renderBilling();renderOrders();
+  showToast('✓ '+(markPaid?t('billing_received')+' — ':'')+o.orderNo);
+}
+
+// DASHBOARD - Power BI Analytics Style v10
+let dPeriod='month';
+let dCategory='overview';
+let dFilters={day:'',month:'',year:'',vendor:'',type:''};
+
+// Category configurations
+const CAT_CONFIG={
+  overview:{
+    name:'ภาพรวม',sub:'All Categories',color:'#002B6C',bg:'#E6EDF8',
+    typePrefixes:null // all
+  },
+  recycling:{
+    name:'Recycling',sub:'กระดาษ · พลาสติก · เหล็ก · แก้ว · อลูมิเนียม',color:'#1A5FA3',bg:'#E8F4FD',
+    typePrefixes:['1.','2.','3.','4.','5.']
+  },
+  bio:{
+    name:'Bio-Resource',sub:'น้ำมันที่ใช้แล้ว',color:'#C9A227',bg:'#FFF7E0',
+    typePrefixes:['6.']
+  },
+  organic:{
+    name:'Circular Organics',sub:'อาหารปลา · ปุ๋ย',color:'#0D7C4E',bg:'#E8F5EF',
+    typePrefixes:['7.','8.']
+  },
+  energy:{
+    name:'Energy Recovery',sub:'RDF',color:'#C0392B',bg:'#FCE8E8',
+    typePrefixes:['9.']
+  }
+};
+
+// Category icons for KPI cards
+const CAT_ICONS={overview:'📊',recycling:'♻️',bio:'🌿',organic:'🔄',energy:'⚡'};
+
+function setCategory(cat,el){
+  dCategory=cat;
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderDashboard();
+}
+
+function setDPeriod(p,el){
+  dPeriod=p;
+  document.querySelectorAll('#tab-summary .ptab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  buildDashFilters();
+  renderDashboard();
+}
+
+function buildDashFilters(){
+  const years=[...new Set(orders.map(o=>o.date.slice(0,4)))].sort().reverse();
+  const allY=years.length?years:[String(new Date().getFullYear())];
+  const vendors=[...new Set(orders.map(o=>o.vendor))].sort();
+  const types=[...new Set(orders.flatMap(o=>o.items.map(i=>i.type)))].sort();
+  
+  const dfDay=document.getElementById('df-day');
+  const dfMonth=document.getElementById('df-month');
+  const dfYear=document.getElementById('df-year');
+  const dfVendor=document.getElementById('df-vendor');
+  const dfType=document.getElementById('df-type');
+  if(!dfDay||!dfMonth||!dfYear||!dfVendor||!dfType)return;
+  
+  if(dPeriod==='day'){dfDay.style.display='';dfMonth.style.display='';dfYear.style.display='';}
+  else if(dPeriod==='month'){dfDay.style.display='none';dfMonth.style.display='';dfYear.style.display='';}
+  else if(dPeriod==='year'){dfDay.style.display='none';dfMonth.style.display='none';dfYear.style.display='';}
+  else{dfDay.style.display='none';dfMonth.style.display='none';dfYear.style.display='none';}
+  
+  if(!dFilters.year)dFilters.year=allY[0]||String(new Date().getFullYear());
+  dfYear.innerHTML=allY.map(y=>`<option value="${y}"${y===dFilters.year?' selected':''}>${parseInt(y)+543}</option>`).join('');
+  
+  if(!dFilters.month)dFilters.month=String(new Date().getMonth()+1);
+  dfMonth.innerHTML=MONTHS_FULL.slice(1).map((m,i)=>`<option value="${i+1}"${String(i+1)===dFilters.month?' selected':''}>${m}</option>`).join('');
+  
+  if(dPeriod==='day'){
+    const daysInMonth=new Date(parseInt(dFilters.year),parseInt(dFilters.month),0).getDate();
+    if(!dFilters.day)dFilters.day=String(new Date().getDate());
+    dfDay.innerHTML=Array.from({length:daysInMonth},(_,i)=>i+1).map(d=>`<option value="${d}"${String(d)===dFilters.day?' selected':''}>${d}</option>`).join('');
+  }
+  
+  dfVendor.innerHTML=`<option value="">— ${t('all')} Vendor —</option>`+vendors.map(v=>`<option value="${esc(v)}"${v===dFilters.vendor?' selected':''}>${esc(v)}</option>`).join('');
+  dfType.innerHTML=`<option value="">— ${t('all')} ${t('type_col')} —</option>`+types.map(tp=>`<option value="${esc(tp)}"${tp===dFilters.type?' selected':''}>${esc(tp.replace(/^[\d.]+\s/,''))}</option>`).join('');
+}
+
+function readDashFilters(){
+  const e=id=>document.getElementById(id);
+  if(!e('df-day'))return;
+  dFilters.day=e('df-day').value||'';
+  dFilters.month=e('df-month').value||'';
+  dFilters.year=e('df-year').value||'';
+  dFilters.vendor=e('df-vendor').value||'';
+  dFilters.type=e('df-type').value||'';
+}
+
+function resetDashFilters(){
+  dFilters={day:'',month:'',year:'',vendor:'',type:''};
+  buildDashFilters();renderDashboard();
+}
+
+function isInCategory(typeStr){
+  const cfg=CAT_CONFIG[dCategory];
+  if(!cfg.typePrefixes)return true;
+  return cfg.typePrefixes.some(p=>typeStr.startsWith(p));
+}
+
+function getDashFiltered(){
+  readDashFilters();
+  return orders.filter(o=>{
+    if(dPeriod==='day'){
+      const d=`${dFilters.year}-${String(dFilters.month).padStart(2,'0')}-${String(dFilters.day).padStart(2,'0')}`;
+      if(o.date!==d)return false;
+    } else if(dPeriod==='month'){
+      const pfx=`${dFilters.year}-${String(dFilters.month).padStart(2,'0')}`;
+      if(!o.date.startsWith(pfx))return false;
+    } else if(dPeriod==='year'){
+      if(!o.date.startsWith(dFilters.year))return false;
+    }
+    if(dFilters.vendor&&o.vendor!==dFilters.vendor)return false;
+    if(dFilters.type&&!o.items.some(i=>i.type===dFilters.type))return false;
+    // Category filter
+    if(dCategory!=='overview'&&!o.items.some(i=>isInCategory(i.type)))return false;
+    return true;
+  });
+}
+
+function getFilteredItems(filtered){
+  return filtered.flatMap(o=>o.items.filter(i=>{
+    if(dFilters.type&&i.type!==dFilters.type)return false;
+    if(dCategory!=='overview'&&!isInCategory(i.type))return false;
+    return true;
+  }));
+}
+
+function renderDashboard(){
+  const filtered=getDashFiltered();
+  const items=getFilteredItems(filtered);
+  
+  renderKPICards(filtered,items);
+  renderTrendChart(filtered);
+  renderCompositionDonut(items);
+  renderTypeBars(items);
+  renderVendorBars(filtered,items);
+  renderDashTable(filtered,items);
+  
+  // Update titles based on category
+  const cfg=CAT_CONFIG[dCategory];
+  document.getElementById('dash-subtitle').textContent=cfg.name+' · '+cfg.sub;
+}
+
+function renderKPICards(filtered,items){
+  const wrap=document.getElementById('kpi-row');
+  const totalRev=items.reduce((a,i)=>a+i.total,0);
+  const totalW=items.reduce((a,i)=>a+(i.kgWeight||0),0);
+  const orderCount=filtered.length;
+  
+  let cards=[];
+  
+  if(dCategory==='overview'){
+    cards=[
+      {icon:'💰',label:'รายได้รวม',value:totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#002B6C',bg:'#E6EDF8'},
+      {icon:'⚖️',label:'น้ำหนักรวม',value:totalW.toFixed(1),sub:'กก.',color:'#C9A227',bg:'#FFF7E0'},
+      {icon:'📦',label:'จำนวน Orders',value:orderCount,sub:'Orders',color:'#0050C8',bg:'#DAEAFF'},
+      {icon:'🌍',label:'ผู้ขาย',value:[...new Set(filtered.map(o=>o.vendor))].length,sub:'Vendor',color:'#6D3AB5',bg:'#F0EAFC'}
+    ];
+  } else if(dCategory==='recycling'){
+    cards=[
+      {icon:'💰',label:'รายได้ Recycling',value:totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#1A5FA3',bg:'#E8F4FD'},
+      {icon:'⚖️',label:'น้ำหนักรวม',value:totalW.toFixed(1),sub:'กก.',color:'#1A5FA3',bg:'#E8F4FD'},
+      {icon:'📦',label:'จำนวน Orders',value:orderCount,sub:'Orders',color:'#1A5FA3',bg:'#E8F4FD'},
+      {icon:'🏷️',label:'ประเภทย่อย',value:[...new Set(items.map(i=>i.type))].length,sub:'Types',color:'#1A5FA3',bg:'#E8F4FD'}
+    ];
+  } else if(dCategory==='bio'){
+    // Oil: 1 liter ≈ 0.92 kg (used cooking oil density)
+    const liters=totalW/0.92;
+    cards=[
+      {icon:'💰',label:'รายได้ Bio-Resource',value:totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#C9A227',bg:'#FFF7E0'},
+      {icon:'⚖️',label:'น้ำหนักรวม',value:totalW.toFixed(1),sub:'กก.',color:'#C9A227',bg:'#FFF7E0'},
+      {icon:'🛢️',label:'ปริมาตร (≈ลิตร)',value:liters.toFixed(1),sub:'ลิตร',color:'#C9A227',bg:'#FFF7E0'},
+      {icon:'📦',label:'จำนวน Orders',value:orderCount,sub:'Orders',color:'#C9A227',bg:'#FFF7E0'}
+    ];
+  } else if(dCategory==='organic'){
+    // Reuse rate = total weight redirected vs all orders weight
+    const allOrdersFlat=getDashFiltered().flatMap(o=>o.items);
+    const totalAllW=allOrdersFlat.reduce((a,i)=>a+(i.kgWeight||0),0);
+    const reuseRate=totalAllW>0?(totalW/totalAllW*100).toFixed(1):0;
+    cards=[
+      {icon:'💰',label:'รายได้ Organics',value:totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#0D7C4E',bg:'#E8F5EF'},
+      {icon:'⚖️',label:'น้ำหนักรวม',value:totalW.toFixed(1),sub:'กก.',color:'#0D7C4E',bg:'#E8F5EF'},
+      {icon:'♻️',label:'อัตรากลับมาใช้',value:reuseRate+'%',sub:'ของทั้งหมด',color:'#0D7C4E',bg:'#E8F5EF'},
+      {icon:'📦',label:'จำนวน Orders',value:orderCount,sub:'Orders',color:'#0D7C4E',bg:'#E8F5EF'}
+    ];
+  } else if(dCategory==='energy'){
+    // RDF: 1 ton = 1000 kg
+    const tons=totalW/1000;
+    cards=[
+      {icon:'💰',label:'รายได้ RDF',value:totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#C0392B',bg:'#FCE8E8'},
+      {icon:'⚖️',label:'น้ำหนักรวม (กก.)',value:totalW.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'กก.',color:'#C0392B',bg:'#FCE8E8'},
+      {icon:'🚛',label:'น้ำหนักรวม (ตัน)',value:tons.toFixed(2),sub:'ตัน',color:'#C0392B',bg:'#FCE8E8'},
+      {icon:'📦',label:'จำนวน Orders',value:orderCount,sub:'Orders',color:'#C0392B',bg:'#FCE8E8'}
+    ];
+  }
+  
+  wrap.innerHTML=cards.map(c=>`<div class="kpi-card" style="--kpi-color:${c.color};--kpi-bg:${c.bg}">
+    <div class="kpi-icon">${c.icon}</div>
+    <div class="kpi-label">${esc(c.label)}</div>
+    <div class="kpi-value">${c.value}</div>
+    <div class="kpi-sub"><span>${esc(c.sub)}</span></div>
+  </div>`).join('');
+}
+
+function renderTrendChart(filtered){
+  const wrap=document.getElementById('trend-chart-wrap');
+  const titleEl=document.getElementById('trend-card-meta');
+  if(!wrap)return;
+  
+  let labels=[],data=[],title='';
+  const cfg=CAT_CONFIG[dCategory];
+  
+  const sumAmount=o=>{
+    return o.items.filter(i=>(!dFilters.type||i.type===dFilters.type)&&(dCategory==='overview'||isInCategory(i.type))).reduce((a,i)=>a+i.total,0);
+  };
+  
+  if(dPeriod==='day'){
+    const totalAmt=filtered.reduce((a,o)=>a+sumAmount(o),0);
+    wrap.innerHTML='<div class="empty-state" style="padding:30px 20px"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-size:13px"><b>'+filtered.length+' Orders</b> · '+totalAmt.toLocaleString('th-TH')+' ฿</div></div>';
+    titleEl.textContent='';
+    document.getElementById('trend-card-title').innerHTML='📈 '+t('day_summary');
+    document.getElementById('trend-card-sub').textContent=formatDate(`${dFilters.year}-${String(dFilters.month).padStart(2,'0')}-${String(dFilters.day).padStart(2,'0')}`);
+    return;
+  } else if(dPeriod==='month'){
+    const daysInMonth=new Date(parseInt(dFilters.year),parseInt(dFilters.month),0).getDate();
+    data=Array(daysInMonth).fill(0);
+    filtered.forEach(o=>{const d=parseInt(o.date.slice(8,10))-1;if(d>=0&&d<daysInMonth)data[d]+=sumAmount(o);});
+    labels=Array.from({length:daysInMonth},(_,i)=>String(i+1));
+    title=t('daily_trend');
+    document.getElementById('trend-card-sub').textContent=MONTHS_FULL[parseInt(dFilters.month)]+' '+(parseInt(dFilters.year)+543);
+  } else if(dPeriod==='year'){
+    data=Array(12).fill(0);
+    filtered.forEach(o=>{const m=parseInt(o.date.slice(5,7))-1;data[m]+=sumAmount(o);});
+    labels=MONTHS_TH.slice(1);
+    title=t('monthly_trend');
+    document.getElementById('trend-card-sub').textContent=t('yearly')+' '+(parseInt(dFilters.year)+543);
+  } else {
+    const yearMap={};
+    filtered.forEach(o=>{const y=o.date.slice(0,4);if(!yearMap[y])yearMap[y]=0;yearMap[y]+=sumAmount(o);});
+    const years=Object.keys(yearMap).sort();
+    labels=years.map(y=>String(parseInt(y)+543));
+    data=years.map(y=>yearMap[y]);
+    title=t('yearly_trend');
+    document.getElementById('trend-card-sub').textContent=t('all_time');
+  }
+  
+  document.getElementById('trend-card-title').innerHTML='📈 '+title;
+  const nz=data.filter(v=>v>0);
+  titleEl.textContent=nz.length?Math.min(...nz).toLocaleString('th-TH',{maximumFractionDigits:0})+' – '+Math.max(...data).toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿':'';
+  wrap.innerHTML=buildAreaChart(data,labels,cfg.color);
+}
+
+function buildAreaChart(data,labels,color){
+  color=color||'#002B6C';
+  const W=560,H=190,chartH=130,top=18,lp=46,rp=10;
+  const max=Math.max(...data,1);
+  const mag=Math.pow(10,Math.floor(Math.log10(max)));
+  const nMax=Math.ceil(max/mag)*mag;
+  const n=data.length;
+  if(n===0)return'<div class="empty-state">'+t('no_data')+'</div>';
+  const colW=(W-lp-rp)/(n>1?n-1:1);
+  
+  let grid='';
+  for(let g=0;g<=4;g++){
+    const val=(nMax/4)*g;
+    const y=(top+chartH-Math.round((val/nMax)*chartH)).toFixed(1);
+    const lbl=val>=1000000?(val/1000000).toFixed(1)+'M':val>=1000?Math.round(val/1000)+'k':val.toFixed(0);
+    grid+=`<line x1="${lp}" y1="${y}" x2="${W-rp}" y2="${y}" stroke="${g===0?'#cdd0cd':'#eef0f3'}" stroke-width="${g===0?1.5:1}" stroke-dasharray="${g===0?'none':'3,3'}"/>`;
+    grid+=`<text x="${lp-4}" y="${y}" text-anchor="end" font-size="9" fill="#9aa3ab" font-family="monospace" dominant-baseline="middle">${lbl}</text>`;
+  }
+  
+  let pathD='',areaD='',points='';
+  data.forEach((v,i)=>{
+    const x=(lp+i*colW).toFixed(1);
+    const y=(top+chartH-Math.round((v/nMax)*chartH)).toFixed(1);
+    pathD+=(i===0?'M':'L')+x+','+y+' ';
+    if(i===0)areaD='M'+x+','+(top+chartH)+' L'+x+','+y+' ';
+    else areaD+='L'+x+','+y+' ';
+    if(v>0||n<=12)points+=`<circle cx="${x}" cy="${y}" r="3.5" fill="${color}" stroke="#fff" stroke-width="2"><title>${labels[i]}: ${v.toLocaleString('th-TH')} ฿</title></circle>`;
+  });
+  const lastX=(lp+(n-1)*colW).toFixed(1);
+  areaD+='L'+lastX+','+(top+chartH)+' Z';
+  
+  let xLabels='';
+  const labelStep=n>20?Math.ceil(n/15):n>12?2:1;
+  data.forEach((v,i)=>{
+    if(i%labelStep===0||i===n-1){
+      const x=(lp+i*colW).toFixed(1);
+      xLabels+=`<text x="${x}" y="${top+chartH+15}" text-anchor="middle" font-size="10" fill="#6b7c74" font-family="monospace">${labels[i]}</text>`;
+    }
+  });
+  
+  return`<svg viewBox="0 0 ${W} ${H+15}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+    <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".25"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${areaD}" fill="url(#areaGrad)"/><path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${points}${xLabels}
+  </svg>`;
+}
+
+function renderCompositionDonut(items){
+  const wrap=document.getElementById('composition-donut');
+  if(!wrap)return;
+  if(!items.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  
+  const CATEGORIES={
+    '1':{name:'แก้ว (Glass)',color:'#1A5FA3'},
+    '2':{name:'เหล็ก (Metal)',color:'#7A5C1E'},
+    '3':{name:'อลูมิเนียม',color:'#A0AEC0'},
+    '4':{name:'พลาสติก (Plastic)',color:'#0050C8'},
+    '5':{name:'กระดาษ (Paper)',color:'#C9A227'},
+    '6':{name:'น้ำมัน (Oil)',color:'#D4AF37'},
+    '7':{name:'อาหารปลา',color:'#3B7A57'},
+    '8':{name:'ปุ๋ย (Compost)',color:'#0D7C4E'},
+    '9':{name:'RDF',color:'#C0392B'},
+    '10':{name:'ขยะอันตราย',color:'#1F2933'},
+    '11':{name:'อื่นๆ',color:'#6B7280'}
+  };
+  
+  // For sub-categories within Recycling, show sub-types
+  let groupedData={};
+  if(dCategory==='recycling'||dCategory==='organic'){
+    items.forEach(i=>{
+      const num=i.type.split('.')[0];
+      if(!groupedData[num])groupedData[num]={weight:0,total:0};
+      groupedData[num].weight+=i.kgWeight||0;
+      groupedData[num].total+=i.total;
+    });
+  } else {
+    items.forEach(i=>{
+      const num=i.type.split('.')[0];
+      if(!groupedData[num])groupedData[num]={weight:0,total:0};
+      groupedData[num].weight+=i.kgWeight||0;
+      groupedData[num].total+=i.total;
+    });
+  }
+  
+  const totalW=Object.values(groupedData).reduce((a,v)=>a+v.weight,0);
+  if(totalW===0){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  
+  const cx=120,cy=120,r=85,thickness=28;
+  let cumAngle=-Math.PI/2;
+  let paths='';
+  const sorted=Object.entries(groupedData).sort((a,b)=>b[1].weight-a[1].weight);
+  
+  sorted.forEach(([cat,v])=>{
+    const cfg=CATEGORIES[cat]||{name:cat,color:'#6B7280'};
+    const fraction=v.weight/totalW;
+    const angle=fraction*Math.PI*2;
+    const endAngle=cumAngle+angle;
+    const x1=cx+r*Math.cos(cumAngle);
+    const y1=cy+r*Math.sin(cumAngle);
+    const x2=cx+r*Math.cos(endAngle);
+    const y2=cy+r*Math.sin(endAngle);
+    const innerR=r-thickness;
+    const ix1=cx+innerR*Math.cos(endAngle);
+    const iy1=cy+innerR*Math.sin(endAngle);
+    const ix2=cx+innerR*Math.cos(cumAngle);
+    const iy2=cy+innerR*Math.sin(cumAngle);
+    const largeArc=angle>Math.PI?1:0;
+    const d=`M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${largeArc} 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${ix1.toFixed(2)},${iy1.toFixed(2)} A${innerR},${innerR} 0 ${largeArc} 0 ${ix2.toFixed(2)},${iy2.toFixed(2)} Z`;
+    paths+=`<path d="${d}" fill="${cfg.color}" stroke="#fff" stroke-width="2"><title>${cfg.name}: ${v.weight.toFixed(1)} กก. (${(fraction*100).toFixed(1)}%)</title></path>`;
+    cumAngle=endAngle;
+  });
+  
+  const legend=sorted.slice(0,6).map(([cat,v])=>{
+    const cfg=CATEGORIES[cat]||{name:cat,color:'#6B7280'};
+    const pct=(v.weight/totalW*100).toFixed(1);
+    return `<div class="donut-legend-item">
+      <div class="donut-legend-left"><div class="donut-legend-dot" style="background:${cfg.color}"></div><span class="donut-legend-name">${esc(cfg.name)}</span></div>
+      <span class="donut-legend-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+  
+  wrap.innerHTML=`
+    <div class="donut-chart">
+      <svg class="donut-svg" viewBox="0 0 240 240">${paths}</svg>
+      <div class="donut-center">
+        <div class="donut-center-val">${totalW.toFixed(0)}</div>
+        <div class="donut-center-lbl">กก.</div>
+      </div>
+    </div>
+    <div class="donut-legend">${legend}</div>`;
+}
+
+function renderTypeBars(items){
+  const wrap=document.getElementById('s-bars');
+  if(!wrap)return;
+  if(!items.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const byType={};
+  items.forEach(i=>{
+    if(!byType[i.type])byType[i.type]={weight:0,total:0};
+    byType[i.type].weight+=i.kgWeight||0;
+    byType[i.type].total+=i.total;
+  });
+  const maxW=Math.max(...Object.values(byType).map(v=>v.weight),1);
+  const cfg=CAT_CONFIG[dCategory];
+  const baseColor=cfg.color;
+  // Generate shades of base color
+  const colors=[baseColor,'#0050C8','#C9A227','#0D7C4E','#6D3AB5','#7A5C1E','#3B7A57','#A0AEC0'];
+  
+  wrap.innerHTML=Object.entries(byType).sort((a,b)=>b[1].weight-a[1].weight).slice(0,8).map(([name,v],i)=>{
+    const short=name.replace(/^[\d.]+\s/,'').replace(/\s*\(.+?\)\s*/g,' ').trim().split(' ').slice(0,3).join(' ');
+    return`<div class="bar-row"><div class="bar-lbl-row"><span class="bar-name">${esc(short)}</span><span class="bar-meta">${v.weight>0?v.weight.toFixed(1)+' '+t('kg')+' · ':''}${v.total.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span></div><div class="bar-track"><div class="bar-fill" style="width:${maxW>0?(v.weight/maxW*100).toFixed(1):50}%;background:${colors[i%colors.length]}"></div></div></div>`;
+  }).join('');
+}
+
+function renderVendorBars(filtered,items){
+  const wrap=document.getElementById('s-vendor-bars');
+  if(!wrap)return;
+  if(!filtered.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const byVendor={};
+  filtered.forEach(o=>{
+    if(!byVendor[o.vendor])byVendor[o.vendor]={total:0,weight:0,count:0};
+    const matched=o.items.filter(i=>(!dFilters.type||i.type===dFilters.type)&&(dCategory==='overview'||isInCategory(i.type)));
+    const amt=matched.reduce((a,i)=>a+i.total,0);
+    const wt=matched.reduce((a,i)=>a+(i.kgWeight||0),0);
+    byVendor[o.vendor].total+=amt;
+    byVendor[o.vendor].weight+=wt;
+    byVendor[o.vendor].count+=1;
+  });
+  const sorted=Object.entries(byVendor).filter(([,v])=>v.total>0||v.weight>0).sort((a,b)=>b[1].total-a[1].total);
+  if(!sorted.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const maxVT=Math.max(...sorted.map(([,v])=>v.total),1);
+  wrap.innerHTML=sorted.map(([name,v],i)=>{
+    const color=VENDOR_COLORS[VENDORS.indexOf(name)%VENDOR_COLORS.length]||VENDOR_COLORS[i%VENDOR_COLORS.length];
+    return`<div class="bar-row"><div class="bar-lbl-row"><span class="bar-name"><span class="vdot" style="background:${color}"></span>${esc(name)}</span><span class="bar-meta">${v.count} Orders · ${v.weight.toFixed(1)} ${t('kg')} · ${v.total.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span></div><div class="bar-track"><div class="bar-fill" style="width:${(v.total/maxVT*100).toFixed(1)}%;background:${color}"></div></div></div>`;
+  }).join('');
+}
+
+function renderDashTable(filtered,items){
+  const wrap=document.getElementById('s-table');
+  const tt=document.getElementById('table-card-title');
+  const ts=document.getElementById('table-card-sub');
+  if(!wrap)return;
+  if(!filtered.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';if(tt)tt.textContent='📋 '+t('no_data');return;}
+  
+  const sumAmount=o=>o.items.filter(i=>(!dFilters.type||i.type===dFilters.type)&&(dCategory==='overview'||isInCategory(i.type))).reduce((a,i)=>a+i.total,0);
+  const sumWeight=o=>o.items.filter(i=>(!dFilters.type||i.type===dFilters.type)&&(dCategory==='overview'||isInCategory(i.type))).reduce((a,i)=>a+(i.kgWeight||0),0);
+  
+  if(dPeriod==='day'){
+    if(tt)tt.textContent='📋 '+t('orders_today')+' ('+filtered.length+')';
+    if(ts)ts.textContent=formatDate(`${dFilters.year}-${String(dFilters.month).padStart(2,'0')}-${String(dFilters.day).padStart(2,'0')}`);
+    const rows=filtered.map(o=>`<tr><td>${esc(o.orderNo)}</td><td>${esc(o.vendor)}</td><td class="num">${sumWeight(o).toFixed(1)}</td><td class="num rev">${sumAmount(o).toLocaleString('th-TH',{maximumFractionDigits:0})}</td></tr>`).join('');
+    const totRev=filtered.reduce((a,o)=>a+sumAmount(o),0);
+    const totW=filtered.reduce((a,o)=>a+sumWeight(o),0);
+    wrap.innerHTML=`<div style="overflow-x:auto"><table class="summary-table"><thead><tr><th>Order No</th><th>Vendor</th><th style="text-align:right">${t('kg')}</th><th style="text-align:right">${t('baht')}</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="2" style="font-weight:600">${t('all')}</td><td class="num" style="font-weight:600">${totW.toFixed(1)}</td><td class="num rev" style="font-weight:700">${totRev.toLocaleString('th-TH',{maximumFractionDigits:0})}</td></tr></tfoot></table></div>`;
+  } else if(dPeriod==='month'){
+    if(tt)tt.textContent='📋 '+MONTHS_FULL[parseInt(dFilters.month)]+' '+(parseInt(dFilters.year)+543);
+    if(ts)ts.textContent=t('summary_by_day');
+    const byDay={};
+    filtered.forEach(o=>{if(!byDay[o.date])byDay[o.date]={total:0,weight:0,orders:0};byDay[o.date].total+=sumAmount(o);byDay[o.date].weight+=sumWeight(o);byDay[o.date].orders+=1;});
+    const totRev=Object.values(byDay).reduce((a,v)=>a+v.total,0);
+    const totW=Object.values(byDay).reduce((a,v)=>a+v.weight,0);
+    wrap.innerHTML=`<div style="overflow-x:auto"><table class="summary-table"><thead><tr><th>${t('date')}</th><th style="text-align:right">Orders</th><th style="text-align:right">${t('kg')}</th><th style="text-align:right">${t('baht')}</th></tr></thead><tbody>${Object.entries(byDay).sort().map(([d,v])=>`<tr><td>${formatDate(d)}</td><td class="num">${v.orders}</td><td class="num">${v.weight.toFixed(1)}</td><td class="num rev">${v.total.toLocaleString('th-TH',{maximumFractionDigits:0})}</td></tr>`).join('')}</tbody><tfoot><tr><td style="font-weight:600">${t('all')}</td><td class="num" style="font-weight:600">${filtered.length}</td><td class="num" style="font-weight:600">${totW.toFixed(1)}</td><td class="num rev" style="font-weight:700">${totRev.toLocaleString('th-TH',{maximumFractionDigits:0})}</td></tr></tfoot></table></div>`;
+  } else {
+    if(tt)tt.textContent='📋 '+(dPeriod==='year'?(t('yearly')+' '+(parseInt(dFilters.year)+543)):t('all_time'));
+    if(ts)ts.textContent=t('summary_by_month');
+    const byMonth={};
+    filtered.forEach(o=>{const m=o.date.slice(0,7);if(!byMonth[m])byMonth[m]={total:0,weight:0,orders:0};byMonth[m].total+=sumAmount(o);byMonth[m].weight+=sumWeight(o);byMonth[m].orders+=1;});
+    const totRev=Object.values(byMonth).reduce((a,v)=>a+v.total,0);
+    const totW=Object.values(byMonth).reduce((a,v)=>a+v.weight,0);
+    wrap.innerHTML=`<div style="overflow-x:auto"><table class="summary-table"><thead><tr><th>${t('monthly')}</th><th style="text-align:right">Orders</th><th style="text-align:right">${t('kg')}</th><th style="text-align:right">${t('baht')}</th></tr></thead><tbody>${Object.entries(byMonth).sort().map(([m,v])=>{const [y,mo]=m.split('-');return`<tr><td>${MONTHS_FULL[parseInt(mo)]} ${parseInt(y)+543}</td><td class="num">${v.orders}</td><td class="num">${v.weight.toFixed(1)}</td><td class="num rev">${v.total.toLocaleString('th-TH',{maximumFractionDigits:0})}</td></tr>`;}).join('')}</tbody><tfoot><tr><td style="font-weight:600">${t('all')}</td><td class="num" style="font-weight:600">${filtered.length}</td><td class="num" style="font-weight:600">${totW.toFixed(1)}</td><td class="num rev" style="font-weight:700">${totRev.toLocaleString('th-TH',{maximumFractionDigits:0})}</td></tr></tfoot></table></div>`;
+  }
+}
+
+// Backward compat
+function buildPeriodControls(){buildDashFilters();}
+function setPeriod(){}
+
+// VENDOR DASHBOARD
+function buildVendorPeriodControls(){
+  const years=[...new Set(orders.map(o=>o.date.slice(0,4)))].sort().reverse();const allY=years.length?years:[String(new Date().getFullYear())];
+  let html='';if(vPeriod!=='all'){html+=`<span style="font-size:12px;color:var(--muted);font-weight:500">ปี:</span><select onchange="vYear=parseInt(this.value);renderVendorDashboard()">${allY.map(y=>`<option value="${y}"${parseInt(y)===vYear?'selected':''}>${parseInt(y)+543}</option>`).join('')}</select>`;if(vPeriod==='month')html+=`<span style="font-size:12px;color:var(--muted);font-weight:500">เดือน:</span><select onchange="vMonth=parseInt(this.value);renderVendorDashboard()">${MONTHS_FULL.slice(1).map((m,i)=>`<option value="${i+1}"${i+1===vMonth?'selected':''}>${m}</option>`).join('')}</select>`;}
+  document.getElementById('vendor-period-controls').innerHTML=html;
+}
+function setVPeriod(mode,el){vPeriod=mode;document.querySelectorAll('#tab-vendor .ptab').forEach(t2=>t2.classList.remove('active'));el.classList.add('active');buildVendorPeriodControls();renderVendorDashboard();}
+function getVFiltered(){if(vPeriod==='all')return orders;if(vPeriod==='year')return orders.filter(o=>o.date.startsWith(String(vYear)));return orders.filter(o=>o.date.startsWith(`${vYear}-${String(vMonth).padStart(2,'0')}`));}
+function renderVendorDashboard(){
+  const filtered=getVFiltered();const byV={};
+  filtered.forEach(o=>{if(!byV[o.vendor])byV[o.vendor]={total:0,weight:0,count:0,types:{}};byV[o.vendor].total+=o.totalAmount;byV[o.vendor].weight+=o.totalWeight;byV[o.vendor].count+=1;o.items.forEach(i=>{if(!byV[o.vendor].types[i.type])byV[o.vendor].types[i.type]={weight:0,total:0};byV[o.vendor].types[i.type].weight+=i.kgWeight||0;byV[o.vendor].types[i.type].total+=i.total;});});
+  if(!Object.keys(byV).length){document.getElementById('vendor-cards').innerHTML=`<div class="empty-state">${t('no_data')}</div>`;return;}
+  document.getElementById('vendor-cards').innerHTML=Object.entries(byV).sort((a,b)=>b[1].total-a[1].total).map(([name,v],idx)=>{
+    const color=VENDOR_COLORS[VENDORS.indexOf(name)%VENDOR_COLORS.length]||VENDOR_COLORS[idx%VENDOR_COLORS.length];
+    const maxTT=Math.max(...Object.values(v.types).map(x=>x.total),1);
+    const typeBars=Object.entries(v.types).sort((a,b)=>b[1].total-a[1].total).slice(0,5).map(([tn,tv])=>`<div class="bar-row" style="margin-bottom:7px"><div class="bar-lbl-row"><span class="bar-name" style="font-size:12px">${esc(tn.replace(/^[\d.]+\s/,'').split(' ')[0])}</span><span class="bar-meta">${tv.weight>0?tv.weight.toFixed(1)+' '+t('kg')+' · ':''}${tv.total.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span></div><div class="bar-track" style="height:5px"><div class="bar-fill" style="width:${(tv.total/maxTT*100).toFixed(1)}%;background:${color}"></div></div></div>`).join('');
+    return`<div class="vendor-card"><div class="vendor-card-hdr"><div style="display:flex;align-items:center"><span class="vdot" style="background:${color}"></span><span class="vendor-card-name">${esc(name)}</span></div><div class="vendor-card-total">${v.total.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</div></div><div class="vendor-mini-grid"><div class="vendor-mini"><div class="vendor-mini-lbl">${t('vendor_weight')}</div><div class="vendor-mini-val" style="color:var(--amber)">${v.weight.toFixed(1)} ${t('kg')}</div></div><div class="vendor-mini"><div class="vendor-mini-lbl">${t('vendor_count')}</div><div class="vendor-mini-val" style="color:var(--blue)">${v.count} Orders</div></div><div class="vendor-mini"><div class="vendor-mini-lbl">${t('plate')}</div><div class="vendor-mini-val" style="color:var(--ncc);font-size:11px">${(vendorPlates[name]||[]).join(', ')||'—'}</div></div></div>${typeBars}</div>`;
+  }).join('');
+}
+
+// BILLING
+function updateBillingBadge(){const now=new Date();const overdue=orders.filter(o=>o.payStatus!=='paid'&&Math.floor((now-new Date(o.date))/(864e5))>=overdueDays);const badge=document.getElementById('billing-badge');if(overdue.length>0){badge.textContent=overdue.length;badge.style.display='';}else badge.style.display='none';}
+function renderBilling(){
+  const now=new Date();const fV=document.getElementById('bf-vendor').value,fM=document.getElementById('bf-month').value,fY=document.getElementById('bf-year').value,fS=document.getElementById('bf-status').value;
+  const overdueOrders=orders.filter(o=>o.payStatus!=='paid'&&getPayStatus(o)==='overdue');
+  const alertEl=document.getElementById('billing-alert');
+  if(overdueOrders.length>0){const amt=overdueOrders.reduce((a,o)=>a+o.totalAmount,0);alertEl.style.display='flex';document.getElementById('billing-alert-text').textContent=t('overdue_alert',{n:overdueDays,count:overdueOrders.length,amt:amt.toLocaleString('th-TH',{maximumFractionDigits:0})});}else alertEl.style.display='none';
+  const paid=orders.filter(o=>o.payStatus==='paid').reduce((a,o)=>a+o.totalAmount,0);
+  const pending=orders.filter(o=>o.payStatus!=='paid'&&getPayStatus(o)==='pending').reduce((a,o)=>a+o.totalAmount,0);
+  const overdueAmt=overdueOrders.reduce((a,o)=>a+o.totalAmount,0);
+  document.getElementById('b-paid').textContent=paid.toLocaleString('th-TH',{maximumFractionDigits:0});
+  document.getElementById('b-pending').textContent=pending.toLocaleString('th-TH',{maximumFractionDigits:0});
+  document.getElementById('b-overdue').textContent=overdueAmt.toLocaleString('th-TH',{maximumFractionDigits:0});
+  const filtered=orders.filter(o=>{
+    if(fV&&o.vendor!==fV)return false;if(fY&&!o.date.startsWith(fY))return false;
+    if(fM&&fY&&!o.date.startsWith(fY+'-'+String(fM).padStart(2,'0')))return false;
+    if(fS&&getPayStatus(o)!==fS)return false;return true;
+  });
+  document.getElementById('billing-count').textContent=filtered.length+' Orders';
+  if(!filtered.length){document.getElementById('billing-list').innerHTML=`<div class="empty-state">${t('no_data')}</div>`;return;}
+  const sBadge={'paid':`<span class="status-badge status-paid">✓ ${t('billing_received')}</span>`,'pending':`<span class="status-badge status-pending">⏳ ${t('billing_pending')}</span>`,'overdue':`<span class="status-badge status-overdue">⚠ ${t('billing_overdue')}</span>`};
+  document.getElementById('billing-list').innerHTML=filtered.map(o=>{
+    const status=getPayStatus(o);const daysDiff=Math.floor((now-new Date(o.date))/(864e5));
+    const itemsSum=o.items.map(i=>i.type.replace(/^[\d.]+\s/,'').split(' ')[0]+': '+i.qty+' '+(i.unit||'กก.')).join(' · ');
+    const hasSigs=o.signatures&&(o.signatures.receiver||o.signatures.seller);const hasDocs=o.billingDocs&&o.billingDocs.length>0;
+    const sigsHTML=hasSigs?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div class="billing-doc-title">${t('signatures')}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${o.signatures.receiver?`<div><div style="font-size:10px;color:var(--ncc);margin-bottom:3px;font-weight:600">${t('sig_receiver')}</div><img src="${o.signatures.receiver}" class="sig-preview" style="max-width:100%"></div>`:'<div></div>'}${o.signatures.seller?`<div><div style="font-size:10px;color:var(--blue);margin-bottom:3px;font-weight:600">${t('sig_seller')}</div><img src="${o.signatures.seller}" class="sig-preview" style="max-width:100%"></div>`:'<div></div>'}</div></div>`:'';
+    const docsHTML=hasDocs?`<div class="billing-doc-section"><div class="billing-doc-title">📎 ${t('billing_docs')} (${o.billingDocs.length})</div><div style="display:flex;flex-wrap:wrap;gap:6px">${o.billingDocs.map(d=>{const isImg=d.type&&d.type.startsWith('image/');return`<a href="${d.data}" target="_blank" download="${esc(d.name)}" class="doc-thumb" style="flex-direction:column;padding:8px;align-items:center;min-width:80px;max-width:120px">${isImg?`<img src="${d.data}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;margin-bottom:4px">`:`<div style="font-size:24px;margin-bottom:2px">📄</div>`}<span style="font-size:10px;text-align:center;word-break:break-all;line-height:1.3">${esc(d.name.length>14?d.name.substring(0,14)+'…':d.name)}</span></a>`;}).join('')}</div></div>`:'';
+    const docSec=sigsHTML+docsHTML;
+    const addDocsBtn=`<button class="btn-sm primary" onclick="openBDocsModal(${o.id})" style="margin-top:8px">📎 ${hasDocs?t('manage_docs'):t('attach_docs')}</button>`;
+    return`<div class="billing-card"><div class="billing-hdr" onclick="toggleEl('bbody-${o.id}','bchev-${o.id}')"><div class="billing-top"><div><div class="billing-vendor">${esc(o.vendor)}</div><div class="billing-orderno">${esc(o.orderNo)}</div><div class="billing-meta">${o.plate?`🚛 ${esc(o.plate)} · `:''}📅 ${formatDate(o.date)}</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${esc(itemsSum.length>70?itemsSum.substring(0,70)+'…':itemsSum)}</div></div><div><div class="billing-amount">${o.totalAmount.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</div><div class="billing-amount-sub">${o.totalWeight>0?o.totalWeight.toFixed(1)+' '+t('kg'):''}</div><div style="text-align:right;margin-top:6px;font-size:14px;color:var(--muted)" id="bchev-${o.id}">▼</div></div></div></div><div class="billing-body" id="bbody-${o.id}"><div class="billing-status">${sBadge[status]}${status==='paid'?`<span style="font-size:11px;color:var(--muted)">${t('paid_on')} ${formatDate(o.paidDate)}</span>`:''}${status==='pending'?`<span style="font-size:11px;color:var(--muted)">${t('pending_days',{n:daysDiff})}</span>`:''}${status==='overdue'?`<span style="font-size:11px;color:var(--red)">เกิน ${daysDiff} วัน</span>`:''}${status!=='paid'?`<button class="btn-pay" onclick="openBDocsModal(${o.id})">${t('btn_mark_paid')}</button>`:''}${addDocsBtn}</div>${docSec}</div></div>`;
+  }).join('');
+}
+
+// SETTINGS
+function buildPriceTable(){
+  document.getElementById('price-table').innerHTML=`<thead><tr><th>${t('type_col')}</th><th class="unit-col">${t('unit_col')}</th><th style="text-align:right">${t('price_col')}</th></tr></thead><tbody>`+
+    Object.keys(DEFAULT_PRICES).map(tp=>{const ui=getUnitInfo(tp);const us=ui.kgPer?`${ui.unit} (${ui.kgPer} ${t('kg')})`:ui.unit;return`<tr><td style="font-size:12px">${esc(tp)}</td><td class="unit-col">${us}</td><td style="text-align:right"><input class="price-input" type="number" min="0" step="0.1" value="${prices[tp]!==undefined?prices[tp]:(DEFAULT_PRICES[tp]||0)}" data-type="${esc(tp)}"></td></tr>`;}).join('')+'</tbody>';
+}
+function savePrices(){document.querySelectorAll('.price-input').forEach(inp=>{prices[inp.getAttribute('data-type')]=parseFloat(inp.value)||0;});localStorage.setItem('qsncc_prices_v6',JSON.stringify(prices));const msg=document.getElementById('price-saved-msg');msg.style.display='';setTimeout(()=>msg.style.display='none',2000);showToast('✓ '+t('prices_saved'));}
+function saveOverdueDays(){overdueDays=parseInt(document.getElementById('overdue-days').value)||7;localStorage.setItem('qsncc_overdue_days',overdueDays);updateBillingBadge();showToast('✓');}
+function buildVendorPlateManager(){
+  const wrap=document.getElementById('vendor-plate-manager');if(!wrap)return;
+  wrap.innerHTML=VENDORS.map(v=>{const plates=vendorPlates[v]||[];const tags=plates.map(p=>`<span class="vendor-plate-tag">${esc(p)}<button onclick="removeVP('${esc(v)}','${esc(p)}')">✕</button></span>`).join('');
+    return`<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:600;margin-bottom:5px">${esc(v)}</div><div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">${tags||'<span style="font-size:12px;color:var(--muted)">—</span>'}<div style="display:flex;gap:5px;margin-left:4px"><input type="text" id="vpinp-${esc(v)}" placeholder="เพิ่มทะเบียน" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;width:130px;outline:none" onkeydown="if(event.key==='Enter')addVP('${esc(v)}')"><button class="btn-sm primary" onclick="addVP('${esc(v)}')" style="padding:4px 9px">+</button></div></div></div>`;
+  }).join('');
+}
+function addVP(vendor){const inp=document.getElementById('vpinp-'+vendor);if(!inp)return;const plate=inp.value.trim();if(!plate)return;if(!vendorPlates[vendor])vendorPlates[vendor]=[];if(!vendorPlates[vendor].includes(plate))vendorPlates[vendor].push(plate);saveVP();buildVendorPlateManager();inp.value='';showToast('✓ '+plate+' → '+vendor);}
+function removeVP(vendor,plate){if(!vendorPlates[vendor])return;vendorPlates[vendor]=vendorPlates[vendor].filter(p=>p!==plate);saveVP();buildVendorPlateManager();}
+function exportData(){const data={orders,vendorPlates,prices,exportedAt:new Date().toISOString(),version:'v7'};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='QSNCC_WMS_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();showToast('✓ Export JSON');}
+function importData(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{try{const data=JSON.parse(e.target.result);if(!data.orders||!Array.isArray(data.orders)){showToast('⚠ ไฟล์ไม่ถูกต้อง',true);return;}if(!confirm('Import จะแทนที่ข้อมูลทั้งหมด ยืนยัน?'))return;orders=data.orders;if(data.vendorPlates)vendorPlates=data.vendorPlates;if(data.prices)prices=data.prices;save();saveVP();localStorage.setItem('qsncc_prices_v6',JSON.stringify(prices));updateBillingBadge();buildFilterDropdowns();buildPriceTable();showToast('✓ Import สำเร็จ: '+orders.length+' Orders');}catch(e){showToast('⚠ อ่านไฟล์ไม่ได้',true);}};reader.readAsText(file);input.value='';}
+function exportCSV(){if(!orders.length){showToast('⚠ '+t('no_data'),true);return;}const headers=['Order No','วันที่','Vendor','ทะเบียน','ประเภทขยะ','จำนวน','หน่วย','น้ำหนักกก.','ราคา/หน่วย','ยอดรายการ','ยอด Order','สถานะชำระ','วันรับเงิน','บันทึกโดย','หมายเหตุ','ลายเซ็นผู้รับ','ลายเซ็นผู้ขาย','จำนวนเอกสาร'];const rows=[];orders.forEach(o=>{o.items.forEach((item,idx)=>{rows.push([o.orderNo,o.date,o.vendor,o.plate||'',item.type,item.qty,item.unit||'กก.',item.kgWeight||'',item.price,item.total,idx===0?o.totalAmount:'',o.payStatus,o.paidDate||'',o.recorder||'',idx===0?o.note||'':'',idx===0?((o.signatures&&o.signatures.receiver)?'ใช่':'ไม่'):'',idx===0?((o.signatures&&o.signatures.seller)?'ใช่':'ไม่'):'',idx===0?((o.billingDocs&&o.billingDocs.length)||0):'']);});});const csv='\uFEFF'+[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='QSNCC_WMS_'+new Date().toISOString().slice(0,10)+'.csv';a.click();showToast('✓ Export CSV');}
+function showToast(msg,isErr){const el=document.getElementById('toast');el.textContent=msg;el.style.background=isErr?'#c0392b':'#002B6C';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
+function formatDate(d){if(!d)return'';const [y,m,day]=d.split('-');return`${parseInt(day)} ${MONTHS_TH[parseInt(m)]} ${parseInt(y)+543}`;}
+function esc(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+window.addEventListener('load',function(){initSignaturePadV2();});
+</script>
+</body>
+</html>
