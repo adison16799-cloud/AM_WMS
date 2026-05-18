@@ -3,310 +3,401 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AMWMS</title>
+<title>AM·WMS v16 — Waste Management & ESG Platform</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Noto+Sans+Lao:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#002B6C;--green-light:#e6edf8;--green-mid:#0050c8;--green-dark:#001848;
-  --amber:#c47a1a;--amber-light:#fdf3e3;
-  --red:#c0392b;--red-light:#fdecea;
-  --blue:#0050c8;--blue-light:#daeaff;
-  --bg:#f0f4fa;--card:#fff;--border:#d4dde8;
-  --text:#0d1a2e;--muted:#5a6e84;
+  --ncc:#1e3a5f;--ncc-light:#e8f0fb;--ncc-mid:#2563eb;--ncc-dark:#0f2441;
+  --green:#22c55e;--green-light:#dcfce7;--green-mid:#16a34a;--green-dark:#15803d;
+  --amber:#f59e0b;--amber-light:#fef3c7;
+  --red:#ef4444;--red-light:#fee2e2;
+  --blue:#3b82f6;--blue-light:#dbeafe;
+  --purple:#8b5cf6;--purple-light:#ede9fe;
+  --bg:#f1f5f9;--card:#ffffff;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;
   --mono:'IBM Plex Mono',monospace;
   --sans:'IBM Plex Sans Thai','Noto Sans Lao',sans-serif;
-  --shadow:0 2px 8px rgba(0,43,108,.09);
-  --ncc:#002B6C;--ncc-light:#e6edf8;--ncc-mid:#0050c8;--ncc-dark:#001848;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --shadow-md:0 4px 20px rgba(0,0,0,.08);
+  --sb-w:240px;--topbar-h:56px;--r:12px;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
-.hdr{background:linear-gradient(135deg,var(--ncc-dark) 0%,var(--ncc) 60%,#004199 100%);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,43,108,.35)}
-.hdr-left{display:flex;align-items:center;gap:10px}
-.hdr-logo{width:32px;height:32px;background:rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.hdr-left .title{font-size:15px;font-weight:600}.hdr-left .sub{font-size:11px;opacity:.72;margin-top:1px}
-.hdr-right{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.hdr-clock{font-size:12px;font-family:var(--mono);background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;gap:5px}
-.live-dot{width:6px;height:6px;border-radius:50%;animation:blink 2s infinite}
-.live-local{background:#f39c12}.live-firebase{background:#2ecc71}
+.app-shell{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sb-w);background:var(--ncc-dark);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;scrollbar-width:none;transition:transform .25s}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-brand{display:flex;align-items:center;gap:12px;padding:20px 18px 18px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:8px}
+.sb-logo{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sb-title{font-size:13px;font-weight:700;letter-spacing:-.2px;color:#fff;line-height:1.3}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;font-family:var(--mono);letter-spacing:.3px}
+.sb-nav{flex:1;padding:4px 0}
+.tab{display:flex;align-items:center;gap:10px;padding:10px 16px;color:rgba(255,255,255,.5);cursor:pointer;border-radius:8px;margin:2px 10px;font-size:13px;font-weight:500;transition:all .14s;position:relative;border:none;white-space:nowrap;user-select:none;justify-content:space-between}
+.tab:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.tab.active{background:rgba(255,255,255,.12);color:#fff;font-weight:600}
+.tab.active::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--green);border-radius:0 3px 3px 0}
+.tab-left{display:flex;align-items:center;gap:10px}
+.sb-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center}
+.tab .badge{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;font-family:var(--mono)}
+.tab .chev{font-size:10px;opacity:.5}
+.sb-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 14px}
+.sb-footer{padding:12px 14px 16px;border-top:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:10px}
+.sb-clock{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);padding:5px 10px;border-radius:7px}
+.live-dot{width:6px;height:6px;border-radius:50%;animation:blink 2s infinite;flex-shrink:0}
+.live-local{background:var(--amber)}.live-firebase{background:var(--green)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:5px 10px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s}
-.btn-hdr:hover{background:rgba(255,255,255,.25)}
-.lang-btn{font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;transition:all .15s}
-.lang-btn.active{background:rgba(255,255,255,.9);color:var(--ncc)}
-.tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);padding:0 16px;position:sticky;top:54px;z-index:99;overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{padding:10px 13px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
-.tab.active{color:var(--ncc);border-bottom-color:var(--ncc)}
-.tab .badge{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:4px;font-family:var(--mono)}
-.content{padding:14px 16px;display:none;max-width:740px;margin:0 auto}
+.sb-langs{display:flex;gap:4px;flex-wrap:wrap}
+.lang-btn{font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);transition:all .14s}
+.lang-btn.active{background:rgba(255,255,255,.92);color:var(--ncc-dark);border-color:transparent}
+.lang-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sb-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.top-bar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:90;gap:10px}
+.top-bar-left{display:flex;align-items:center;gap:10px;min-width:0}
+.top-bar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mobile-menu-btn{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:4px;line-height:1}
+.top-page-label{font-size:13px;font-weight:600;color:var(--muted)}
+.btn-hdr{background:#fff;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:all .14s}
+.btn-hdr:hover{background:var(--ncc-light);border-color:var(--ncc-mid);color:var(--ncc)}
+
+/* ── CONTENT ── */
+.content{padding:24px;display:none;max-width:960px;margin:0 auto;width:100%}
 .content.active{display:block}
-.sec-label{font-size:11px;font-weight:700;color:var(--ncc);letter-spacing:.6px;text-transform:uppercase;padding:10px 0 9px;border-bottom:2px solid var(--ncc-light);margin-bottom:13px;display:flex;align-items:center;gap:6px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+
+/* ── FORM ── */
+.sec-label{font-size:11px;font-weight:700;color:var(--ncc);letter-spacing:.5px;text-transform:uppercase;padding:8px 0 9px;border-bottom:2px solid var(--ncc-light);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .form-full{grid-column:1/-1}
-.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:.4px;text-transform:uppercase}
-.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:#fff;transition:border-color .15s;outline:none;-webkit-appearance:none;appearance:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ncc);box-shadow:0 0 0 3px rgba(0,43,108,.1)}
-.field textarea{resize:vertical;min-height:52px}.field-hint{font-size:11px;color:var(--muted);margin-top:3px}
-.item-add-box{background:var(--ncc-light);border:1.5px dashed #8fb8e8;border-radius:12px;padding:13px;margin-bottom:12px}
-.item-calc-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:10px}
-.calc-display{background:#fff;border:1.5px solid #a8c4e8;border-radius:8px;padding:8px 11px;text-align:center}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:#fff;transition:border-color .14s,box-shadow .14s;outline:none;-webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ncc-mid);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.field textarea{resize:vertical;min-height:52px}
+.field-hint{font-size:11px;color:var(--muted);margin-top:3px}
+.item-add-box{background:var(--ncc-light);border:1.5px dashed #93c5fd;border-radius:12px;padding:14px;margin-bottom:14px}
+.item-calc-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;align-items:end;margin-top:10px}
+.calc-display{background:#fff;border:1.5px solid #bfdbfe;border-radius:8px;padding:8px 12px;text-align:center}
 .calc-display .lbl{font-size:10px;color:var(--muted);margin-bottom:2px}
 .calc-display .val{font-size:17px;font-weight:700;color:var(--ncc);font-family:var(--mono)}
 .unit-badge{display:inline-block;background:var(--blue-light);color:var(--blue);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;margin-left:4px;font-family:var(--mono)}
-.btn-add-item{background:var(--ncc);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;height:40px;transition:all .15s;align-self:end}
-.btn-add-item:hover{background:var(--ncc-dark)}
-.items-box{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
-.items-box-hdr{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;padding:7px 12px;background:#f0f4fa;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border)}
-.form-item-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border)}
+.btn-add-item{background:var(--ncc-dark);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;height:40px;transition:all .14s;align-self:end}
+.btn-add-item:hover{background:var(--ncc-mid)}
+.items-box{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.items-box-hdr{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;padding:8px 13px;background:#f8fafc;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.form-item-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;padding:10px 13px;border-bottom:1px solid var(--border)}
 .form-item-row:last-child{border-bottom:none}
-.form-item-type{font-size:13px;font-weight:500}.form-item-sub{font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mono)}
+.form-item-type{font-size:13px;font-weight:500}
+.form-item-sub{font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mono)}
 .form-item-qty{font-size:12px;color:var(--muted);font-family:var(--mono);text-align:right}
 .form-item-total{font-size:13px;font-weight:700;color:var(--ncc);font-family:var(--mono);text-align:right;min-width:70px}
-.btn-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:3px 5px;border-radius:4px;transition:all .15s}
+.btn-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:3px 6px;border-radius:5px;transition:all .14s}
 .btn-rm:hover{color:var(--red);background:var(--red-light)}
-.order-total-bar{background:linear-gradient(135deg,var(--ncc-dark),var(--ncc));color:#fff;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.order-total-bar .lbl{font-size:12px;opacity:.85}.order-total-bar .sub{font-size:11px;opacity:.65;margin-top:2px}
-.order-total-bar .val{font-size:24px;font-weight:700;font-family:var(--mono)}
-.btn-submit{width:100%;padding:13px;background:var(--ncc);color:#fff;border:none;border-radius:10px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;transition:all .15s;box-shadow:0 3px 10px rgba(0,43,108,.3)}
-.btn-submit:hover{background:var(--ncc-dark)}.btn-submit:active{transform:scale(.98)}
-.btn-submit:disabled{background:#8aadce;cursor:not-allowed;box-shadow:none}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(10px);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+.order-total-bar{background:var(--ncc-dark);color:#fff;border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.order-total-bar .lbl{font-size:12px;opacity:.85}
+.order-total-bar .sub{font-size:11px;opacity:.65;margin-top:2px}
+.order-total-bar .val{font-size:26px;font-weight:700;font-family:var(--mono)}
+.btn-submit{width:100%;padding:14px;background:var(--ncc-dark);color:#fff;border:none;border-radius:10px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;transition:all .14s;box-shadow:0 3px 12px rgba(15,36,65,.25)}
+.btn-submit:hover{background:var(--ncc-mid)}
+.btn-submit:active{transform:scale(.98)}
+.btn-submit:disabled{background:#94a3b8;cursor:not-allowed;box-shadow:none}
+
+/* ── SUCCESS MODAL ── */
+.success-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px;transition:opacity .25s}
+.success-box{background:#fff;border-radius:20px;padding:32px 28px;text-align:center;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:scale(.92);transition:transform .25s}
+.success-overlay.show .success-box{transform:scale(1)}
+.success-icon{width:72px;height:72px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px}
+.success-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
+.success-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.success-order-no{font-size:18px;font-weight:700;color:var(--ncc);font-family:var(--mono);background:var(--ncc-light);padding:8px 20px;border-radius:10px;display:inline-block;margin-bottom:20px}
+.success-btn{background:var(--ncc-dark);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:all .14s}
+.success-btn:hover{background:var(--ncc-mid)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);color:#fff;padding:11px 22px;border-radius:28px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .28s,transform .28s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:1000;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.22);display:flex;align-items:center;gap:8px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 15px;box-shadow:var(--shadow)}
-.card-label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase}
-.card-val{font-size:22px;font-weight:700;font-family:var(--mono)}.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.card.green .card-val{color:var(--ncc)}.card.amber .card-val{color:var(--amber)}.card.blue .card-val{color:var(--blue)}.card.red .card-val{color:var(--red)}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
-.panel-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
-.period-tabs{display:flex;gap:4px}
-.ptab{padding:4px 10px;border:1.5px solid var(--border);border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);background:#fff;transition:all .15s}
-.ptab.active{background:var(--ncc);border-color:var(--ncc);color:#fff}
-.period-row{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.period-row select,.filter-row select{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer}
-.chart-wrap{width:100%;overflow:hidden;margin-bottom:4px}.chart-wrap svg{display:block;width:100%;height:auto}
-.chart-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
-.bar-row{margin-bottom:10px}
-.bar-lbl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-.bar-name{font-size:13px;color:var(--text);font-weight:500}.bar-meta{font-size:11px;font-family:var(--mono);color:var(--muted)}
-.bar-track{height:8px;background:#dce7f2;border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
-.order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:9px;overflow:hidden;box-shadow:var(--shadow)}
-.order-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
-.order-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;user-select:none}
-.order-left{flex:1;min-width:0}
-.order-no{font-size:10px;font-family:var(--mono);font-weight:700;color:var(--muted);margin-bottom:2px}
-.order-vendor{font-size:15px;font-weight:600}
-.order-meta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
-.order-right{text-align:right;flex-shrink:0;margin-left:10px}
-.order-total{font-size:16px;font-weight:700;font-family:var(--mono);color:var(--ncc)}
-.order-chevron{font-size:11px;color:var(--muted);margin-top:4px;transition:transform .2s;display:block;text-align:right}
-.order-chevron.open{transform:rotate(180deg)}
-.order-body{border-top:1px solid var(--border);padding:12px 14px;background:#f8fbff;display:none}
-.order-body.open{display:block}
-.order-items-table{width:100%;border-collapse:collapse;margin-bottom:10px}
-.order-items-table th{font-size:10px;color:var(--muted);padding:5px 6px;border-bottom:1px solid var(--border);text-align:left;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
-.order-items-table td{font-size:13px;padding:7px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
-.order-items-table tr:last-child td{border-bottom:none}
-.order-items-table .num{font-family:var(--mono);text-align:right}.order-items-table .rev{color:var(--ncc);font-weight:600}
-.order-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
-.order-footer-total{font-size:14px;font-weight:700;color:var(--ncc);font-family:var(--mono)}
-.sig-preview{border:1px solid var(--border);border-radius:8px;max-width:200px;max-height:80px;object-fit:contain;margin-top:6px}
-.doc-thumb{display:inline-flex;align-items:center;gap:5px;background:var(--blue-light);color:var(--blue);border-radius:8px;padding:5px 10px;font-size:12px;text-decoration:none}
-.doc-thumb:hover{background:#d0e6f8}
-.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500;white-space:nowrap}
-.chip-paid{background:#e6edf8;color:#002B6C}.chip-pending{background:var(--amber-light);color:var(--amber)}
-.chip-overdue{background:var(--red-light);color:var(--red)}.chip-plate{background:var(--blue-light);color:var(--blue)}
-.chip-date{background:#f0f2f0;color:var(--muted)}.chip-items{background:#f0f2f0;color:var(--muted)}
-.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
-.search-box{position:relative;margin-bottom:8px}
-.search-box input{width:100%;padding:9px 11px 9px 34px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;outline:none;background:#fff;transition:border-color .15s}
-.search-box input:focus{border-color:var(--ncc)}
-.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
-.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.toast-icon{font-size:16px;line-height:1}
+
+/* ── CARDS ── */
+.cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.card-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;margin-bottom:8px;text-transform:uppercase}
+.card-val{font-size:24px;font-weight:700;font-family:var(--mono);letter-spacing:-.3px}
+.card-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.card-icon-wrap{display:flex;justify-content:space-between;align-items:flex-start}
+.card-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.card-delta{font-size:12px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px}
+.card-delta.up{color:var(--green-mid)}.card-delta.dn{color:var(--red)}
+.card.green .card-val{color:var(--green-mid)}
+.card.amber .card-val{color:#d97706}
+.card.blue .card-val{color:var(--blue)}
+.card.red .card-val{color:var(--red)}
+
+/* ── ORDER LIST ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.panel-title{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+.list-header{display:flex;align-items:center;justify-content:space-between;padding:10px 0;margin-bottom:2px}
 .list-count{font-size:12px;color:var(--muted)}
-.btn-sm{font-size:12px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);padding:5px 10px;border-radius:6px;color:var(--muted);transition:all .15s}
-.btn-sm.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
-.btn-sm.primary{background:var(--ncc);color:#fff;border-color:var(--ncc)}.btn-sm.primary:hover{background:var(--ncc-dark)}
-.billing-alert{background:var(--red-light);border:1px solid #f5c0ba;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.search-box{position:relative;margin-bottom:10px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--muted)}
+.search-box input{width:100%;padding:10px 12px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:#fff;outline:none;transition:border-color .14s}
+.search-box input:focus{border-color:var(--ncc-mid)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filter-row select{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer}
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden}
+.order-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;cursor:pointer;gap:10px;transition:background .14s}
+.order-hdr:hover{background:#fafbfc}
+.order-no{font-size:13px;font-weight:700;color:var(--ncc-mid);font-family:var(--mono)}
+.order-vendor{font-size:15px;font-weight:600;color:var(--text);margin-top:2px}
+.order-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.order-left{flex:1;min-width:0}
+.order-right{text-align:right;flex-shrink:0}
+.order-total{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--ncc-dark)}
+.order-chevron{font-size:11px;color:var(--muted);margin-top:4px}
+.order-body{display:none;padding:14px 16px;border-top:1px solid var(--border);background:#fafbfc}
+.order-body.open{display:block}
+.order-items-table{width:100%;border-collapse:collapse;font-size:12px}
+.order-items-table th{font-size:10px;color:var(--muted);font-weight:600;text-align:left;padding:4px 6px;letter-spacing:.3px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.order-items-table td{padding:6px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.order-items-table tr:last-child td{border-bottom:none}
+.chip{padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.chip-plate{background:#f1f5f9;color:var(--muted)}
+.chip-date{background:var(--ncc-light);color:var(--ncc)}
+.chip-items{background:#f8fafc;color:var(--muted)}
+.chip-paid{background:var(--green-light);color:var(--green-mid)}
+.chip-pending{background:var(--amber-light);color:#d97706}
+.chip-overdue{background:var(--red-light);color:var(--red);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.btn-sm{background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:5px 12px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:all .14s;color:var(--text)}
+.btn-sm:hover{border-color:var(--ncc-mid);color:var(--ncc)}
+.btn-sm.primary{background:var(--ncc-dark);color:#fff;border-color:var(--ncc-dark)}
+.btn-sm.primary:hover{background:var(--ncc-mid);border-color:var(--ncc-mid)}
+.btn-sm.danger{background:#fff;border-color:var(--red);color:var(--red)}
+.btn-sm.danger:hover{background:var(--red);color:#fff}
+.btn-load-more{width:100%;padding:11px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;cursor:pointer;font-size:13px;color:var(--muted);font-family:var(--sans);transition:all .14s;margin-top:6px}
+.btn-load-more:hover{border-color:var(--ncc-mid);color:var(--ncc)}
+
+/* ── BILLING ── */
+.billing-alert{background:var(--red-light);border:1.5px solid var(--red);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px}
 .billing-alert-text{font-size:13px;color:var(--red);font-weight:500}
-.billing-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:9px;overflow:hidden;box-shadow:var(--shadow)}
-.billing-hdr{padding:12px 14px;cursor:pointer}
-.billing-vendor{font-size:14px;font-weight:700}.billing-orderno{font-size:10px;font-family:var(--mono);color:var(--muted);margin-top:1px}
+.billing-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden}
+.billing-hdr{padding:14px 16px;cursor:pointer;transition:background .14s}
+.billing-hdr:hover{background:#fafbfc}
+.billing-top{display:flex;justify-content:space-between;gap:10px}
+.billing-vendor{font-size:15px;font-weight:600}
+.billing-orderno{font-size:12px;color:var(--ncc-mid);font-family:var(--mono);margin-top:2px}
 .billing-meta{font-size:12px;color:var(--muted);margin-top:3px}
-.billing-top{display:flex;justify-content:space-between;align-items:flex-start}
-.billing-amount{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);text-align:right}
+.billing-amount{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--ncc-dark);text-align:right}
 .billing-amount-sub{font-size:11px;color:var(--muted);text-align:right;margin-top:1px}
-.billing-body{border-top:1px solid var(--border);padding:12px 14px;background:#f8fbff;display:none}
+.billing-body{display:none;padding:12px 16px;border-top:1px solid var(--border);background:#fafbfc}
 .billing-body.open{display:block}
 .billing-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .status-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
-.status-paid{background:#e6edf8;color:#002B6C}.status-pending{background:var(--amber-light);color:var(--amber)}
+.status-paid{background:var(--green-light);color:var(--green-mid)}
+.status-pending{background:var(--amber-light);color:#d97706}
 .status-overdue{background:var(--red-light);color:var(--red);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-.btn-pay{font-size:12px;background:var(--ncc);color:#fff;border:none;border-radius:6px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-weight:500;transition:background .15s}
-.btn-pay:hover{background:var(--ncc-dark)}
+.btn-pay{font-size:12px;background:var(--ncc-dark);color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:var(--sans);font-weight:500;transition:background .14s}
+.btn-pay:hover{background:var(--ncc-mid)}
 .billing-doc-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
 .billing-doc-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px}
-.vendor-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.sig-preview{max-height:60px;border:1px solid var(--border);border-radius:6px}
+.doc-thumb{display:inline-flex;padding:6px 10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;text-decoration:none;color:var(--text);font-size:12px;cursor:pointer;gap:6px;align-items:center;transition:all .14s}
+.doc-thumb:hover{background:var(--ncc-light);border-color:var(--ncc-mid)}
+
+/* ── VENDOR ── */
+.vendor-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 .vendor-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.vendor-card-name{font-size:15px;font-weight:700}.vendor-card-total{font-size:17px;font-weight:700;font-family:var(--mono);color:var(--ncc)}
+.vendor-card-name{font-size:15px;font-weight:700}
+.vendor-card-total{font-size:17px;font-weight:700;font-family:var(--mono);color:var(--ncc-dark)}
 .vendor-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
 .vendor-mini{background:var(--bg);border-radius:8px;padding:8px 10px;text-align:center}
-.vendor-mini-lbl{font-size:10px;color:var(--muted);margin-bottom:3px}.vendor-mini-val{font-size:14px;font-weight:600;font-family:var(--mono)}
+.vendor-mini-lbl{font-size:10px;color:var(--muted);margin-bottom:3px}
+.vendor-mini-val{font-size:14px;font-weight:600;font-family:var(--mono)}
 .vdot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
-.settings-section{margin-bottom:22px}
-.settings-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+
+/* ── SETTINGS ── */
+.settings-section{margin-bottom:24px}
+.settings-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:13px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
 .price-table{width:100%;border-collapse:collapse}
-.price-table th{font-size:11px;font-weight:600;color:var(--muted);padding:7px 8px;border-bottom:2px solid var(--border);text-align:left;letter-spacing:.3px;text-transform:uppercase}
-.price-table td{padding:6px 8px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
-.price-table tr:last-child td{border-bottom:none}.price-table tr:hover td{background:#f8fbff}
+.price-table th{font-size:11px;font-weight:600;color:var(--muted);padding:7px 9px;border-bottom:2px solid var(--border);text-align:left;letter-spacing:.3px;text-transform:uppercase}
+.price-table td{padding:6px 9px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.price-table tr:last-child td{border-bottom:none}
+.price-table tr:hover td{background:#f8fafc}
 .price-table .unit-col{font-size:11px;color:var(--blue);font-family:var(--mono);text-align:center}
-.price-input{width:85px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:13px;text-align:right;outline:none;transition:border-color .15s}
+.price-input{width:85px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:13px;text-align:right;outline:none;transition:border-color .14s}
 .price-input:focus{border-color:var(--ncc)}
-.btn-save-prices{background:var(--ncc);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
-.btn-save-prices:hover{background:var(--ncc-dark)}
+.btn-save-prices{background:var(--ncc-dark);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .14s}
+.btn-save-prices:hover{background:var(--ncc-mid)}
 .lang-selector{display:flex;gap:8px;flex-wrap:wrap}
-.lang-option{border:2px solid var(--border);border-radius:10px;padding:10px 16px;cursor:pointer;transition:all .15s;text-align:center;min-width:80px}
-.lang-option.active{border-color:var(--ncc);background:var(--ncc-light)}
-.lang-option .flag{font-size:20px;display:block;margin-bottom:4px}.lang-option .name{font-size:12px;font-weight:500}
+.lang-option{border:2px solid var(--border);border-radius:10px;padding:10px 16px;cursor:pointer;transition:all .14s;text-align:center;min-width:80px}
+.lang-option.active{border-color:var(--ncc-mid);background:var(--ncc-light)}
+.lang-option .flag{font-size:20px;display:block;margin-bottom:4px}
+.lang-option .name{font-size:12px;font-weight:500}
 .vendor-plate-tag{display:inline-flex;align-items:center;background:var(--blue-light);color:var(--blue);padding:3px 8px;border-radius:8px;font-size:12px;font-family:var(--mono);margin:2px;gap:5px}
 .vendor-plate-tag button{background:none;border:none;cursor:pointer;color:var(--blue);font-size:12px;padding:0;line-height:1}
 .vendor-plate-tag button:hover{color:var(--red)}
+
+/* ── TABLES ── */
 .summary-table{width:100%;border-collapse:collapse}
-.summary-table th{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;padding:7px 9px;border-bottom:2px solid var(--border);text-align:left}
-.summary-table td{font-size:13px;padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:middle}
+.summary-table th{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;padding:8px 10px;border-bottom:2px solid var(--border);text-align:left}
+.summary-table td{font-size:13px;padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
 .summary-table tr:last-child td{border-bottom:none}
-.summary-table .num{font-family:var(--mono);text-align:right}.summary-table .rev{color:var(--ncc);font-weight:600}
-.summary-table tr:hover td{background:#f8fbff}
-.empty-state{text-align:center;padding:36px 20px;color:var(--muted);font-size:13px;line-height:2.4}
-.firebase-box{background:linear-gradient(135deg,#fff3e0,#fff8e1);border:1.5px solid #f0c040;border-radius:12px;padding:14px;margin-bottom:12px}
-.firebase-box h3{font-size:13px;font-weight:700;color:#b35a00;margin-bottom:8px}
-.firebase-box p{font-size:12px;color:#7a4800;line-height:1.7;margin-bottom:6px}
-.firebase-box code{background:rgba(180,100,0,.12);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px}
+.summary-table .num{font-family:var(--mono);text-align:right}
+.summary-table .rev{color:var(--ncc-dark);font-weight:600}
+.summary-table tr:hover td{background:#f8fafc}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:2.5}
+
+/* ── FIREBASE BOX ── */
+.firebase-box{background:#fefce8;border:1.5px solid #fbbf24;border-radius:12px;padding:15px;margin-bottom:12px}
+.firebase-box h3{font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px}
+.firebase-box p{font-size:12px;color:#78350f;line-height:1.7;margin-bottom:6px}
+.firebase-box code{background:rgba(180,100,0,.1);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px}
 .firebase-status{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500;margin-bottom:10px}
-.firebase-status.connected{background:#e6edf8;color:#002B6C}
-.firebase-status.disconnected{background:#fff3e0;color:#b35a00}
+.firebase-status.connected{background:var(--green-light);color:var(--green-mid)}
+.firebase-status.disconnected{background:#fef3c7;color:#92400e}
 .import-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.hidden{display:none}
-.modal-box{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.modal-title{font-size:16px;font-weight:700;margin-bottom:4px}.modal-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.modal-box{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
 .sig-canvas-wrap{border:2px solid var(--border);border-radius:10px;background:#fafffe;touch-action:none;cursor:crosshair;overflow:hidden;margin-bottom:10px}
 .sig-canvas-wrap canvas{display:block}
 .modal-doc-section{margin-bottom:12px}
 .modal-doc-section label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
 .sig-actions{display:flex;gap:8px;justify-content:flex-end}
-@media(max-width:600px){
-  .form-grid{grid-template-columns:1fr}.form-full{grid-column:1}
-  .cards-3{grid-template-columns:1fr 1fr}.item-calc-row{grid-template-columns:1fr 1fr}.btn-add-item{grid-column:1/-1}
-  .vendor-mini-grid{grid-template-columns:1fr 1fr}
-}
-/* v10 additions */
-.edit-banner{background:linear-gradient(135deg,#fff8e1,#fff3d6);border:1.5px solid var(--amber);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:none;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(196,122,26,.15)}
+
+/* ── EDIT BANNER ── */
+.edit-banner{background:#fefce8;border:1.5px solid var(--amber);border-radius:10px;padding:10px 14px;margin-bottom:13px;display:none;align-items:center;justify-content:space-between;gap:10px}
 .edit-banner.active{display:flex}
-.edit-banner-text{font-size:13px;color:#7a4800;font-weight:600;display:flex;align-items:center;gap:8px}
+.edit-banner-text{font-size:13px;color:#78350f;font-weight:600;display:flex;align-items:center;gap:8px}
 .edit-banner-text strong{color:var(--amber);font-family:var(--mono)}
-.btn-cancel-edit{background:#fff;border:1.5px solid var(--amber);color:var(--amber);border-radius:8px;padding:5px 12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-cancel-edit{background:#fff;border:1.5px solid var(--amber);color:#d97706;border-radius:8px;padding:5px 12px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:all .14s}
 .btn-cancel-edit:hover{background:var(--amber);color:#fff}
-.btn-load-more{display:block;width:100%;padding:11px;background:#fff;border:1.5px dashed var(--ncc);color:var(--ncc);border-radius:10px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;transition:all .15s}
-.btn-load-more:hover{background:var(--ncc-light)}
-.btn-load-more:disabled{opacity:.5;cursor:not-allowed}
-.btn-edit-order{font-size:12px;background:#fff;border:1.5px solid var(--ncc);color:var(--ncc);border-radius:6px;padding:5px 11px;cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .15s}
-.btn-edit-order:hover{background:var(--ncc);color:#fff}
-.btn-rm,.btn-edit-order,.btn-pay,.btn-sm{min-height:30px}
+
+/* ── DASHBOARD ── */
 .audit-row{font-size:10.5px;color:var(--muted);margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 10px}
-.audit-row .a-lbl{opacity:.75}
-.dash-empty-banner{background:linear-gradient(135deg,var(--ncc-light),#eef4ff);border:1.5px dashed #8fb8e8;border-radius:12px;padding:18px 16px;margin-bottom:14px;text-align:center;display:none}
+.sync-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;font-family:var(--mono)}
+.sync-saved{background:#dcfce7;color:#15803d}.sync-saving{background:#fef3c7;color:#92400e}.sync-error{background:var(--red-light);color:var(--red)}
+.dash-empty-banner{background:linear-gradient(135deg,var(--ncc-light),#eff6ff);border:1.5px dashed #93c5fd;border-radius:12px;padding:20px 16px;margin-bottom:14px;text-align:center;display:none}
 .dash-empty-banner.show{display:block}
 .dash-empty-banner .icon{font-size:32px;margin-bottom:6px}
 .dash-empty-banner .title{font-size:14px;font-weight:700;color:var(--ncc);margin-bottom:4px}
 .dash-empty-banner .desc{font-size:12px;color:var(--muted)}
-.sync-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;font-family:var(--mono)}
-.sync-saved{background:#e8f4ec;color:#1a7040}
-.sync-saving{background:#fff3e0;color:#b35a00}
-.sync-error{background:var(--red-light);color:var(--red)}
-/* donut + trend */
-.donut-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.donut-svg-box{flex-shrink:0}
-.donut-legend{flex:1;min-width:160px;display:flex;flex-direction:column;gap:5px}
-.donut-legend-item{display:flex;align-items:center;gap:6px;font-size:12px}
-.donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.donut-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
-.donut-val{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-.trend-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.trend-dot{r:4}
 
-/* ============================
-   ANALYTICS DASHBOARD v11
-   ============================ */
-.an-header{display:flex;justify-content:space-between;align-items:flex-end;padding:6px 0 14px;border-bottom:2px solid var(--border);margin-bottom:14px}
-.an-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px}
-.an-subtitle{font-size:12px;color:var(--muted);margin-top:3px}
-
-.an-filterbar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+/* ── DASHBOARD LAYOUT ── */
+.an-header{display:flex;justify-content:space-between;align-items:flex-end;padding:4px 0 16px;border-bottom:1.5px solid var(--border);margin-bottom:20px}
+/* .an-header-left */
+.an-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.4px}
+.an-subtitle{font-size:13px;color:var(--muted);margin-top:4px}
+.an-filterbar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .an-filter-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .an-filter-right{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .an-filter-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
-.an-select{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer;transition:border-color .15s}
-.an-select:hover,.an-select:focus{border-color:var(--green)}
-
-.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.kpi-s{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.kpi-s::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--green))}
-.kpi-s-icon{font-size:18px;margin-bottom:6px}
-.kpi-s-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
-.kpi-s-val{font-size:24px;font-weight:700;font-family:var(--mono);color:var(--text);letter-spacing:-.5px;line-height:1.1}
-.kpi-s-sub{font-size:11px;color:var(--muted);margin-top:3px}
-.kpi-s-delta{font-size:11px;font-weight:600;margin-top:4px}
-.kpi-s-delta.up{color:#16a34a}
-.kpi-s-delta.down{color:var(--red)}
-
-.cat-pills-wrap{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
-.cat-pill{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);background:var(--card);transition:all .15s;white-space:nowrap;box-shadow:var(--shadow)}
-.cat-pill:hover{border-color:var(--green);color:var(--green)}
-.cat-pill.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 3px 10px rgba(0,43,108,.25)}
-
-.an-row{display:grid;grid-template-columns:1.65fr 1fr;gap:12px;margin-bottom:14px}
+.an-select{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer;transition:border-color .14s}
+.an-select:hover,.an-select:focus{border-color:var(--ncc-mid)}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-s{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi-s::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--ncc-dark))}
+.kpi-s-icon{font-size:18px;margin-bottom:8px}
+.kpi-s-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.kpi-s-val{font-size:26px;font-weight:700;font-family:var(--mono);color:var(--text);letter-spacing:-.5px;line-height:1.1}
+.kpi-s-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.cat-pills-wrap{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.cat-pill{padding:6px 16px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);background:var(--card);transition:all .14s;white-space:nowrap;box-shadow:var(--shadow)}
+.cat-pill:hover{border-color:var(--ncc-mid);color:var(--ncc)}
+.cat-pill.active{background:var(--ncc-dark);border-color:var(--ncc-dark);color:#fff}
+.an-row{display:grid;grid-template-columns:1.65fr 1fr;gap:14px;margin-bottom:14px}
 .an-row-2{grid-template-columns:1fr 1fr}
-.an-card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
-.an-card-lg{padding:16px;min-height:250px} /* inherits */
-.an-card-sm{padding:12px;min-height:120px}
-.an-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 16px 11px;border-bottom:1px solid var(--border);background:#fafbfc}
-.an-card-title{font-size:13px;font-weight:700;color:var(--text)}
-.an-card-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.an-card-body{padding:14px 16px}
-
+.an-card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+.an-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 18px 12px;border-bottom:1px solid var(--border);background:#fafbfc}
+.an-card-title{font-size:14px;font-weight:700;color:var(--text)}
+.an-card-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.an-card-body{padding:16px 18px}
 .an-toggle-wrap{display:flex;gap:4px}
-.an-toggle{padding:4px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);background:#fff;font-family:var(--sans);transition:all .15s}
-.an-toggle.active{background:var(--green);border-color:var(--green);color:#fff}
+.an-toggle{padding:4px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);background:#fff;font-family:var(--sans);transition:all .14s}
+.an-toggle.active{background:var(--ncc-dark);border-color:var(--ncc-dark);color:#fff}
 
-.trend-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
-.trend-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text);padding:3px 8px;border-radius:6px;background:#f5f7fa;cursor:pointer;transition:opacity .15s}
+/* ── TREND LEGEND ── */
+.trend-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.trend-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text);padding:3px 8px;border-radius:6px;background:#f8fafc;cursor:pointer;transition:opacity .15s}
 .trend-legend-item.dim{opacity:.3}
-.trend-legend-dot{width:10px;height:3px;border-radius:2px;flex-shrink:0}
+.trend-legend-dot{width:12px;height:3px;border-radius:2px;flex-shrink:0}
 
-/* Insight row */
-.insight-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.insight-card{background:linear-gradient(135deg,var(--card),var(--ic-bg,#f0f4fa));border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+/* ── ESG KPI SECTION (screenshot match) ── */
+.esg-kpi-row{padding:0}
+.esg-kpi-item{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.04)}
+.esg-kpi-item:last-child{border-bottom:none}
+.esg-kpi-item.green-bg{background:#f0fdf4}
+.esg-kpi-item.blue-bg{background:#eff6ff}
+.esg-kpi-item.purple-bg{background:#faf5ff}
+.esg-kpi-left{display:flex;flex-direction:column;gap:8px;flex:1}
+.esg-kpi-label{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px}
+.esg-kpi-bar-bg{height:8px;border-radius:4px;overflow:hidden;max-width:400px;width:100%}
+.esg-kpi-bar{height:8px;border-radius:4px;transition:width .6s ease}
+.esg-kpi-val{font-size:18px;font-weight:700;font-family:var(--mono);flex-shrink:0;margin-left:16px}
+
+/* ── DONUT ── */
+.donut-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.donut-svg-box{flex-shrink:0}
+.donut-legend{flex:1;min-width:160px;display:flex;flex-direction:column;gap:5px}
+.donut-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 8px;border-radius:6px;background:#fafbfc;border:1px solid var(--border)}
+.donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.donut-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.donut-val{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* ── BAR CHARTS ── */
+.bar-row{margin-bottom:10px}
+.bar-lbl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.bar-name{font-size:12px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:5px}
+.bar-meta{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.bar-track{background:#f1f5f9;border-radius:4px;height:7px;overflow:hidden}
+.bar-fill{height:7px;border-radius:4px;transition:width .4s ease}
+
+/* ── INSIGHT ROW ── */
+.insight-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.insight-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
 .insight-icon{font-size:24px;margin-bottom:8px}
-.insight-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.insight-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
 .insight-val{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--text)}
 .insight-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
 
-/* Donut */
-.donut-chart{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.donut-svg{width:100%;max-width:220px;height:auto}
-.donut-center{position:absolute;text-align:center;pointer-events:none}
-.donut-center-val{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--text);letter-spacing:-.5px}
-.donut-center-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.donut-legend{display:flex;flex-direction:column;gap:5px}
-.donut-legend-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:6px;background:#fafbfc;border:1px solid #f0f2f5;font-size:12px}
-.donut-legend-left{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
-.donut-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.donut-legend-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.donut-legend-pct{font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0;margin-left:6px}
+/* ── PERIOD TABS ── */
+.period-tabs{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:3px}
+.ptab{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .14s;font-family:var(--sans);border:none;background:transparent}
+.ptab.active{background:#fff;color:var(--ncc-dark);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.ptab:hover:not(.active){color:var(--ncc-dark)}
+.period-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.period-row select{padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:13px;color:var(--text);background:#fff;outline:none}
 
+/* ── CHART ── */
+.chart-wrap{overflow:hidden}
+.trend-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.trend-dot{r:4}
+
+/* ── RESPONSIVE ── */
+@media(max-width:820px){
+  .sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;flex-direction:row;z-index:200}
+  .sb-brand,.sb-footer{display:none}
+  .sb-nav{display:flex;flex-direction:row;overflow-x:auto;padding:4px 4px 0;gap:0;scrollbar-width:none;width:100%;padding-bottom:max(4px,env(safe-area-inset-bottom))}
+  .sb-nav::-webkit-scrollbar{display:none}
+  .tab{flex-direction:column;font-size:10px;padding:7px 10px 10px;text-align:center;gap:2px;min-width:56px;flex:1;margin:0;border-radius:0;justify-content:center}
+  .tab .chev{display:none}
+  .tab.active::before{top:0;left:8px;right:8px;bottom:auto;width:auto;height:2px;border-radius:0 0 2px 2px}
+  .sb-icon{font-size:17px}
+  .main{margin-left:0;padding-bottom:64px}
+  .mobile-menu-btn{display:flex}
+  .top-page-label{display:none}
+  .toast{bottom:80px}
+}
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}.form-full{grid-column:1}
+  .cards-3{grid-template-columns:1fr 1fr}
+  .item-calc-row{grid-template-columns:1fr 1fr}.btn-add-item{grid-column:1/-1}
+  .vendor-mini-grid{grid-template-columns:1fr 1fr}
+}
 @media(max-width:900px){
   .an-row,.an-row-2{grid-template-columns:1fr}
   .kpi-strip{grid-template-columns:repeat(2,1fr)}
@@ -317,6 +408,123 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
   .insight-row{grid-template-columns:1fr}
 }
 
+/* ═══ v16: TOOLTIP SYSTEM ═══ */
+#chart-tooltip{
+  position:fixed;pointer-events:none;z-index:9999;
+  background:rgba(15,23,42,.92);color:#fff;
+  border-radius:10px;padding:9px 13px;font-size:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  opacity:0;transition:opacity .15s;
+  font-family:var(--sans);min-width:140px;
+  border:1px solid rgba(255,255,255,.08);
+}
+#chart-tooltip.show{opacity:1}
+#chart-tooltip .tt-title{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:5px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+#chart-tooltip .tt-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:3px}
+#chart-tooltip .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+#chart-tooltip .tt-label{color:rgba(255,255,255,.75);font-size:12px}
+#chart-tooltip .tt-val{font-weight:700;font-family:var(--mono);font-size:13px}
+
+/* ═══ v16: COMPACT DASHBOARD LAYOUT ═══ */
+.dash-grid-2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px;align-items:start}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.dash-grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.an-card.no-mb{margin-bottom:0}
+
+/* ═══ v16: KPI BIG CARDS ═══ */
+.kpi-big-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-big{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;cursor:default;transition:box-shadow .2s,transform .15s}
+.kpi-big:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.kpi-big::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kb-color,var(--ncc-dark))}
+.kpi-big-icon-wrap{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.kpi-big-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--kb-icon-bg,var(--ncc-light))}
+.kpi-big-lbl{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px}
+.kpi-big-val{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--text);letter-spacing:-.5px;line-height:1}
+.kpi-big-sub{font-size:12px;margin-top:5px;font-weight:600}
+.kpi-big-delta{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Donut compact */
+.donut-compact{display:flex;gap:14px;align-items:flex-start}
+.donut-compact .donut-chart{margin-bottom:0;flex-shrink:0}
+.donut-compact .donut-legend{flex:1;min-width:0}
+.donut-legend-item{padding:3px 6px;margin-bottom:3px}
+
+/* ═══ v16: RESPONSIVE — TABLET (iPad) ═══ */
+@media(min-width:601px) and (max-width:1024px){
+  :root{--sb-w:200px}
+  .content{padding:16px;max-width:100%}
+  .kpi-big-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .kpi-big-val{font-size:22px}
+  .dash-grid-2,.dash-grid-2-eq{grid-template-columns:1fr}
+  .dash-grid-3{grid-template-columns:1fr 1fr}
+  .an-card-body{padding:12px 14px}
+  .an-card-hdr{padding:12px 14px 10px}
+  .tab span:not(.sb-icon){font-size:12px}
+}
+
+/* ═══ v16: RESPONSIVE — MOBILE (iPhone) ═══ */
+@media(max-width:600px){
+  :root{--sb-w:0px}
+  .content{padding:12px 10px;max-width:100%}
+  .kpi-big-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi-big{padding:12px 13px}
+  .kpi-big-val{font-size:20px}
+  .kpi-big-icon{width:34px;height:34px;font-size:16px}
+  .dash-grid-2,.dash-grid-2-eq,.dash-grid-3{grid-template-columns:1fr}
+  .an-card-body{padding:10px 12px}
+  .an-card-hdr{padding:10px 12px 8px}
+  .an-card-title{font-size:13px}
+  .an-filterbar{flex-direction:column;align-items:flex-start;gap:8px}
+  .an-filter-right{flex-wrap:wrap}
+  .an-select{font-size:12px;padding:5px 8px}
+  .kpi-strip{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi-s{padding:12px 13px}
+  .kpi-s-val{font-size:20px}
+  .insight-row{grid-template-columns:1fr}
+  .period-tabs{flex-wrap:wrap}
+  .an-header{flex-direction:column;align-items:flex-start;gap:10px;padding-bottom:12px}
+  .cards-3{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-full{grid-column:1}
+  .item-calc-row{grid-template-columns:1fr 1fr}
+  .btn-add-item{grid-column:1/-1}
+  .top-bar{padding:0 12px}
+  .success-box{padding:24px 18px}
+  .success-icon{width:60px;height:60px;font-size:28px}
+  .success-title{font-size:17px}
+  .donut-compact{flex-direction:column}
+}
+
+/* Mobile bottom nav improvements */
+@media(max-width:820px){
+  .sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;flex-direction:row;z-index:300;border-top:1px solid rgba(255,255,255,.1)}
+  .sb-brand,.sb-footer{display:none}
+  .sb-nav{display:flex;flex-direction:row;overflow-x:auto;padding:0;gap:0;scrollbar-width:none;width:100%;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .sb-nav::-webkit-scrollbar{display:none}
+  .tab{flex-direction:column;font-size:10px;padding:8px 6px 10px;text-align:center;gap:2px;min-width:52px;flex:1;margin:0;border-radius:0;justify-content:center;border-left:none}
+  .tab.active::before{top:0;left:6px;right:6px;bottom:auto;width:auto;height:2px;border-radius:0 0 3px 3px}
+  .tab-left{flex-direction:column;gap:1px;align-items:center}
+  .tab .chev{display:none}
+  .sb-icon{font-size:18px}
+  .main{margin-left:0;padding-bottom:72px}
+  .mobile-menu-btn{display:none}
+  .top-page-label{display:none}
+  .toast{bottom:82px}
+  #chart-tooltip{font-size:11px;padding:7px 10px}
+}
+
+/* Touch device improvements */
+@media(hover:none){
+  .kpi-big:hover{transform:none;box-shadow:var(--shadow)}
+  .btn-submit:active{transform:scale(.97)}
+}
+
+/* ═══ v16: INTERACTIVE CHART ELEMENTS ═══ */
+.chart-hover-area{cursor:crosshair}
+.donut-slice{cursor:pointer;transition:opacity .15s}
+.donut-slice:hover{opacity:.85}
+.bar-fill-interactive{cursor:pointer;transition:opacity .15s}
+.bar-fill-interactive:hover{opacity:.75}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -324,382 +532,477 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 </head>
 <body>
 
-<div class="hdr">
-  <div class="hdr-left">
-    <div class="hdr-logo"></div>
-    <div><div class="title">AMWMS</div><div class="sub" id="hdr-sub">Waste Management System</div></div>
-  </div>
-  <div class="hdr-right">
-    <div class="hdr-clock"><span class="live-dot live-local" id="live-dot"></span><span id="clock">--:--:--</span></div>
-    <div class="lang-btn" onclick="setLang('th')" id="lb-th">TH</div>
-    <div class="lang-btn" onclick="setLang('en')" id="lb-en">EN</div>
-    <div class="lang-btn" onclick="setLang('lo')" id="lb-lo">ລາວ</div>
-    <button class="btn-hdr" onclick="exportExcel()" title="Export ไฟล์ Excel (แบบ Template)">⬇ Excel</button>
-    <button class="btn-hdr" onclick="exportCSV()" title="Export CSV">⬇ CSV</button>
-  </div>
-</div>
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('form',this)">📝 <span data-t="tab_form">สร้าง Order</span></div>
-  <div class="tab" onclick="switchTab('orders',this)">📋 <span data-t="tab_orders">รายการ</span></div>
-  <div class="tab" onclick="switchTab('summary',this)">📊 Dashboard</div>
-  <div class="tab" onclick="switchTab('vendor',this)">🏭 <span data-t="tab_vendor">Vendor</span></div>
-  <div class="tab" onclick="switchTab('billing',this)">💰 <span data-t="tab_billing">Billing</span><span class="badge" id="billing-badge" style="display:none">0</span></div>
-  <div class="tab" onclick="switchTab('settings',this)">⚙️ <span data-t="tab_settings">ตั้งค่า</span></div>
-</div>
+<div class="app-shell">
 
-<!-- FORM -->
-<div class="content active" id="tab-form">
-  <div class="edit-banner" id="edit-banner">
-    <div class="edit-banner-text">✏️ <span data-t="editing_order">กำลังแก้ไข</span> <strong id="edit-banner-no"></strong></div>
-    <button type="button" class="btn-cancel-edit" onclick="cancelEdit()" data-t="cancel_edit">ยกเลิกการแก้ไข</button>
-  </div>
-  <div class="sec-label">📋 <span data-t="order_header">ข้อมูล Order</span></div>
-  <div class="form-grid">
-    <div class="field">
-      <label data-t="vendor">Vendor</label>
-      <select id="f-vendor" onchange="onVendorChange()">
-        <option value="" data-t="sel_vendor">— เลือก Vendor —</option>
-        <option>TBR</option><option>ECG</option><option>ENRISE BIO SUPPLY (PTT)</option><option>BSGF</option>
-        <option>พีรพัฒน์ (PEERAPAT)</option><option>จีรวัฒน์ฟาร์มปลา</option>
-        <option>มูลนิธิแม่ฟ้าหลวง</option><option>ออแกนิซต้า การ์เด้น (ORGANIZTAR GARDEN)</option><option>AIS</option>
-        <option>INSEE ECOCYCLE</option><option>SCGP</option>
-      </select>
-    </div>
-    <div class="field">
-      <label data-t="plate">เลขทะเบียนรถ</label>
-      <input id="f-plate" type="text" list="plate-list" placeholder="เลือกหรือพิมพ์ทะเบียน" autocomplete="off">
-      <datalist id="plate-list"></datalist>
-      <div class="field-hint" id="plate-hint" data-t="plate_hint">เลือก Vendor เพื่อโหลดทะเบียนที่เคยใช้</div>
-    </div>
-    <div class="field"><label data-t="date">วันที่รับซื้อ</label><input id="f-date" type="date"></div>
-    <div class="field"><label data-t="recorder">ชื่อผู้บันทึก</label><input id="f-recorder" type="text"></div>
-    <div class="field form-full"><label data-t="note">หมายเหตุ</label><textarea id="f-note" rows="2"></textarea></div>
-  </div>
-  <div class="sec-label">➕ <span data-t="add_item">เพิ่มรายการขยะ</span></div>
-  <div class="item-add-box">
-    <div class="field">
-      <label data-t="waste_type">ประเภทขยะ</label>
-      <select id="fi-type" onchange="onTypeChange()">
-        <option value="">— เลือกประเภทขยะ —</option>
-        <optgroup label="1. แก้ว (Glass)">
-          <option>1.1 ขวดแก้วใส (Clear Glass)</option><option>1.2 ขวดแก้วสีชา (Amber Glass)</option>
-          <option>1.3 ขวดแก้วสีเขียว (Green Glass)</option><option>1.4 ขวดแก้วคละสี (Assorted Colored Glasses)</option>
-          <option>1.5 ลังขวดเบียร์ช้าง 320 ml พร้อมขวด</option>
-          <option>1.6 ลังขวดเบียร์ช้าง 620 ml พร้อมขวด</option>
-          <option>1.7 ลังขวดเบียร์ช้าง 1500 ml พร้อมขวด</option>
-        </optgroup>
-        <optgroup label="2. เหล็ก (Metal)"><option>2.1 กระป๋องเหล็ก (Metal Can)</option><option>2.2 แผ่นเหล็ก (Metal Sheet)</option></optgroup>
-        <optgroup label="3. อลูมิเนียม (Aluminium)"><option>3.1 กระป๋องอลูมิเนียม (Aluminium Can)</option><option>3.2 อลูมิเนียมอื่นๆ (Other Aluminium)</option></optgroup>
-        <optgroup label="4. พลาสติก (Plastic)">
-          <option>4.1 ขวดพลาสติกใส (PET/PETE/PE)</option><option>4.2 ขวดพลาสติกขุ่น (HDPE)</option>
-          <option>4.3 ขวดพลาสติกแบบสกรีน (Screen Printed)</option><option>4.4 ฝาขวดพลาสติก (Plastic Bottle Cap)</option>
-          <option>4.5 PVC (แผ่นฟิล์ม/ท่อ PVC)</option><option>4.6 ถุงพลาสติก (LDPE)</option>
-          <option>4.7 กล่องใส่อาหาร (PP)</option><option>4.8 ช้อนส้อมพลาสติก (PS)</option>
-          <option>4.9 พลาสติกอื่นๆ (Other Plastic)</option>
-        </optgroup>
-        <optgroup label="5. กระดาษ (Paper)">
-          <option>5.1 กระดาษปริ้นท์ขาวดำ (B&amp;W Paper)</option><option>5.2 กระดาษปริ้นท์สี (Color Paper)</option>
-          <option>5.3 กระดาษลัง (Cardboard)</option><option>5.4 ถาดไข่กระดาษ (Paper Egg Tray)</option>
-          <option>5.5 กระดาษย่อย (Shredded Paper)</option><option>5.6 กระดาษอื่นๆ (Other Paper)</option>
-        </optgroup>
-        <optgroup label="6. น้ำมันทำอาหารที่ใช้แล้ว (Used Cooking Oil)">
-          <option>6.1 แกลลอนเหลือง (PTT) — แกลลอนละ 15 กก.</option>
-          <option>6.2 ปี๊ป (BSGF) — ปี๊ปละ 18 กก.</option>
-        </optgroup>
-        <optgroup label="7. อาหารปลา (Fish Food)"><option>7.1 อาหารปลา (Fish Food)</option></optgroup>
-        <optgroup label="8. ปุ๋ย (Compost)"><option>8.1 ปุ๋ยจากเศษอาหารและกากกาแฟ (Coffee Compost)</option></optgroup>
-        <optgroup label="9. RDF"><option>9.1 RDF (Refuse Derived Fuel)</option></optgroup>
-        <optgroup label="10. ขยะอันตราย (Hazardous Waste)">
-          <option>10.1 ขยะอันตราย (Hazardous Waste)</option><option>10.2 ขยะติดเชื้อ (Infectious Waste)</option>
-        </optgroup>
-        <optgroup label="11. อื่นๆ (Others)"><option>11.1 อื่นๆ — กรุณากรอกรายละเอียดในหมายเหตุ</option></optgroup>
-      </select>
-    </div>
-    <div class="item-calc-row">
-      <div class="field">
-        <label id="fi-qty-label">น้ำหนัก / จำนวน</label>
-        <input id="fi-qty" type="number" min="0" step="0.1" placeholder="0" oninput="calcItem()">
-        <div class="field-hint" id="fi-unit-hint"></div>
-      </div>
-      <div class="field">
-        <label data-t="price_kg">ราคา / หน่วย (฿)</label>
-        <input id="fi-price" type="number" min="0" step="0.5" placeholder="0.00" oninput="calcItem()">
-      </div>
-      <div class="calc-display">
-        <div class="lbl" data-t="total_item">ยอดรายการ</div>
-        <div class="val" id="fi-total">0.00 ฿</div>
-      </div>
-      <button class="btn-add-item" onclick="addItem()" data-t="btn_add_item">+ เพิ่ม</button>
-    </div>
-  </div>
-  <div id="form-items-wrap"></div>
-  
-  <div class="sec-label" id="sig-section-label" style="display:none">✍️ <span data-t="signatures">ลายเซ็น</span></div>
-  <div id="sig-section" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:12px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">♻</div>
       <div>
-        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase" data-t="sig_receiver">ลายเซ็นผู้รับซื้อ (Vendor)</label>
-        <div class="sig-canvas-wrap" style="margin-bottom:6px"><canvas id="sig-receiver-canvas" width="320" height="120"></canvas></div>
-        <button type="button" class="btn-sm" onclick="clearSig('receiver')" style="font-size:11px;padding:3px 9px">🗑 ล้าง</button>
-      </div>
-      <div>
-        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase" data-t="sig_seller">ลายเซ็นผู้ขาย (AM)</label>
-        <div class="sig-canvas-wrap" style="margin-bottom:6px"><canvas id="sig-seller-canvas" width="320" height="120"></canvas></div>
-        <button type="button" class="btn-sm" onclick="clearSig('seller')" style="font-size:11px;padding:3px 9px">🗑 ล้าง</button>
+        <div class="sb-title">RWMS</div>
+        <div class="sb-sub" id="hdr-sub">ESG Platform</div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px">💡 ลากเมาส์หรือนิ้วเพื่อเซ็น (ลายเซ็นจะแสดงเมื่อเริ่มกรอกรายการ)</div>
-  </div>
-
-  <div class="order-total-bar" id="order-total-bar" style="display:none">
-    <div><div class="lbl" id="otb-label"></div><div class="sub" data-t="order_ready">พร้อมสร้าง Order</div></div>
-    <div><div class="val" id="otb-total">0</div><div style="font-size:12px;opacity:.8">฿</div></div>
-  </div>
-  <button class="btn-submit" id="btn-submit-order" onclick="submitOrder()" disabled data-t="btn_create_order"><span id="btn-submit-text">สร้าง Order</span></button>
-</div>
-
-<!-- ORDERS -->
-<div class="content" id="tab-orders">
-  <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="orders-search" oninput="renderOrders()"></div>
-  <div class="filter-row">
-    <select id="of-vendor" onchange="renderOrders()"><option value="">— Vendor —</option></select>
-    <select id="of-month" onchange="renderOrders()"><option value="">— เดือน —</option></select>
-    <select id="of-year" onchange="renderOrders()"><option value="">— ปี —</option></select>
-    <select id="of-status" onchange="renderOrders()">
-      <option value="">— สถานะ —</option>
-      <option value="paid">รับแล้ว</option><option value="pending">รอรับ</option><option value="overdue">ค้างชำระ</option>
-    </select>
-  </div>
-  <div class="list-header">
-    <span class="list-count" id="orders-count">—</span>
-    <button class="btn-sm danger" onclick="clearAllOrders()" data-t="btn_clear_all">ล้างทั้งหมด</button>
-  </div>
-  <div id="orders-list"></div>
-</div>
-
-<!-- DASHBOARD - Full Analytics v11 -->
-<div class="content" id="tab-summary">
-
-  <!-- ANALYTICS HEADER -->
-  <div class="an-header">
-    <div class="an-header-left">
-      <div class="an-title">QSNCC · Waste Analytics</div>
-      <div class="an-subtitle" id="an-subtitle">ภาพรวมการจัดการขยะ</div>
-    </div>
-    <button class="btn-sm" onclick="resetDashFilters()" style="font-size:12px;padding:5px 12px">↻ Reset</button>
-  </div>
-
-  <!-- FILTER BAR -->
-  <div class="an-filterbar">
-    <div class="an-filter-left">
-      <span class="an-filter-lbl">ช่วงเวลา:</span>
-      <div class="period-tabs">
-        <div class="ptab active" onclick="setDPeriod('day',this)">รายวัน</div>
-        <div class="ptab" onclick="setDPeriod('month',this)">รายเดือน</div>
-        <div class="ptab" onclick="setDPeriod('year',this)">รายปี</div>
-        <div class="ptab" onclick="setDPeriod('all',this)">ทั้งหมด</div>
+    <nav class="sb-nav">
+      <div class="tab active" onclick="switchTab('summary',this)">
+        <div class="tab-left"><span class="sb-icon">📊</span><span>แดชบอร์ด</span></div>
+        <span class="chev">›</span>
+      </div>
+      <div class="tab" onclick="switchTab('orders',this)">
+        <div class="tab-left"><span class="sb-icon">🛒</span><span data-t="tab_orders">รายการสั่งซื้อ</span></div>
+      </div>
+      <div class="tab" onclick="switchTab('vendor',this)">
+        <div class="tab-left"><span class="sb-icon">👥</span><span data-t="tab_vendor">ผู้ขาย</span></div>
+      </div>
+      <div class="tab" onclick="switchTab('billing',this)">
+        <div class="tab-left"><span class="sb-icon">💳</span><span data-t="tab_billing">การเรียกเก็บเงิน</span></div>
+        <span class="badge" id="billing-badge" style="display:none">0</span>
+      </div>
+      <div class="tab" onclick="switchTab('report',this)">
+        <div class="tab-left"><span class="sb-icon">📑</span><span>รายงาน</span></div>
+      </div>
+      <div class="tab" onclick="switchTab('form',this)">
+        <div class="tab-left"><span class="sb-icon">➕</span><span data-t="tab_form">สร้าง Order</span></div>
+      </div>
+      <div class="tab" onclick="switchTab('settings',this)">
+        <div class="tab-left"><span class="sb-icon">⚙️</span><span data-t="tab_settings">ตั้งค่า</span></div>
+      </div>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-clock">
+        <span class="live-dot live-local" id="live-dot"></span>
+        <span id="clock">--:--:--</span>
+      </div>
+      <div class="sb-langs">
+        <span class="lang-btn active" onclick="setLang('th')" id="lb-th">TH</span>
+        <span class="lang-btn" onclick="setLang('en')" id="lb-en">EN</span>
+        <span class="lang-btn" onclick="setLang('lo')" id="lb-lo">ລາວ</span>
       </div>
     </div>
-    <div class="an-filter-right">
-      <select id="df-day" class="an-select"></select>
-      <select id="df-month" class="an-select"></select>
-      <select id="df-year" class="an-select"></select>
-      <select id="df-vendor" class="an-select"></select>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <span class="top-page-label" id="page-label">แดชบอร์ด</span>
+      </div>
+      <div class="top-bar-right">
+        <button class="btn-hdr" onclick="exportExcel()" title="Export Excel">⬇ Excel</button>
+        <button class="btn-hdr" onclick="exportCSV()" title="Export CSV">⬇ CSV</button>
+      </div>
+    </header>
+
+    <!-- ═══ FORM ═══ -->
+    <div class="content active" id="tab-form">
+      <div class="edit-banner" id="edit-banner">
+        <div class="edit-banner-text">✏️ <span data-t="editing_order">กำลังแก้ไข</span> <strong id="edit-banner-no"></strong></div>
+        <button type="button" class="btn-cancel-edit" onclick="cancelEdit()" data-t="cancel_edit">ยกเลิกการแก้ไข</button>
+      </div>
+      <div class="sec-label">📋 <span data-t="order_header">ข้อมูล Order</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label data-t="vendor">Vendor</label>
+          <select id="f-vendor" onchange="onVendorChange()">
+            <option value="" data-t="sel_vendor">— เลือก Vendor —</option>
+            <option>TBR</option><option>ECG</option><option>ENRISE BIO SUPPLY (PTT)</option><option>BSGF</option>
+            <option>พีรพัฒน์ (PEERAPAT)</option><option>จีรวัฒน์ฟาร์มปลา</option>
+            <option>มูลนิธิแม่ฟ้าหลวง</option><option>ออแกนิซต้า การ์เด้น (ORGANIZTAR GARDEN)</option><option>AIS</option>
+            <option>INSEE ECOCYCLE</option><option>SCGP</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-t="plate">เลขทะเบียนรถ</label>
+          <input id="f-plate" type="text" list="plate-list" placeholder="เลือกหรือพิมพ์ทะเบียน" autocomplete="off">
+          <datalist id="plate-list"></datalist>
+          <div class="field-hint" id="plate-hint" data-t="plate_hint">เลือก Vendor เพื่อโหลดทะเบียนที่เคยใช้</div>
+        </div>
+        <div class="field"><label data-t="date">วันที่รับซื้อ</label><input id="f-date" type="date"></div>
+        <div class="field"><label data-t="recorder">ชื่อผู้บันทึก</label><input id="f-recorder" type="text"></div>
+        <div class="field form-full"><label data-t="note">หมายเหตุ</label><textarea id="f-note" rows="2"></textarea></div>
+      </div>
+      <div class="sec-label">➕ <span data-t="add_item">เพิ่มรายการขยะ</span></div>
+      <div class="item-add-box">
+        <div class="field">
+          <label data-t="waste_type">ประเภทขยะ</label>
+          <select id="fi-type" onchange="onTypeChange()">
+            <option value="">— เลือกประเภทขยะ —</option>
+            <optgroup label="1. แก้ว (Glass)">
+              <option>1.1 ขวดแก้วใส (Clear Glass)</option><option>1.2 ขวดแก้วสีชา (Amber Glass)</option>
+              <option>1.3 ขวดแก้วสีเขียว (Green Glass)</option><option>1.4 ขวดแก้วคละสี (Assorted Colored Glasses)</option>
+              <option>1.5 ลังขวดเบียร์ช้าง 320 ml พร้อมขวด</option>
+              <option>1.6 ลังขวดเบียร์ช้าง 620 ml พร้อมขวด</option>
+              <option>1.7 ลังขวดเบียร์ช้าง 1500 ml พร้อมขวด</option>
+            </optgroup>
+            <optgroup label="2. เหล็ก (Metal)"><option>2.1 กระป๋องเหล็ก (Metal Can)</option><option>2.2 แผ่นเหล็ก (Metal Sheet)</option></optgroup>
+            <optgroup label="3. อลูมิเนียม (Aluminium)"><option>3.1 กระป๋องอลูมิเนียม (Aluminium Can)</option><option>3.2 อลูมิเนียมอื่นๆ (Other Aluminium)</option></optgroup>
+            <optgroup label="4. พลาสติก (Plastic)">
+              <option>4.1 ขวดพลาสติกใส (PET/PETE/PE)</option><option>4.2 ขวดพลาสติกขุ่น (HDPE)</option>
+              <option>4.3 ขวดพลาสติกแบบสกรีน (Screen Printed)</option><option>4.4 ฝาขวดพลาสติก (Plastic Bottle Cap)</option>
+              <option>4.5 PVC (แผ่นฟิล์ม/ท่อ PVC)</option><option>4.6 ถุงพลาสติก (LDPE)</option>
+              <option>4.7 กล่องใส่อาหาร (PP)</option><option>4.8 ช้อนส้อมพลาสติก (PS)</option>
+              <option>4.9 พลาสติกอื่นๆ (Other Plastic)</option>
+            </optgroup>
+            <optgroup label="5. กระดาษ (Paper)">
+              <option>5.1 กระดาษปริ้นท์ขาวดำ (B&amp;W Paper)</option><option>5.2 กระดาษปริ้นท์สี (Color Paper)</option>
+              <option>5.3 กระดาษลัง (Cardboard)</option><option>5.4 ถาดไข่กระดาษ (Paper Egg Tray)</option>
+              <option>5.5 กระดาษย่อย (Shredded Paper)</option><option>5.6 กระดาษอื่นๆ (Other Paper)</option>
+            </optgroup>
+            <optgroup label="6. น้ำมันทำอาหารที่ใช้แล้ว (Used Cooking Oil)">
+              <option>6.1 แกลลอนเหลือง (PTT) — แกลลอนละ 15 กก.</option>
+              <option>6.2 ปี๊ป (BSGF) — ปี๊ปละ 18 กก.</option>
+            </optgroup>
+            <optgroup label="7. อาหารปลา (Fish Food)"><option>7.1 อาหารปลา (Fish Food)</option></optgroup>
+            <optgroup label="8. ปุ๋ย (Compost)"><option>8.1 ปุ๋ยจากเศษอาหารและกากกาแฟ (Coffee Compost)</option></optgroup>
+            <optgroup label="9. RDF"><option>9.1 RDF (Refuse Derived Fuel)</option></optgroup>
+            <optgroup label="10. ขยะอันตราย (Hazardous Waste)">
+              <option>10.1 ขยะอันตราย (Hazardous Waste)</option><option>10.2 ขยะติดเชื้อ (Infectious Waste)</option>
+            </optgroup>
+            <optgroup label="11. อื่นๆ (Others)"><option>11.1 อื่นๆ — กรุณากรอกรายละเอียดในหมายเหตุ</option></optgroup>
+          </select>
+        </div>
+        <div class="item-calc-row">
+          <div class="field">
+            <label id="fi-qty-label">น้ำหนัก / จำนวน</label>
+            <input id="fi-qty" type="number" min="0" step="0.1" placeholder="0" oninput="calcItem()">
+            <div class="field-hint" id="fi-unit-hint"></div>
+          </div>
+          <div class="field">
+            <label data-t="price_kg">ราคา / หน่วย (฿)</label>
+            <input id="fi-price" type="number" min="0" step="0.5" placeholder="0.00" oninput="calcItem()">
+          </div>
+          <div class="calc-display">
+            <div class="lbl" data-t="total_item">ยอดรายการ</div>
+            <div class="val" id="fi-total">0.00 ฿</div>
+          </div>
+          <button class="btn-add-item" onclick="addItem()" data-t="btn_add_item">+ เพิ่ม</button>
+        </div>
+      </div>
+      <div id="form-items-wrap"></div>
+      <div class="sec-label" id="sig-section-label" style="display:none">✍️ <span data-t="signatures">ลายเซ็น</span></div>
+      <div id="sig-section" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase" data-t="sig_receiver">ลายเซ็นผู้รับซื้อ (Vendor)</label>
+            <div class="sig-canvas-wrap" style="margin-bottom:6px"><canvas id="sig-receiver-canvas" width="320" height="120"></canvas></div>
+            <button type="button" class="btn-sm" onclick="clearSig('receiver')" style="font-size:11px;padding:3px 9px">🗑 ล้าง</button>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase" data-t="sig_seller">ลายเซ็นผู้ขาย (AM)</label>
+            <div class="sig-canvas-wrap" style="margin-bottom:6px"><canvas id="sig-seller-canvas" width="320" height="120"></canvas></div>
+            <button type="button" class="btn-sm" onclick="clearSig('seller')" style="font-size:11px;padding:3px 9px">🗑 ล้าง</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">💡 ลากเมาส์หรือนิ้วเพื่อเซ็น</div>
+      </div>
+      <div class="order-total-bar" id="order-total-bar" style="display:none">
+        <div><div class="lbl" id="otb-label"></div><div class="sub" data-t="order_ready">พร้อมสร้าง Order</div></div>
+        <div><div class="val" id="otb-total">0</div><div style="font-size:12px;opacity:.8">฿</div></div>
+      </div>
+      <button class="btn-submit" id="btn-submit-order" onclick="submitOrder()" disabled data-t="btn_create_order"><span id="btn-submit-text">สร้าง Order</span></button>
     </div>
-  </div>
 
-  <!-- KPI STRIP -->
-  <div class="kpi-strip" id="kpi-strip"></div>
+    <!-- ═══ ORDERS ═══ -->
+    <div class="content" id="tab-orders">
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="orders-search" oninput="renderOrders()"></div>
+      <div class="filter-row">
+        <select id="of-vendor" onchange="renderOrders()"><option value="">— Vendor —</option></select>
+        <select id="of-month" onchange="renderOrders()"><option value="">— เดือน —</option></select>
+        <select id="of-year" onchange="renderOrders()"><option value="">— ปี —</option></select>
+        <select id="of-status" onchange="renderOrders()">
+          <option value="">— สถานะ —</option>
+          <option value="paid">รับแล้ว</option><option value="pending">รอรับ</option><option value="overdue">ค้างชำระ</option>
+        </select>
+      </div>
+      <div class="list-header">
+        <span class="list-count" id="orders-count">—</span>
+        <button class="btn-sm danger" onclick="clearAllOrders()" data-t="btn_clear_all">ล้างทั้งหมด</button>
+      </div>
+      <div id="orders-list"></div>
+    </div>
 
-  <!-- CATEGORY QUICK SELECT -->
-  <div class="cat-pills-wrap">
-    <div class="cat-pill active" onclick="setDCat('all',this)">📊 ทั้งหมด</div>
-    <div class="cat-pill" onclick="setDCat('recycle',this)">♻️ Recycling</div>
-    <div class="cat-pill" onclick="setDCat('bio',this)">🌿 Bio-Resource</div>
-    <div class="cat-pill" onclick="setDCat('organic',this)">🔄 Organics</div>
-    <div class="cat-pill" onclick="setDCat('energy',this)">⚡ Energy Recovery</div>
-  </div>
-
-  <!-- MAIN ANALYTICS AREA -->
-  <!-- Row 1: Multi-series Trend + Composition -->
-  <div class="an-row">
-    <div class="an-card an-card-lg">
-      <div class="an-card-hdr">
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="content" id="tab-summary">
+      <!-- ── HEADER ── -->
+      <div class="an-header">
         <div>
-          <div class="an-card-title" id="trend-title">📈 แนวโน้มปริมาณขยะตามประเภท</div>
-          <div class="an-card-sub" id="trend-sub">น้ำหนัก (กก.) แยกตามหมวดหมู่ตลอดช่วงเวลา</div>
+          <div class="an-title">แดชบอร์ด</div>
+          <div class="an-subtitle" id="an-subtitle">ข้อมูลทั้งหมด</div>
         </div>
-        <div class="an-toggle-wrap">
-          <button class="an-toggle active" id="toggle-weight" onclick="setTrendMode('weight',this)">⚖️ น้ำหนัก</button>
-          <button class="an-toggle" id="toggle-revenue" onclick="setTrendMode('revenue',this)">💰 รายได้</button>
-        </div>
-      </div>
-      <div class="an-card-body">
-        <div id="trend-chart-wrap" class="chart-wrap"></div>
-        <div id="trend-legend" class="trend-legend"></div>
-      </div>
-    </div>
-
-    <div class="an-card an-card-sm">
-      <div class="an-card-hdr">
-        <div>
-          <div class="an-card-title">🥧 สัดส่วนประเภทขยะ</div>
-          <div class="an-card-sub">% ตามน้ำหนัก</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="period-tabs">
+            <div class="ptab" onclick="setDPeriod('day',this)">วันนี้</div>
+            <div class="ptab active" onclick="setDPeriod('month',this)">เดือนนี้</div>
+            <div class="ptab" onclick="setDPeriod('year',this)">ปีนี้</div>
+            <div class="ptab" onclick="setDPeriod('all',this)">ทั้งหมด</div>
+          </div>
+          <select id="df-month" class="an-select" style="font-size:12px"></select>
+          <select id="df-year" class="an-select" style="font-size:12px"></select>
+          <select id="df-vendor" class="an-select" style="font-size:12px"></select>
+          <select id="df-day" class="an-select" style="display:none;font-size:12px"></select>
+          <button class="btn-sm" onclick="resetDashFilters()" title="รีเซ็ตตัวกรอง" style="padding:6px 10px">↻</button>
         </div>
       </div>
-      <div class="an-card-body">
-        <div id="composition-donut"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Row 2: Stacked Bar + Vendor -->
-  <div class="an-row an-row-2">
-    <div class="an-card">
-      <div class="an-card-hdr">
-        <div>
-          <div class="an-card-title">📊 ปริมาณขยะรายประเภท</div>
-          <div class="an-card-sub" id="type-bar-sub">เรียงตามน้ำหนัก · กด Tab เพื่อ Filter</div>
+      <!-- ── KPI BIG CARDS ── -->
+      <div class="kpi-big-grid" id="kpi-strip"></div>
+
+      <!-- ── ROW 1: Trend Chart (wide) + ESG KPIs ── -->
+      <div class="dash-grid-2">
+        <div class="an-card no-mb">
+          <div class="an-card-hdr" style="padding:12px 16px 10px">
+            <div>
+              <div class="an-card-title">แนวโน้มรายเดือน</div>
+              <div class="an-card-sub">รายได้รวม & น้ำหนักรวม</div>
+            </div>
+          </div>
+          <div class="an-card-body" style="padding:12px 14px 10px">
+            <div id="trend-chart-wrap" class="chart-wrap chart-hover-area"></div>
+            <div id="trend-legend" class="trend-legend" style="margin-top:8px;padding-top:8px"></div>
+          </div>
+        </div>
+
+        <div class="an-card no-mb" id="esg-kpi-card">
+          <div class="an-card-hdr" style="padding:12px 16px 10px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🌿</div>
+              <div>
+                <div class="an-card-title">ตัวชี้วัด ESG</div>
+                <div class="an-card-sub">Sustainability KPIs</div>
+              </div>
+            </div>
+          </div>
+          <div class="esg-kpi-row" id="esg-kpi-body" style="padding:0"></div>
         </div>
       </div>
-      <div class="an-card-body">
-        <div id="type-bars"></div>
-      </div>
-    </div>
 
-    <div class="an-card">
-      <div class="an-card-hdr">
-        <div>
-          <div class="an-card-title"> รายได้แยก Vendor</div>
-          <div class="an-card-sub">เรียงตามรายได้สูงสุด</div>
+      <!-- ── CATEGORY FILTER PILLS ── -->
+      <div class="cat-pills-wrap">
+        <div class="cat-pill active" onclick="setDCat('all',this)">📊 ทั้งหมด</div>
+        <div class="cat-pill" onclick="setDCat('recycle',this)">♻️ Recycling</div>
+        <div class="cat-pill" onclick="setDCat('bio',this)">🌿 Bio</div>
+        <div class="cat-pill" onclick="setDCat('organic',this)">🔄 Organics</div>
+        <div class="cat-pill" onclick="setDCat('energy',this)">⚡ Energy</div>
+      </div>
+
+      <!-- ── ROW 2: Donut + Type Bars + Vendor Bars ── -->
+      <div class="dash-grid-3">
+        <div class="an-card no-mb">
+          <div class="an-card-hdr" style="padding:10px 14px 8px">
+            <div>
+              <div class="an-card-title">องค์ประกอบขยะ</div>
+              <div class="an-card-sub" id="trend-sub">น้ำหนัก by type</div>
+            </div>
+            <div class="an-toggle-wrap">
+              <button class="an-toggle active" id="toggle-weight" onclick="setTrendMode('weight',this)" style="font-size:10px;padding:3px 7px">น้ำหนัก</button>
+              <button class="an-toggle" id="toggle-revenue" onclick="setTrendMode('revenue',this)" style="font-size:10px;padding:3px 7px">รายได้</button>
+            </div>
+          </div>
+          <div class="an-card-body" style="padding:10px 12px"><div id="composition-donut"></div></div>
+        </div>
+        <div class="an-card no-mb">
+          <div class="an-card-hdr" style="padding:10px 14px 8px">
+            <div><div class="an-card-title">ปริมาณตามประเภท</div><div class="an-card-sub" id="type-bar-sub">เรียงตามน้ำหนัก</div></div>
+          </div>
+          <div class="an-card-body" style="padding:10px 12px"><div id="type-bars"></div></div>
+        </div>
+        <div class="an-card no-mb">
+          <div class="an-card-hdr" style="padding:10px 14px 8px">
+            <div><div class="an-card-title">รายได้ตามผู้ขาย</div><div class="an-card-sub">Top vendors</div></div>
+          </div>
+          <div class="an-card-body" style="padding:10px 12px"><div id="vendor-bars"></div></div>
         </div>
       </div>
-      <div class="an-card-body">
-        <div id="vendor-bars"></div>
+
+      <!-- ── ROW 3: Insight Cards ── -->
+      <div class="insight-row" id="insight-row" style="margin-bottom:14px"></div>
+
+      <!-- ── ROW 4: Latest orders table ── -->
+      <div class="an-card">
+        <div class="an-card-hdr" style="padding:12px 16px 10px">
+          <div><div class="an-card-title" id="table-title">คำสั่งซื้อล่าสุด</div><div class="an-card-sub" id="table-sub"></div></div>
+          <span onclick="switchTab('orders',document.querySelector('.tab[onclick*=orders]'))" style="font-size:12px;color:var(--ncc-mid);cursor:pointer;font-weight:600;white-space:nowrap">ดูทั้งหมด →</span>
+        </div>
+        <div class="an-card-body" style="padding:0 0 4px"><div id="dash-table"></div></div>
+      </div>
+
+
+    <!-- ═══ VENDOR ═══ -->
+    <div class="content" id="tab-vendor">
+      <div class="panel" style="padding:13px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+          <span class="panel-title" data-t="period">ช่วงเวลา</span>
+          <div class="period-tabs">
+            <div class="ptab active" onclick="setVPeriod('month',this)" data-t="monthly">รายเดือน</div>
+            <div class="ptab" onclick="setVPeriod('year',this)" data-t="yearly">รายปี</div>
+            <div class="ptab" onclick="setVPeriod('all',this)" data-t="all_time">ทั้งหมด</div>
+          </div>
+        </div>
+        <div class="period-row" id="vendor-period-controls"></div>
+      </div>
+      <div id="vendor-cards"></div>
+    </div>
+
+    <!-- ═══ BILLING ═══ -->
+    <div class="content" id="tab-billing">
+      <div id="billing-alert" style="display:none" class="billing-alert">
+        <span style="font-size:20px">⚠️</span><div class="billing-alert-text" id="billing-alert-text"></div>
+      </div>
+      <div class="cards-3">
+        <div class="card green"><div class="card-label" data-t="billing_received">รับเงินแล้ว</div><div class="card-val" id="b-paid">0</div><div class="card-sub" data-t="baht">บาท</div></div>
+        <div class="card amber"><div class="card-label" data-t="billing_pending">รอรับเงิน</div><div class="card-val" id="b-pending">0</div><div class="card-sub" data-t="baht">บาท</div></div>
+        <div class="card red"><div class="card-label" data-t="billing_overdue">ค้างชำระ</div><div class="card-val" id="b-overdue">0</div><div class="card-sub" data-t="baht">บาท</div></div>
+      </div>
+      <div class="filter-row">
+        <select id="bf-vendor" onchange="renderBilling()"><option value="">— Vendor —</option></select>
+        <select id="bf-month" onchange="renderBilling()"><option value="">— เดือน —</option></select>
+        <select id="bf-year" onchange="renderBilling()"><option value="">— ปี —</option></select>
+        <select id="bf-status" onchange="renderBilling()">
+          <option value="">— สถานะ —</option>
+          <option value="paid">รับแล้ว</option><option value="pending">รอรับ</option><option value="overdue">ค้างชำระ</option>
+        </select>
+      </div>
+      <div class="list-header"><span class="list-count" id="billing-count">—</span></div>
+      <div id="billing-list"></div>
+    </div>
+
+
+    <!-- ═══ REPORT / ESG ═══ -->
+    <div class="content" id="tab-report">
+      <div class="an-header">
+        <div class="an-header-left">
+          <div class="an-title">รายงาน</div>
+          <div class="an-subtitle">สร้างและส่งออกรายงาน ESG และความยั่งยืน</div>
+        </div>
+      </div>
+      <!-- Date range + export -->
+      <div class="an-card" style="margin-bottom:14px">
+        <div class="an-card-body" style="padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">ช่วงวันที่</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div class="field" style="margin:0;min-width:160px"><label>จาก</label><input type="date" id="rpt-from" style="font-size:14px"></div>
+            <div class="field" style="margin:0;min-width:160px"><label>ถึง</label><input type="date" id="rpt-to" style="font-size:14px"></div>
+            <button class="btn-save-prices" onclick="renderReport()" style="height:40px;margin-top:18px">🔍 สรุปผล</button>
+            <button class="btn-sm primary" onclick="exportReportCSV()" style="height:40px;margin-top:18px;padding:0 16px">📄 ส่งออก CSV</button>
+            <button class="btn-sm" onclick="exportReportJSON()" style="height:40px;margin-top:18px;padding:0 16px;background:#6d3ab5;color:#fff;border-color:#6d3ab5">📦 ส่งออก JSON</button>
+          </div>
+        </div>
+      </div>
+      <!-- Summary KPI cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px" id="rpt-kpi-row">
+        <div class="card blue"><div class="card-label">จำนวนคำสั่งซื้อ</div><div class="card-val" id="rpt-cnt" style="color:var(--blue)">—</div><div class="card-sub">รายการ</div></div>
+        <div class="card green"><div class="card-label">น้ำหนักรวม (กก.)</div><div class="card-val" id="rpt-wt" style="color:#16a34a">—</div><div class="card-sub">kg</div></div>
+        <div class="card amber"><div class="card-label">รายได้รวม</div><div class="card-val" id="rpt-rev" style="color:var(--amber)">—</div><div class="card-sub">บาท</div></div>
+        <div class="card" style="border-left:3px solid #6d3ab5"><div class="card-label">CO₂ ที่ประหยัดได้</div><div class="card-val" id="rpt-co2" style="color:#6d3ab5">—</div><div class="card-sub">kg CO₂e (IPCC)</div></div>
+      </div>
+      <!-- ESG extra KPI row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+        <div class="card"><div class="card-label">⚡ พลังงานที่ประหยัด</div><div class="card-val" id="rpt-kwh" style="color:#0050c8;font-size:20px">—</div><div class="card-sub">kWh</div></div>
+        <div class="card"><div class="card-label">♻️ อัตราการรีไซเคิล</div><div class="card-val" id="rpt-rrate" style="color:#16a34a;font-size:20px">—</div><div class="card-sub">%</div></div>
+        <div class="card"><div class="card-label">⚠️ ขยะอันตราย</div><div class="card-val" id="rpt-haz" style="color:var(--red);font-size:20px">—</div><div class="card-sub">kg (แยกกำจัดตามกม.)</div></div>
+      </div>
+      <!-- CO2 method note -->
+      <div style="background:#e8f4ec;border:1px solid #a8d5b5;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#1a7040;display:flex;gap:8px;align-items:flex-start">
+        <span style="font-size:16px;flex-shrink:0">🌱</span>
+        <div><strong>ค่า CO₂ อ้างอิง IPCC AR6 / GHG Protocol (per material):</strong> แก้ว 0.31 · เหล็ก 1.80 · อลูมิเนียม 9.10 · พลาสติก 1.73 · กระดาษ 0.84 · UCO→Biodiesel 2.85 · ปุ๋ยหมัก 0.45 · RDF 0.90 kg CO₂e/kg · <em>ขยะอันตราย: 0 (ไม่นับ)</em></div>
+      </div>
+      <!-- Breakdown table -->
+      <div class="an-card" style="margin-bottom:14px">
+        <div class="an-card-hdr">
+          <div><div class="an-card-title">📊 สรุปตามประเภทขยะ</div><div class="an-card-sub">น้ำหนัก · รายได้ · CO₂ ที่ประหยัด · สัดส่วน — GRI 306</div></div>
+        </div>
+        <div class="an-card-body" style="padding:0;overflow-x:auto">
+          <table class="summary-table" style="min-width:700px">
+            <thead><tr><th>ประเภทขยะ</th><th style="text-align:right">จำนวนรายการ</th><th style="text-align:right">น้ำหนักรวม (กก.) KG</th><th style="text-align:right">รายได้รวม (฿)</th><th style="text-align:right">CO₂ ที่ประหยัด (KG)</th><th style="text-align:right">สัดส่วน (%)</th></tr></thead>
+            <tbody id="rpt-type-body"><tr><td colspan="6" class="empty-state">เลือกช่วงวันที่แล้วกด "สรุปผล"</td></tr></tbody>
+            <tfoot id="rpt-type-foot"></tfoot>
+          </table>
+        </div>
+      </div>
+      <!-- GRI + SDG -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="an-card">
+          <div class="an-card-hdr"><div><div class="an-card-title">📋 GRI 306 — Waste Classification</div><div class="an-card-sub">ตามมาตรฐาน Global Reporting Initiative</div></div></div>
+          <div class="an-card-body" id="rpt-gri-box"><div class="empty-state">สรุปผลเพื่อดู GRI classification</div></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-hdr"><div><div class="an-card-title">🌍 SDG Contribution</div><div class="an-card-sub">Sustainable Development Goals</div></div></div>
+          <div class="an-card-body" id="rpt-sdg-box"><div class="empty-state">สรุปผลเพื่อดู SDG mapping</div></div>
+        </div>
+      </div>
+      <!-- Hazardous warning -->
+      <div id="rpt-haz-warning" style="display:none;background:#fdecea;border:1.5px solid var(--red);border-radius:10px;padding:12px 16px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px">⚠️ ข้อกำหนดขยะอันตราย — กฎหมายไทย (พ.ร.บ.วัตถุอันตราย 2535)</div>
+        <div style="font-size:12px;color:#7a1f1f;line-height:1.7">ตรวจพบ <strong id="rpt-haz-count">0</strong> รายการ น้ำหนักรวม <strong id="rpt-haz-wt">0</strong> กก. — ต้องมี: ใบกำกับการขนส่งวัตถุอันตราย · ผู้รับกำจัดต้องมีใบอนุญาต DIW · ห้ามนับเป็น CO₂ saving</div>
       </div>
     </div>
-  </div>
 
-  <!-- Row 3: Insight Cards (special metrics) -->
-  <div class="insight-row" id="insight-row"></div>
-
-  <!-- Row 4: Detail Table -->
-  <div class="an-card" style="margin-bottom:14px">
-    <div class="an-card-hdr">
-      <div>
-        <div class="an-card-title" id="table-title">📋 ตารางสรุป</div>
-        <div class="an-card-sub" id="table-sub"></div>
+    <!-- ═══ SETTINGS ═══ -->
+    <div class="content" id="tab-settings">
+      <div class="settings-section">
+        <div class="settings-title" data-t="lang_settings">🌐 ภาษา / Language / ພາສາ</div>
+        <div class="lang-selector">
+          <div class="lang-option active" onclick="setLang('th')" id="lo-th"><span class="flag">🇹🇭</span><span class="name">ภาษาไทย</span></div>
+          <div class="lang-option" onclick="setLang('en')" id="lo-en"><span class="flag">🇬🇧</span><span class="name">English</span></div>
+          <div class="lang-option" onclick="setLang('lo')" id="lo-lo"><span class="flag">🇱🇦</span><span class="name">ພາສາລາວ</span></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title"> Firebase — Real-time Multi-User</div>
+        <div id="firebase-status-box" class="firebase-status disconnected">⚡ โหมด: Local (เครื่องนี้เท่านั้น)</div>
+        <div class="firebase-box">
+          <h3> วิธีเชื่อมต่อ Firebase (ทำครั้งเดียว ~10 นาที)</h3>
+          <p>1. ไปที่ <code>console.firebase.google.com</code> → สร้าง Project ใหม่ (ฟรี)</p>
+          <p>2. เลือก <code>Firestore Database</code> → Create database → Test mode</p>
+          <p>3. Project Settings → เพิ่ม Web App → Copy <code>firebaseConfig</code></p>
+          <p>4. วาง JSON Config ด้านล่าง → กด เชื่อมต่อ Firebase</p>
+          <p>5. ส่งไฟล์นี้ให้ทีม ทุกคนวาง Config เดิม → ข้อมูล Sync Real-time ✅</p>
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Firebase Config JSON</label>
+          <textarea id="fb-config-input" rows="5" style="font-family:var(--mono);font-size:12px" placeholder='{"apiKey":"AIza...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-save-prices" onclick="connectFirebase()"> เชื่อมต่อ Firebase</button>
+          <button class="btn-sm danger" onclick="disconnectFirebase()">ยกเลิกการเชื่อมต่อ</button>
+        </div>
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Export / Import (Backup)</div>
+          <div class="import-row">
+            <button class="btn-sm primary" onclick="exportData()">📤 Export JSON</button>
+            <button class="btn-sm" onclick="document.getElementById('import-file').click()">📥 Import JSON</button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title" data-t="price_settings">💰 ตั้งค่าราคารับซื้อขยะ</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">ราคาจะถูกดึงมาอัตโนมัติ · หน่วยพิเศษ (ลัง/ถัง/แกลลอน/ปี๊ป) = ราคาต่อหน่วยนั้น</div>
+        <div style="overflow-x:auto"><table class="price-table" id="price-table"></table></div>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button class="btn-save-prices" onclick="savePrices()" data-t="btn_save_prices">💾 บันทึกราคา</button>
+          <span id="price-saved-msg" style="font-size:12px;color:var(--ncc);display:none" data-t="prices_saved">✓ บันทึกแล้ว</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title" data-t="overdue_settings">⏰ ตั้งค่าวันค้างชำระ</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span data-t="overdue_after">ค้างชำระเมื่อเกิน</span>
+          <input type="number" id="overdue-days" min="1" max="90" value="7" style="width:70px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;text-align:center;outline:none">
+          <span data-t="days">วัน</span>
+          <button class="btn-sm primary" onclick="saveOverdueDays()" data-t="save">บันทึก</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title" data-t="vendor_plate_title">🚛 จัดการทะเบียนรถต่อ Vendor</div>
+        <div id="vendor-plate-manager"></div>
       </div>
     </div>
-    <div class="an-card-body">
-      <div id="dash-table"></div>
-    </div>
-  </div>
 
-</div>
+  </div><!-- /main -->
+</div><!-- /app-shell -->
 
-<!-- VENDOR -->
-<div class="content" id="tab-vendor">
-  <div class="panel" style="padding:13px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-      <span class="panel-title" data-t="period">ช่วงเวลา</span>
-      <div class="period-tabs">
-        <div class="ptab active" onclick="setVPeriod('month',this)" data-t="monthly">รายเดือน</div>
-        <div class="ptab" onclick="setVPeriod('year',this)" data-t="yearly">รายปี</div>
-        <div class="ptab" onclick="setVPeriod('all',this)" data-t="all_time">ทั้งหมด</div>
-      </div>
-    </div>
-    <div class="period-row" id="vendor-period-controls"></div>
-  </div>
-  <div id="vendor-cards"></div>
-</div>
-
-<!-- BILLING -->
-<div class="content" id="tab-billing">
-  <div id="billing-alert" style="display:none" class="billing-alert">
-    <span style="font-size:20px">⚠️</span><div class="billing-alert-text" id="billing-alert-text"></div>
-  </div>
-  <div class="cards-3">
-    <div class="card green"><div class="card-label" data-t="billing_received">รับเงินแล้ว</div><div class="card-val" id="b-paid">0</div><div class="card-sub" data-t="baht">บาท</div></div>
-    <div class="card amber"><div class="card-label" data-t="billing_pending">รอรับเงิน</div><div class="card-val" id="b-pending">0</div><div class="card-sub" data-t="baht">บาท</div></div>
-    <div class="card red"><div class="card-label" data-t="billing_overdue">ค้างชำระ</div><div class="card-val" id="b-overdue">0</div><div class="card-sub" data-t="baht">บาท</div></div>
-  </div>
-  <div class="filter-row">
-    <select id="bf-vendor" onchange="renderBilling()"><option value="">— Vendor —</option></select>
-    <select id="bf-month" onchange="renderBilling()"><option value="">— เดือน —</option></select>
-    <select id="bf-year" onchange="renderBilling()"><option value="">— ปี —</option></select>
-    <select id="bf-status" onchange="renderBilling()">
-      <option value="">— สถานะ —</option>
-      <option value="paid">รับแล้ว</option><option value="pending">รอรับ</option><option value="overdue">ค้างชำระ</option>
-    </select>
-  </div>
-  <div class="list-header"><span class="list-count" id="billing-count">—</span></div>
-  <div id="billing-list"></div>
-</div>
-
-<!-- SETTINGS -->
-<div class="content" id="tab-settings">
-  <div class="settings-section">
-    <div class="settings-title" data-t="lang_settings">🌐 ภาษา / Language / ພາສາ</div>
-    <div class="lang-selector">
-      <div class="lang-option active" onclick="setLang('th')" id="lo-th"><span class="flag">🇹🇭</span><span class="name">ภาษาไทย</span></div>
-      <div class="lang-option" onclick="setLang('en')" id="lo-en"><span class="flag">🇬🇧</span><span class="name">English</span></div>
-      <div class="lang-option" onclick="setLang('lo')" id="lo-lo"><span class="flag">🇱🇦</span><span class="name">ພາສາລາວ</span></div>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-title"> Firebase — Real-time Multi-User</div>
-    <div id="firebase-status-box" class="firebase-status disconnected">⚡ โหมด: Local (เครื่องนี้เท่านั้น)</div>
-    <div class="firebase-box">
-      <h3> วิธีเชื่อมต่อ Firebase (ทำครั้งเดียว ~10 นาที)</h3>
-      <p>1. ไปที่ <code>console.firebase.google.com</code> → สร้าง Project ใหม่ (ฟรี)</p>
-      <p>2. เลือก <code>Firestore Database</code> → Create database → Test mode</p>
-      <p>3. Project Settings → เพิ่ม Web App → Copy <code>firebaseConfig</code></p>
-      <p>4. วาง JSON Config ด้านล่าง → กด เชื่อมต่อ Firebase</p>
-      <p>5. ส่งไฟล์นี้ให้ทีม ทุกคนวาง Config เดิม → ข้อมูล Sync Real-time ✅</p>
-    </div>
-    <div class="field" style="margin-bottom:10px">
-      <label>Firebase Config JSON</label>
-      <textarea id="fb-config-input" rows="5" style="font-family:var(--mono);font-size:12px" placeholder='{"apiKey":"AIza...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-save-prices" onclick="connectFirebase()"> เชื่อมต่อ Firebase</button>
-      <button class="btn-sm danger" onclick="disconnectFirebase()">ยกเลิกการเชื่อมต่อ</button>
-    </div>
-    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Export / Import (Backup)</div>
-      <div class="import-row">
-        <button class="btn-sm primary" onclick="exportData()">📤 Export JSON</button>
-        <button class="btn-sm" onclick="document.getElementById('import-file').click()">📥 Import JSON</button>
-        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
-      </div>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-title" data-t="price_settings">💰 ตั้งค่าราคารับซื้อขยะ</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">ราคาจะถูกดึงมาอัตโนมัติ · หน่วยพิเศษ (ลัง/ถัง/แกลลอน/ปี๊ป) = ราคาต่อหน่วยนั้น</div>
-    <div style="overflow-x:auto"><table class="price-table" id="price-table"></table></div>
-    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-      <button class="btn-save-prices" onclick="savePrices()" data-t="btn_save_prices">💾 บันทึกราคา</button>
-      <span id="price-saved-msg" style="font-size:12px;color:var(--ncc);display:none" data-t="prices_saved">✓ บันทึกแล้ว</span>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-title" data-t="overdue_settings">⏰ ตั้งค่าวันค้างชำระ</div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span data-t="overdue_after">ค้างชำระเมื่อเกิน</span>
-      <input type="number" id="overdue-days" min="1" max="90" value="7" style="width:70px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;text-align:center;outline:none">
-      <span data-t="days">วัน</span>
-      <button class="btn-sm primary" onclick="saveOverdueDays()" data-t="save">บันทึก</button>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-title" data-t="vendor_plate_title">🚛 จัดการทะเบียนรถต่อ Vendor</div>
-    <div id="vendor-plate-manager"></div>
-  </div>
-</div>
-
-<!-- BILLING DOCS MODAL -->
+<!-- ═══ BILLING DOCS MODAL ═══ -->
 <div class="modal-overlay hidden" id="bdocs-modal">
   <div class="modal-box" style="max-width:480px">
     <div class="modal-title">📎 <span id="bdocs-modal-title" data-t="billing_docs_title">แนบเอกสารการชำระเงิน</span></div>
@@ -722,9 +1025,91 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
   </div>
 </div>
 
+
+<!-- ═══ SUCCESS MODAL ═══ -->
+<div id="success-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div class="success-box" style="background:#fff;border-radius:20px;padding:28px 24px;text-align:center;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <div class="success-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)">✅</div>
+    <div class="success-title">สร้าง Order สำเร็จ!</div>
+    <div class="success-order-no" id="success-order-no">ORD-0001</div>
+    <div class="success-sub" id="success-details" style="margin-bottom:4px;font-size:13px;color:var(--muted)"></div>
+    <div id="success-esg" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin:12px 0 18px;font-size:12px;color:#15803d;text-align:left"></div>
+    <button class="success-btn" onclick="closeSuccessModal()">✓ รับทราบ — สร้าง Order ใหม่</button>
+    <button onclick="closeSuccessModal();switchTab('orders',document.querySelector('.tab[onclick*=orders]'))" style="margin-top:8px;width:100%;padding:10px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:13px;cursor:pointer;color:var(--muted)">ดูรายการ Orders →</button>
+  </div>
+</div>
+
+<!-- ═══ CHART TOOLTIP ═══ -->
+<div id="chart-tooltip">
+  <div class="tt-title" id="tt-title">—</div>
+  <div id="tt-body"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+
+
+// ============================================================
+// v14: IPCC-ACCURATE CO₂ & ENERGY FACTORS PER WASTE CATEGORY
+// Source: IPCC AR6 (2021) + GHG Protocol Waste Sector Guidance
+// ============================================================
+const CO2_FACTORS = {
+  '1':  0.31,  // Glass — 0.31 kg CO₂e/kg (avg cullet savings vs virgin)
+  '2':  1.80,  // Metal/Iron — 1.80 kg CO₂e/kg (BOF route avoided)
+  '3':  9.10,  // Aluminium — 9.10 kg CO₂e/kg (primary Al = 11.9, credit 76%)
+  '4':  1.73,  // Plastic mix — 1.73 kg CO₂e/kg (avg PET/HDPE/LDPE)
+  '5':  0.84,  // Paper/Cardboard — 0.84 kg CO₂e/kg (virgin pulp avoided)
+  '6':  2.85,  // Used Cooking Oil → Biodiesel — 2.85 kg CO₂e/kg (fossil diesel sub.)
+  '7':  0.00,  // Fish Food — no recycling credit (organic reuse)
+  '8':  0.45,  // Compost — 0.45 kg CO₂e/kg (landfill methane avoided)
+  '9':  0.90,  // RDF — 0.90 kg CO₂e/kg (coal substitution, mid estimate)
+  '10': 0.00,  // Hazardous Waste — ZERO (proper disposal ≠ recycling credit)
+  '11': 0.50,  // Others — conservative 0.50 kg CO₂e/kg
+};
+
+// Energy savings factors (kWh saved per kg recycled vs. virgin production)
+const ENERGY_FACTORS = {
+  '1':  0.13,   // Glass — 0.13 kWh/kg
+  '2':  1.64,   // Metal/Iron — 1.64 kWh/kg
+  '3':  14.00,  // Aluminium — 14.00 kWh/kg (primary Al needs ~47 MJ/kg)
+  '4':  5.77,   // Plastic — 5.77 kWh/kg (avg)
+  '5':  4.10,   // Paper — 4.10 kWh/kg
+  '6':  9.50,   // UCO Biodiesel — 9.50 kWh/kg (energy content offset)
+  '7':  0.00,   // Fish Food
+  '8':  0.80,   // Compost — 0.80 kWh/kg (avoided transport/treatment)
+  '9':  3.50,   // RDF — 3.50 kWh/kg electricity equivalent
+  '10': 0.00,   // Hazardous
+  '11': 2.50,   // Others — conservative
+};
+
+// Human-readable category names for report
+const CAT_NAMES_TH = {
+  '1':'แก้ว','2':'โลหะ/เหล็ก','3':'อลูมิเนียม','4':'พลาสติก',
+  '5':'กระดาษ','6':'น้ำมันพืชใช้แล้ว','7':'อาหารปลา',
+  '8':'ปุ๋ยหมัก','9':'RDF','10':'ขยะอันตราย','11':'อื่นๆ'
+};
+// GRI 306 classification (hazardous vs non-hazardous)
+const GRI306_CAT = {
+  '1':'non-hazardous','2':'non-hazardous','3':'non-hazardous',
+  '4':'non-hazardous','5':'non-hazardous','6':'non-hazardous',
+  '7':'non-hazardous','8':'non-hazardous','9':'non-hazardous',
+  '10':'hazardous','11':'non-hazardous'
+};
+// Category colors (reuse TYPE_COLORS where possible)
+const RPT_COLORS = {
+  '1':'#6B8EA3','2':'#6B7280','3':'#C9A227','4':'#2DB57A',
+  '5':'#EAB308','6':'#8B5CF6','7':'#0EA5E9','8':'#22C55E',
+  '9':'#F97316','10':'#EF4444','11':'#94A3B8'
+};
+
+// Helpers: accurate CO₂ and energy calculations
+function getItemCO2(item){const c=item.type.split('.')[0];return(item.kgWeight||0)*(CO2_FACTORS[c]||0);}
+function getItemEnergy(item){const c=item.type.split('.')[0];return(item.kgWeight||0)*(ENERGY_FACTORS[c]||0);}
+function getTotalCO2(items){return items.reduce((a,i)=>a+getItemCO2(i),0);}
+function getTotalEnergy(items){return items.reduce((a,i)=>a+getItemEnergy(i),0);}
+function isHazardous(item){const c=item.type.split('.')[0];return c==='10';}
+
 const VENDORS=['TBR','ECG','ENRISE BIO SUPPLY (PTT)','BSGF','พีรพัฒน์ (PEERAPAT)','จีรวัฒน์ฟาร์มปลา','มูลนิธิแม่ฟ้าหลวง','ออแกนิซต้า การ์เด้น (ORGANIZTAR GARDEN)','AIS','INSEE ECOCYCLE','SCGP'];
 const VENDOR_COLORS=['#002B6C','#0050c8','#c47a1a','#6d3ab5','#c0392b','#0a7b8c','#7a5c1e','#1a7040','#8c3a1a','#d4500a','#2c5f8a'];
 const MONTHS_TH=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
@@ -770,9 +1155,9 @@ let _searchDebounceTimer=null;
 let donutMode='revenue'; // 'revenue' | 'weight'
 
 const T={
-  th:{tab_form:'สร้าง Order',tab_orders:'รายการ',tab_dash:'Dashboard',tab_vendor:'Vendor',tab_billing:'Billing',tab_settings:'ตั้งค่า',order_header:'ข้อมูล Order',add_item:'เพิ่มรายการขยะ',vendor:'Vendor',plate:'เลขทะเบียนรถ',waste_type:'ประเภทขยะ',date:'วันที่รับซื้อ',price_kg:'ราคา/หน่วย(฿)',total_item:'ยอดรายการ',recorder:'ชื่อผู้บันทึก',note:'หมายเหตุ',btn_add_item:'+ เพิ่ม',btn_create_order:'สร้าง Order',btn_save_edit:'💾 บันทึกการแก้ไข',order_ready:'พร้อมสร้าง Order',order_ready_edit:'พร้อมบันทึกการแก้ไข',sel_vendor:'— เลือก Vendor —',sel_type:'— เลือกประเภทขยะ —',plate_hint:'เลือก Vendor เพื่อโหลดทะเบียนที่เคยใช้',total_revenue:'รายได้รวม',total_weight:'น้ำหนักรวม',order_count:'จำนวน Orders',baht:'บาท',kg:'กก.',orders_unit:'Orders',period:'ช่วงเวลา',monthly:'รายเดือน',yearly:'รายปี',all_time:'ทั้งหมด',by_type:'น้ำหนักแยกตามประเภทขยะ',top_vendors:'Top Vendors (รายได้)',no_data:'ยังไม่มีข้อมูล',billing_received:'รับเงินแล้ว',billing_pending:'รอรับเงิน',billing_overdue:'ค้างชำระ',all:'ทั้งหมด',btn_mark_paid:'✍️ รับเงิน+เซ็น',lang_settings:'🌐 ภาษา',price_settings:'ตั้งค่าราคารับซื้อ',vendor_plate_title:'จัดการทะเบียนรถต่อ Vendor',btn_save_prices:'บันทึกราคา',prices_saved:'✓ บันทึกแล้ว',overdue_settings:'วันค้างชำระ',overdue_after:'ค้างชำระเมื่อเกิน',days:'วัน',save:'บันทึก',btn_clear_all:'ล้างทั้งหมด',search_placeholder:'ค้นหา Vendor, ทะเบียน, Order...',overdue_alert:'ค้างชำระเกิน {{n}} วัน: {{count}} Orders รวม {{amt}} บาท',price_col:'ราคา(฿/หน่วย)',type_col:'ประเภทขยะ',unit_col:'หน่วย',vendor_revenue:'รายได้',vendor_weight:'น้ำหนัก',vendor_count:'Orders',paid_on:'รับเงินวันที่',pending_days:'รอ {{n}} วัน',mark_paid_confirm:'ยืนยันรับเงิน?',delete_order_confirm:'ลบ Order นี้?',order_items:'รายการ',hdr_sub:'Waste Management System',doc_view:'ดูเอกสาร',sig_title:'ลายเซ็นอิเล็กทรอนิกส์',sig_view:'ดูลายเซ็น',signatures:'ลายเซ็น',sig_receiver:'ลายเซ็นผู้รับ (Vendor)',sig_seller:'ลายเซ็นผู้ขาย (AM)',billing_docs_title:'แนบเอกสารการชำระเงิน',billing_docs_sub:'เช่น สลิปโอนเงิน, ใบรับสินค้า, ใบกำกับภาษี (รูปภาพ หรือ PDF)',bdocs_hint:'เลือกได้หลายไฟล์ · รูปภาพจะถูกบีบอัดอัตโนมัติ',bdocs_mark_paid:'ยืนยันรับเงินด้วย (เปลี่ยนสถานะเป็น "รับแล้ว")',billing_docs:'เอกสารการชำระเงิน',attach_docs:'แนบเอกสาร',manage_docs:'จัดการเอกสาร',cancel:'ยกเลิก',edit:'แก้ไข',editing_order:'กำลังแก้ไข',cancel_edit:'ยกเลิกการแก้ไข',edit_saved:'บันทึกการแก้ไข',load_more:'โหลดเพิ่ม ({{n}} รายการ)',showing_n_of_m:'แสดง {{n}} จาก {{m}} รายการ',dash_empty_title:'ยังไม่มีข้อมูล Order',dash_empty_desc:'เริ่มต้นใช้งานที่แท็บ "📝 สร้าง Order" — แล้วกราฟต่าง ๆ จะถูกสร้างขึ้นที่นี่',fb_local:'⚡ โหมด: Local (เครื่องนี้เท่านั้น)',fb_connected:' Firebase เชื่อมต่ออยู่ — Real-time Sync',fb_error:'⚠ Firebase Error: {{msg}}',created_by:'สร้างโดย',modified_by:'แก้ไขโดย',compressing:'กำลังบีบอัด...',no_docs:'ยังไม่มีเอกสาร'},
-  en:{tab_form:'New Order',tab_orders:'Orders',tab_dash:'Dashboard',tab_vendor:'By Vendor',tab_billing:'Billing',tab_settings:'Settings',order_header:'Order Details',add_item:'Add Waste Items',vendor:'Vendor',plate:'License Plate',waste_type:'Waste Type',date:'Date',price_kg:'Price/Unit(฿)',total_item:'Item Total',recorder:'Recorded by',note:'Notes',btn_add_item:'+ Add',btn_create_order:'✓ Create Order',btn_save_edit:'💾 Save Changes',order_ready:'Ready to create',order_ready_edit:'Ready to save changes',sel_vendor:'— Select Vendor —',sel_type:'— Select Type —',plate_hint:'Select vendor to load saved plates',total_revenue:'Total Revenue',total_weight:'Total Weight',order_count:'Orders',baht:'THB',kg:'kg',orders_unit:'Orders',period:'Period',monthly:'Monthly',yearly:'Yearly',all_time:'All Time',by_type:'Weight by Waste Type',top_vendors:'Top Vendors (Revenue)',no_data:'No data available',billing_received:'Received',billing_pending:'Pending',billing_overdue:'Overdue',all:'All',btn_mark_paid:'✍️ Receive+Sign',lang_settings:'🌐 Language',price_settings:'Price Settings',vendor_plate_title:'Vendor Plate Management',btn_save_prices:'Save Prices',prices_saved:'✓ Saved',overdue_settings:'Overdue Settings',overdue_after:'Overdue after',days:'days',save:'Save',btn_clear_all:'Clear All',search_placeholder:'Search vendor, plate, order...',overdue_alert:'Overdue ({{n}}+ days): {{count}} orders, {{amt}} THB',price_col:'Price(฿/unit)',type_col:'Waste Type',unit_col:'Unit',vendor_revenue:'Revenue',vendor_weight:'Weight',vendor_count:'Orders',paid_on:'Paid on',pending_days:'Waiting {{n}} days',mark_paid_confirm:'Confirm payment?',delete_order_confirm:'Delete this order?',order_items:'items',hdr_sub:'Waste Management System v10',doc_view:'View Document',sig_title:'Electronic Signature',sig_view:'View Signature',signatures:'Signatures',sig_receiver:'Receiver Signature (QSNCC)',sig_seller:'Seller Signature (Vendor)',billing_docs_title:'Attach Payment Documents',billing_docs_sub:'e.g. Bank slips, receipts, invoices (Images or PDF)',bdocs_hint:'Multiple files allowed · Images will be auto-compressed',bdocs_mark_paid:'Mark as paid (change status to "Received")',billing_docs:'Payment Documents',attach_docs:'Attach Documents',manage_docs:'Manage Documents',cancel:'Cancel',edit:'Edit',editing_order:'Editing',cancel_edit:'Cancel edit',edit_saved:'Changes saved',load_more:'Load more ({{n}} items)',showing_n_of_m:'Showing {{n}} of {{m}}',dash_empty_title:'No order data yet',dash_empty_desc:'Start at the "📝 New Order" tab — charts will appear here.',fb_local:'⚡ Mode: Local (this device only)',fb_connected:' Firebase Connected — Real-time Sync',fb_error:'⚠ Firebase Error: {{msg}}',created_by:'Created by',modified_by:'Modified by',compressing:'Compressing...',no_docs:'No documents yet'},
-  lo:{tab_form:'ສ້າງ Order',tab_orders:'ລາຍການ',tab_dash:'Dashboard',tab_vendor:'ຜູ້ຂາຍ',tab_billing:'ການຊຳລະ',tab_settings:'ຕັ້ງຄ່າ',order_header:'ຂໍ້ມູນ',add_item:'ເພີ່ມ',vendor:'ຜູ້ຂາຍ',plate:'ທະບຽນ',waste_type:'ປະເພດ',date:'ວັນທີ',price_kg:'ລາຄາ',total_item:'ຍອດ',recorder:'ຜູ້ບັນທຶກ',note:'ໝາຍເຫດ',btn_add_item:'+ ເພີ່ມ',btn_create_order:'✓ ສ້າງ',btn_save_edit:'💾 ບັນທຶກການແກ້ໄຂ',order_ready:'ພ້ອມ',order_ready_edit:'ພ້ອມບັນທຶກ',sel_vendor:'— ຜູ້ຂາຍ —',sel_type:'— ປະເພດ —',plate_hint:'ເລືອກຜູ້ຂາຍ',total_revenue:'ລາຍຮັບ',total_weight:'ນ້ຳໜັກ',order_count:'Orders',baht:'ບາດ',kg:'ກກ',orders_unit:'Orders',period:'ໄລຍະ',monthly:'ລາຍເດືອນ',yearly:'ລາຍປີ',all_time:'ທັງໝົດ',by_type:'ນ້ຳໜັກ',top_vendors:'Top Vendors',no_data:'ຍັງບໍ່ມີ',billing_received:'ຮັບແລ້ວ',billing_pending:'ລໍຖ້າ',billing_overdue:'ຄ້າງ',all:'ທັງໝົດ',btn_mark_paid:'✍️ ຮັບ+ເຊັນ',lang_settings:'🌐 ພາສາ',price_settings:' ລາຄາ',vendor_plate_title:'🚛 ທະບຽນ',btn_save_prices:'💾 ບັນທຶກ',prices_saved:'✓',overdue_settings:'⏰ ຄ້າງ',overdue_after:'ຄ້າງ',days:'ວັນ',save:'ບັນທຶກ',btn_clear_all:'ລຶບ',search_placeholder:'ຄົ້ນຫາ...',overdue_alert:'ຄ້າງ {{n}} ວັນ: {{count}} {{amt}} ບາດ',price_col:'ລາຄາ',type_col:'ປະເພດ',unit_col:'ໜ່ວຍ',vendor_revenue:'ລາຍຮັບ',vendor_weight:'ນ້ຳໜັກ',vendor_count:'Orders',paid_on:'ຮັບ',pending_days:'ລໍ {{n}} ວັນ',mark_paid_confirm:'ຢືນຢັນ?',delete_order_confirm:'ລຶບ?',order_items:'ລາຍການ',hdr_sub:'ລະບົບ v10',doc_view:'ເບິ່ງ',sig_title:'ລາຍເຊັນ',sig_view:'ເຊັນ',signatures:'ລາຍເຊັນ',sig_receiver:'ລາຍເຊັນຜູ້ຮັບ (QSNCC)',sig_seller:'ລາຍເຊັນຜູ້ຂາຍ (Vendor)',billing_docs_title:'ແນບເອກະສານ',billing_docs_sub:'ສະລິບໂອນເງິນ, ໃບຮັບ (ຮູບ ຫຼື PDF)',bdocs_hint:'ຫຼາຍໄຟລ໌ · ຮູບຈະຖືກບີບອັດອັດຕະໂນມັດ',bdocs_mark_paid:'ຢືນຢັນຮັບເງິນ',billing_docs:'ເອກະສານ',attach_docs:'ແນບເອກະສານ',manage_docs:'ຈັດການເອກະສານ',cancel:'ຍົກເລີກ',edit:'ແກ້ໄຂ',editing_order:'ກຳລັງແກ້ໄຂ',cancel_edit:'ຍົກເລີກ',edit_saved:'ບັນທຶກແລ້ວ',load_more:'ໂຫຼດເພີ່ມ ({{n}})',showing_n_of_m:'ສະແດງ {{n}}/{{m}}',dash_empty_title:'ຍັງບໍ່ມີ Order',dash_empty_desc:'ເລີ່ມຕົ້ນທີ່ແທັບ "📝 ສ້າງ Order"',fb_local:'⚡ ໂໝດ: Local',fb_connected:' Firebase ເຊື່ອມຕໍ່ — Real-time',fb_error:'⚠ Firebase Error: {{msg}}',created_by:'ສ້າງໂດຍ',modified_by:'ແກ້ໄຂໂດຍ',compressing:'ກຳລັງບີບອັດ...',no_docs:'ຍັງບໍ່ມີເອກະສານ'}
+  th:{tab_form:'สร้าง Order',tab_orders:'รายการ',tab_dash:'Dashboard',tab_vendor:'Vendor',tab_billing:'Billing',tab_settings:'ตั้งค่า',order_header:'ข้อมูล Order',add_item:'เพิ่มรายการขยะ',vendor:'Vendor',plate:'เลขทะเบียนรถ',waste_type:'ประเภทขยะ',date:'วันที่รับซื้อ',price_kg:'ราคา/หน่วย(฿)',total_item:'ยอดรายการ',recorder:'ชื่อผู้บันทึก',note:'หมายเหตุ',btn_add_item:'+ เพิ่ม',btn_create_order:'สร้าง Order',btn_save_edit:'💾 บันทึกการแก้ไข',order_ready:'พร้อมสร้าง Order',order_ready_edit:'พร้อมบันทึกการแก้ไข',sel_vendor:'— เลือก Vendor —',sel_type:'— เลือกประเภทขยะ —',plate_hint:'เลือก Vendor เพื่อโหลดทะเบียนที่เคยใช้',total_revenue:'รายได้รวม',total_weight:'น้ำหนักรวม',order_count:'จำนวน Orders',baht:'บาท',kg:'กก.',orders_unit:'Orders',period:'ช่วงเวลา',monthly:'รายเดือน',yearly:'รายปี',all_time:'ทั้งหมด',by_type:'น้ำหนักแยกตามประเภทขยะ',top_vendors:'Top Vendors (รายได้)',no_data:'ยังไม่มีข้อมูล',billing_received:'รับเงินแล้ว',billing_pending:'รอรับเงิน',billing_overdue:'ค้างชำระ',all:'ทั้งหมด',btn_mark_paid:'✍️ รับเงิน+เซ็น',lang_settings:'🌐 ภาษา',price_settings:'ตั้งค่าราคารับซื้อ',vendor_plate_title:'จัดการทะเบียนรถต่อ Vendor',btn_save_prices:'บันทึกราคา',prices_saved:'✓ บันทึกแล้ว',overdue_settings:'วันค้างชำระ',overdue_after:'ค้างชำระเมื่อเกิน',days:'วัน',save:'บันทึก',btn_clear_all:'ล้างทั้งหมด',search_placeholder:'ค้นหา Vendor, ทะเบียน, Order...',overdue_alert:'ค้างชำระเกิน {{n}} วัน: {{count}} Orders รวม {{amt}} บาท',price_col:'ราคา(฿/หน่วย)',type_col:'ประเภทขยะ',unit_col:'หน่วย',vendor_revenue:'รายได้',vendor_weight:'น้ำหนัก',vendor_count:'Orders',paid_on:'รับเงินวันที่',pending_days:'รอ {{n}} วัน',mark_paid_confirm:'ยืนยันรับเงิน?',delete_order_confirm:'ลบ Order นี้?',order_items:'รายการ',hdr_sub:'Recycle Waste Management System',doc_view:'ดูเอกสาร',sig_title:'ลายเซ็นอิเล็กทรอนิกส์',sig_view:'ดูลายเซ็น',signatures:'ลายเซ็น',sig_receiver:'ลายเซ็นผู้รับ (Vendor)',sig_seller:'ลายเซ็นผู้ขาย (AM)',billing_docs_title:'แนบเอกสารการชำระเงิน',billing_docs_sub:'เช่น สลิปโอนเงิน, ใบรับสินค้า, ใบกำกับภาษี (รูปภาพ หรือ PDF)',bdocs_hint:'เลือกได้หลายไฟล์ · รูปภาพจะถูกบีบอัดอัตโนมัติ',bdocs_mark_paid:'ยืนยันรับเงินด้วย (เปลี่ยนสถานะเป็น "รับแล้ว")',billing_docs:'เอกสารการชำระเงิน',attach_docs:'แนบเอกสาร',manage_docs:'จัดการเอกสาร',cancel:'ยกเลิก',edit:'แก้ไข',editing_order:'กำลังแก้ไข',cancel_edit:'ยกเลิกการแก้ไข',edit_saved:'บันทึกการแก้ไข',load_more:'โหลดเพิ่ม ({{n}} รายการ)',showing_n_of_m:'แสดง {{n}} จาก {{m}} รายการ',dash_empty_title:'ยังไม่มีข้อมูล Order',dash_empty_desc:'เริ่มต้นใช้งานที่แท็บ "📝 สร้าง Order" — แล้วกราฟต่าง ๆ จะถูกสร้างขึ้นที่นี่',fb_local:'⚡ โหมด: Local (เครื่องนี้เท่านั้น)',fb_connected:' Firebase เชื่อมต่ออยู่ — Real-time Sync',fb_error:'⚠ Firebase Error: {{msg}}',created_by:'สร้างโดย',modified_by:'แก้ไขโดย',compressing:'กำลังบีบอัด...',no_docs:'ยังไม่มีเอกสาร'},
+  en:{tab_form:'New Order',tab_orders:'Orders',tab_dash:'Dashboard',tab_vendor:'By Vendor',tab_billing:'Billing',tab_settings:'Settings',order_header:'Order Details',add_item:'Add Waste Items',vendor:'Vendor',plate:'License Plate',waste_type:'Waste Type',date:'Date',price_kg:'Price/Unit(฿)',total_item:'Item Total',recorder:'Recorded by',note:'Notes',btn_add_item:'+ Add',btn_create_order:'✓ Create Order',btn_save_edit:'💾 Save Changes',order_ready:'Ready to create',order_ready_edit:'Ready to save changes',sel_vendor:'— Select Vendor —',sel_type:'— Select Type —',plate_hint:'Select vendor to load saved plates',total_revenue:'Total Revenue',total_weight:'Total Weight',order_count:'Orders',baht:'THB',kg:'kg',orders_unit:'Orders',period:'Period',monthly:'Monthly',yearly:'Yearly',all_time:'All Time',by_type:'Weight by Waste Type',top_vendors:'Top Vendors (Revenue)',no_data:'No data available',billing_received:'Received',billing_pending:'Pending',billing_overdue:'Overdue',all:'All',btn_mark_paid:'✍️ Receive+Sign',lang_settings:'🌐 Language',price_settings:'Price Settings',vendor_plate_title:'Vendor Plate Management',btn_save_prices:'Save Prices',prices_saved:'✓ Saved',overdue_settings:'Overdue Settings',overdue_after:'Overdue after',days:'days',save:'Save',btn_clear_all:'Clear All',search_placeholder:'Search vendor, plate, order...',overdue_alert:'Overdue ({{n}}+ days): {{count}} orders, {{amt}} THB',price_col:'Price(฿/unit)',type_col:'Waste Type',unit_col:'Unit',vendor_revenue:'Revenue',vendor_weight:'Weight',vendor_count:'Orders',paid_on:'Paid on',pending_days:'Waiting {{n}} days',mark_paid_confirm:'Confirm payment?',delete_order_confirm:'Delete this order?',order_items:'items',hdr_sub:'Recycle Waste Management System',doc_view:'View Document',sig_title:'Electronic Signature',sig_view:'View Signature',signatures:'Signatures',sig_receiver:'Receiver Signature (QSNCC)',sig_seller:'Seller Signature (Vendor)',billing_docs_title:'Attach Payment Documents',billing_docs_sub:'e.g. Bank slips, receipts, invoices (Images or PDF)',bdocs_hint:'Multiple files allowed · Images will be auto-compressed',bdocs_mark_paid:'Mark as paid (change status to "Received")',billing_docs:'Payment Documents',attach_docs:'Attach Documents',manage_docs:'Manage Documents',cancel:'Cancel',edit:'Edit',editing_order:'Editing',cancel_edit:'Cancel edit',edit_saved:'Changes saved',load_more:'Load more ({{n}} items)',showing_n_of_m:'Showing {{n}} of {{m}}',dash_empty_title:'No order data yet',dash_empty_desc:'Start at the "📝 New Order" tab — charts will appear here.',fb_local:'⚡ Mode: Local (this device only)',fb_connected:' Firebase Connected — Real-time Sync',fb_error:'⚠ Firebase Error: {{msg}}',created_by:'Created by',modified_by:'Modified by',compressing:'Compressing...',no_docs:'No documents yet'},
+  lo:{tab_form:'ສ້າງ Order',tab_orders:'ລາຍການ',tab_dash:'Dashboard',tab_vendor:'ຜູ້ຂາຍ',tab_billing:'ການຊຳລະ',tab_settings:'ຕັ້ງຄ່າ',order_header:'ຂໍ້ມູນ',add_item:'ເພີ່ມ',vendor:'ຜູ້ຂາຍ',plate:'ທະບຽນ',waste_type:'ປະເພດ',date:'ວັນທີ',price_kg:'ລາຄາ',total_item:'ຍອດ',recorder:'ຜູ້ບັນທຶກ',note:'ໝາຍເຫດ',btn_add_item:'+ ເພີ່ມ',btn_create_order:'✓ ສ້າງ',btn_save_edit:'💾 ບັນທຶກການແກ້ໄຂ',order_ready:'ພ້ອມ',order_ready_edit:'ພ້ອມບັນທຶກ',sel_vendor:'— ຜູ້ຂາຍ —',sel_type:'— ປະເພດ —',plate_hint:'ເລືອກຜູ້ຂາຍ',total_revenue:'ລາຍຮັບ',total_weight:'ນ້ຳໜັກ',order_count:'Orders',baht:'ບາດ',kg:'ກກ',orders_unit:'Orders',period:'ໄລຍະ',monthly:'ລາຍເດືອນ',yearly:'ລາຍປີ',all_time:'ທັງໝົດ',by_type:'ນ້ຳໜັກ',top_vendors:'Top Vendors',no_data:'ຍັງບໍ່ມີ',billing_received:'ຮັບແລ້ວ',billing_pending:'ລໍຖ້າ',billing_overdue:'ຄ້າງ',all:'ທັງໝົດ',btn_mark_paid:'✍️ ຮັບ+ເຊັນ',lang_settings:'🌐 ພາສາ',price_settings:' ລາຄາ',vendor_plate_title:'🚛 ທະບຽນ',btn_save_prices:'💾 ບັນທຶກ',prices_saved:'✓',overdue_settings:'⏰ ຄ້າງ',overdue_after:'ຄ້າງ',days:'ວັນ',save:'ບັນທຶກ',btn_clear_all:'ລຶບ',search_placeholder:'ຄົ້ນຫາ...',overdue_alert:'ຄ້າງ {{n}} ວັນ: {{count}} {{amt}} ບາດ',price_col:'ລາຄາ',type_col:'ປະເພດ',unit_col:'ໜ່ວຍ',vendor_revenue:'ລາຍຮັບ',vendor_weight:'ນ້ຳໜັກ',vendor_count:'Orders',paid_on:'ຮັບ',pending_days:'ລໍ {{n}} ວັນ',mark_paid_confirm:'ຢືນຢັນ?',delete_order_confirm:'ລຶບ?',order_items:'ລາຍການ',hdr_sub:'Recycle Waste Management System',doc_view:'ເບິ່ງ',sig_title:'ລາຍເຊັນ',sig_view:'ເຊັນ',signatures:'ລາຍເຊັນ',sig_receiver:'ລາຍເຊັນຜູ້ຮັບ (QSNCC)',sig_seller:'ລາຍເຊັນຜູ້ຂາຍ (Vendor)',billing_docs_title:'ແນບເອກະສານ',billing_docs_sub:'ສະລິບໂອນເງິນ, ໃບຮັບ (ຮູບ ຫຼື PDF)',bdocs_hint:'ຫຼາຍໄຟລ໌ · ຮູບຈະຖືກບີບອັດອັດຕະໂນມັດ',bdocs_mark_paid:'ຢືນຢັນຮັບເງິນ',billing_docs:'ເອກະສານ',attach_docs:'ແນບເອກະສານ',manage_docs:'ຈັດການເອກະສານ',cancel:'ຍົກເລີກ',edit:'ແກ້ໄຂ',editing_order:'ກຳລັງແກ້ໄຂ',cancel_edit:'ຍົກເລີກ',edit_saved:'ບັນທຶກແລ້ວ',load_more:'ໂຫຼດເພີ່ມ ({{n}})',showing_n_of_m:'ສະແດງ {{n}}/{{m}}',dash_empty_title:'ຍັງບໍ່ມີ Order',dash_empty_desc:'ເລີ່ມຕົ້ນທີ່ແທັບ "📝 ສ້າງ Order"',fb_local:'⚡ ໂໝດ: Local',fb_connected:' Firebase ເຊື່ອມຕໍ່ — Real-time',fb_error:'⚠ Firebase Error: {{msg}}',created_by:'ສ້າງໂດຍ',modified_by:'ແກ້ໄຂໂດຍ',compressing:'ກຳລັງບີບອັດ...',no_docs:'ຍັງບໍ່ມີເອກະສານ'}
 };
 function t(k,v){let s=(T[lang]||T.th)[k]||(T.th[k]||k);if(v)Object.entries(v).forEach(([a,b])=>{s=s.replace('{{'+a+'}}',b);});return s;}
 
@@ -863,12 +1248,17 @@ function save(changedOrder){
 }
 function saveVP(){localStorage.setItem('qsncc_vplates',JSON.stringify(vendorPlates));}
 
-function autoConnectFirebase(){
+function autoConnectFirebase(attempt){
+  attempt=attempt||0;
   // Use compat SDK (loaded via static script tags) - works with file:// too
   try{
     if(typeof firebase==='undefined'){
-      console.warn('Firebase SDK not loaded yet, retrying in 1s...');
-      setTimeout(autoConnectFirebase, 1000);
+      if(attempt>=5){
+        // SDK unavailable after max retries — run local-only, no console spam
+        setFirebaseUI(false);
+        return;
+      }
+      setTimeout(function(){autoConnectFirebase(attempt+1);},1000);
       return;
     }
     
@@ -1046,6 +1436,7 @@ function switchTab(name,el){
   if(name==='vendor'){buildVendorPeriodControls();renderVendorDashboard();}
   if(name==='billing'){buildFilterDropdowns();renderBilling();}
   if(name==='settings'){buildPriceTable();buildVendorPlateManager();}
+  if(name==='report'){initReportTab();renderReport();}
 }
 function onVendorChange(){
   const vendor=document.getElementById('f-vendor').value;const plates=vendorPlates[vendor]||[];
@@ -1061,6 +1452,14 @@ function onTypeChange(){
   if(ui.unit==='กก.'){qL.textContent='น้ำหนัก (กก.)';uH.textContent='';}
   else if(ui.kgPer){qL.innerHTML=`จำนวน <span class="unit-badge">${ui.unit}</span>`;uH.textContent=`1 ${ui.unit} = ${ui.kgPer} กก. | ราคาต่อ กก.`;}
   else{qL.innerHTML=`จำนวน <span class="unit-badge">${ui.unit}</span>`;uH.textContent=`ราคาต่อ ${ui.unit}`;}
+  // v14: hazardous waste warning
+  const cat=type.split('.')[0];
+  let hazNote=document.getElementById('haz-type-note');
+  if(cat==='10'){
+    if(!hazNote){hazNote=document.createElement('div');hazNote.id='haz-type-note';hazNote.style.cssText='margin-top:8px;padding:8px 12px;background:#fdecea;border:1px solid var(--red);border-radius:8px;font-size:12px;color:var(--red);font-weight:500';document.getElementById('fi-unit-hint').parentNode.appendChild(hazNote);}
+    hazNote.innerHTML='⚠️ ขยะอันตราย — ต้องมีใบอนุญาต DIW · <strong>ไม่นับเป็น CO₂ saving</strong> ตาม GHG Protocol';
+    hazNote.style.display='block';
+  }else if(hazNote){hazNote.style.display='none';}
   calcItem();
 }
 function calcItem(){
@@ -1133,19 +1532,49 @@ function submitOrder(){
       createdBy:recorder||'',createdAt:nowISO};
     orders.unshift(order);save(order);
     const mergedTxt=lang==='en'?' (duplicates merged)':lang==='lo'?' (ລວມລາຍການຊ້ຳ)':' (รวมรายการซ้ำ)';
-    showToast('✓ '+order.orderNo+(wm?mergedTxt:''));
+
+    // ── v16 FIX: reset form FIRST (ก่อน modal เสมอ) ──
+    resetOrderForm();
+
+    // ── แสดง Success Notification ── 
+    showToast('✓ Order '+order.orderNo+' สร้างสำเร็จ!');
+    try { showSuccessModal(order); } catch(e){ console.warn('modal err',e); }
+    return; // resetOrderForm already called above
   }
 
-  // Reset form
-  formItems=[];editingOrderId=null;document.getElementById('edit-banner').classList.remove('active');updateSubmitButtonText();
+  // Reset form for edit path
+  resetOrderForm();
+}
+
+// ── v16: แยก reset form เป็น function ──
+function resetOrderForm(){
+  formItems=[];editingOrderId=null;
+  const editBanner=document.getElementById('edit-banner');
+  if(editBanner)editBanner.classList.remove('active');
+  updateSubmitButtonText();
   renderFormItems();
-  ['f-vendor','f-plate','f-note'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-date').valueAsDate=new Date();document.getElementById('plate-list').innerHTML='';
-  document.getElementById('plate-hint').textContent=t('plate_hint');document.getElementById('fi-type').value='';
-  document.getElementById('fi-qty').value='';document.getElementById('fi-price').value='';document.getElementById('fi-total').textContent='0.00 ฿';
-  document.getElementById('fi-unit-hint').textContent='';
-  clearSig('receiver');clearSig('seller');
-  updateBillingBadge();buildFilterDropdowns();
+  const fields=['f-vendor','f-plate','f-note','f-recorder'];
+  fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const dateEl=document.getElementById('f-date');
+  if(dateEl)dateEl.valueAsDate=new Date();
+  const plateList=document.getElementById('plate-list');
+  if(plateList)plateList.innerHTML='';
+  const plateHint=document.getElementById('plate-hint');
+  if(plateHint)plateHint.textContent=t('plate_hint');
+  const typeEl=document.getElementById('fi-type');if(typeEl)typeEl.value='';
+  const qtyEl=document.getElementById('fi-qty');if(qtyEl)qtyEl.value='';
+  const priceEl=document.getElementById('fi-price');if(priceEl)priceEl.value='';
+  const totalEl=document.getElementById('fi-total');if(totalEl)totalEl.textContent='0.00 ฿';
+  const unitHint=document.getElementById('fi-unit-hint');if(unitHint)unitHint.textContent='';
+  const qtyLbl=document.getElementById('fi-qty-label');if(qtyLbl)qtyLbl.textContent='น้ำหนัก / จำนวน';
+  const hazNote=document.getElementById('haz-type-note');if(hazNote)hazNote.style.display='none';
+  try{clearSig('receiver');}catch(e){}
+  try{clearSig('seller');}catch(e){}
+  updateBillingBadge();
+  buildFilterDropdowns();
+  window.scrollTo({top:0,behavior:'smooth'});
+  const btn=document.getElementById('btn-submit-order');
+  if(btn){btn.style.background='#15803d';setTimeout(()=>{btn.style.background='';},700);}
 }
 
 // v10: edit-order helpers
@@ -1573,6 +2002,384 @@ function getCatItems(filtered){
   return filtered.flatMap(o=>o.items.filter(i=>inCat(i.type)));
 }
 
+// ══════════════════════════════════════════════
+// v16: TOOLTIP SYSTEM
+// ══════════════════════════════════════════════
+const TT = {
+  el: null, titleEl: null, bodyEl: null,
+  show(title, rows, x, y){
+    if(!this.el){ this.el=document.getElementById('chart-tooltip'); this.titleEl=document.getElementById('tt-title'); this.bodyEl=document.getElementById('tt-body'); }
+    if(!this.el) return;
+    this.titleEl.textContent = title;
+    this.bodyEl.innerHTML = rows.map(r=>`<div class="tt-row"><div style="display:flex;align-items:center;gap:5px"><div class="tt-dot" style="background:${r.color}"></div><span class="tt-label">${r.label}</span></div><span class="tt-val" style="color:${r.color}">${r.val}</span></div>`).join('');
+    this.el.classList.add('show');
+    this.move(x, y);
+  },
+  move(x, y){
+    if(!this.el) return;
+    const w=this.el.offsetWidth||160, h=this.el.offsetHeight||80;
+    const vw=window.innerWidth, vh=window.innerHeight;
+    let lx=x+14, ly=y-10;
+    if(lx+w>vw-10) lx=x-w-14;
+    if(ly+h>vh-10) ly=vh-h-10;
+    if(ly<10) ly=10;
+    this.el.style.left=lx+'px'; this.el.style.top=ly+'px';
+  },
+  hide(){ if(this.el) this.el.classList.remove('show'); }
+};
+
+// ══════════════════════════════════════════════
+// v16: INTERACTIVE DUAL-LINE TREND CHART
+// ══════════════════════════════════════════════
+function renderTrendChart(filtered){
+  const wrap=document.getElementById('trend-chart-wrap');
+  const legendWrap=document.getElementById('trend-legend');
+  if(!wrap)return;
+  const MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  let months=[];
+  const now=new Date();
+
+  if(dPeriod==='year'&&dFilters.year){
+    for(let m=0;m<12;m++) months.push({label:MON[m],key:`${dFilters.year}-${String(m+1).padStart(2,'0')}`,rev:0,weight:0});
+  } else if(dPeriod==='day'){
+    const allItems=getCatItems(filtered);
+    const rev=allItems.reduce((a,i)=>a+i.total,0);
+    const wt=allItems.reduce((a,i)=>a+(i.kgWeight||0),0);
+    wrap.innerHTML=`<div style="text-align:center;padding:28px 0"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-size:17px;font-weight:700">${filtered.length} Orders</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${wt.toFixed(1)} กก. · ${rev.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</div></div>`;
+    if(legendWrap)legendWrap.innerHTML='';
+    return;
+  } else {
+    for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({label:MON[d.getMonth()],key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,rev:0,weight:0});}
+  }
+
+  filtered.forEach(o=>{
+    const key=o.date.slice(0,7);
+    const bucket=months.find(m=>m.key===key);
+    if(!bucket)return;
+    const items=(o.items||[]).filter(i=>inCat(i.type));
+    bucket.rev+=items.reduce((a,i)=>a+i.total,0);
+    bucket.weight+=items.reduce((a,i)=>a+(i.kgWeight||0),0);
+  });
+
+  const n=months.length;
+  if(!months.some(m=>m.rev>0||m.weight>0)){
+    wrap.innerHTML=`<div class="empty-state">ยังไม่มีข้อมูล</div>`;
+    if(legendWrap)legendWrap.innerHTML='';
+    return;
+  }
+
+  const W=520, H=170, chartH=120, top=12, lp=48, rp=10;
+  const maxRev=Math.max(...months.map(m=>m.rev),1);
+  const maxWt=Math.max(...months.map(m=>m.weight),1);
+  const revC='#1e3a5f', wtC='#22c55e';
+  const colW=(W-lp-rp)/(n>1?n-1:1);
+
+  // Grid lines
+  let grid='', xLabels='';
+  for(let g=0;g<=4;g++){
+    const val=(maxRev/4)*g;
+    const y=(top+chartH-Math.round((val/maxRev)*chartH)).toFixed(1);
+    const lbl=val>=1000000?(val/1000000).toFixed(1)+'M':val>=1000?Math.round(val/1000)+'k':val.toFixed(0);
+    grid+=`<line x1="${lp}" y1="${y}" x2="${W-rp}" y2="${y}" stroke="${g===0?'#cbd5e1':'#f1f5f9'}" stroke-width="${g===0?1:0.7}" stroke-dasharray="${g===0?'':'4,3'}"/>`;
+    grid+=`<text x="${lp-5}" y="${y}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="monospace" dominant-baseline="middle">${lbl}</text>`;
+  }
+  months.forEach((m,i)=>{
+    const x=(lp+i*colW).toFixed(1);
+    xLabels+=`<text x="${x}" y="${top+chartH+15}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="monospace">${m.label}</text>`;
+  });
+
+  // Paths
+  let revPath='', wtPath='', revArea='', wtArea='';
+  months.forEach((m,i)=>{
+    const x=(lp+i*colW).toFixed(1);
+    const ry=(top+chartH-Math.round((m.rev/maxRev)*chartH)).toFixed(1);
+    const wy=(top+chartH-Math.round((m.weight/maxWt)*chartH)).toFixed(1);
+    revPath+=(i===0?'M':'L')+x+','+ry+' ';
+    wtPath+=(i===0?'M':'L')+x+','+wy+' ';
+    if(i===0){revArea='M'+x+','+(top+chartH)+' L'+x+','+ry+' ';wtArea='M'+x+','+(top+chartH)+' L'+x+','+wy+' ';}
+    else{revArea+='L'+x+','+ry+' ';wtArea+='L'+x+','+wy+' ';}
+  });
+  const lx=(lp+(n-1)*colW).toFixed(1);
+  revArea+='L'+lx+','+(top+chartH)+' Z';
+  wtArea+='L'+lx+','+(top+chartH)+' Z';
+
+  // Hover dots (invisible, become visible on hover via JS)
+  const hoverDots = months.map((m,i)=>{
+    const x=(lp+i*colW).toFixed(1);
+    const ry=(top+chartH-Math.round((m.rev/maxRev)*chartH)).toFixed(1);
+    const wy=(top+chartH-Math.round((m.weight/maxWt)*chartH)).toFixed(1);
+    const ri=m.rev>=1000?Math.round(m.rev/1000).toLocaleString('th-TH')+'k ฿':m.rev.toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
+    const wi=m.weight>=1000?(m.weight/1000).toFixed(2)+' t':m.weight.toFixed(1)+' กก.';
+    return `<rect class="hover-zone" x="${(parseFloat(x)-colW/2).toFixed(1)}" y="${top}" width="${colW.toFixed(1)}" height="${chartH}" fill="transparent" data-idx="${i}" data-lbl="${m.label}" data-rev="${ri}" data-wt="${wi}" data-rx="${x}" data-rry="${ry}" data-rwy="${wy}" style="cursor:crosshair"/>
+    <circle class="hover-dot rev-dot" id="rd${i}" cx="${x}" cy="${ry}" r="4" fill="${revC}" stroke="#fff" stroke-width="2" opacity="0" pointer-events="none"/>
+    <circle class="hover-dot wt-dot" id="wd${i}" cx="${x}" cy="${wy}" r="4" fill="${wtC}" stroke="#fff" stroke-width="2" opacity="0" pointer-events="none"/>
+    <line class="hover-line" id="hl${i}" x1="${x}" y1="${top}" x2="${x}" y2="${top+chartH}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2" opacity="0" pointer-events="none"/>`;
+  }).join('');
+
+  const svgId='tc'+Date.now();
+  wrap.innerHTML=`<svg id="${svgId}" viewBox="0 0 ${W} ${H+20}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;width:100%;display:block">
+    <defs>
+      <linearGradient id="rg${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${revC}" stop-opacity=".10"/><stop offset="100%" stop-color="${revC}" stop-opacity="0"/></linearGradient>
+      <linearGradient id="wg${svgId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${wtC}" stop-opacity=".15"/><stop offset="100%" stop-color="${wtC}" stop-opacity="0"/></linearGradient>
+    </defs>
+    ${grid}
+    <path d="${revArea}" fill="url(#rg${svgId})"/>
+    <path d="${wtArea}" fill="url(#wg${svgId})"/>
+    <path d="${revPath}" fill="none" stroke="${revC}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${wtPath}" fill="none" stroke="${wtC}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${hoverDots}
+    ${xLabels}
+  </svg>`;
+
+  // JS hover interaction
+  const svg=document.getElementById(svgId);
+  if(svg){
+    let lastIdx=-1;
+    svg.querySelectorAll('.hover-zone').forEach(zone=>{
+      zone.addEventListener('mouseenter',function(e){
+        const idx=parseInt(this.dataset.idx);
+        if(idx===lastIdx)return;
+        // Hide previous
+        if(lastIdx>=0){
+          const prev=svg.querySelector(`#rd${lastIdx}`);const prevW=svg.querySelector(`#wd${lastIdx}`);const prevL=svg.querySelector(`#hl${lastIdx}`);
+          if(prev)prev.setAttribute('opacity','0');if(prevW)prevW.setAttribute('opacity','0');if(prevL)prevL.setAttribute('opacity','0');
+        }
+        lastIdx=idx;
+        // Show current
+        const rd=svg.querySelector(`#rd${idx}`);const wd=svg.querySelector(`#wd${idx}`);const hl=svg.querySelector(`#hl${idx}`);
+        if(rd)rd.setAttribute('opacity','1');if(wd)wd.setAttribute('opacity','1');if(hl)hl.setAttribute('opacity','1');
+        TT.show(this.dataset.lbl,[
+          {color:'${revC}',label:'รายได้',val:this.dataset.rev},
+          {color:'${wtC}',label:'น้ำหนัก',val:this.dataset.wt}
+        ],e.clientX,e.clientY);
+      });
+      zone.addEventListener('mousemove',e=>TT.move(e.clientX,e.clientY));
+      zone.addEventListener('mouseleave',function(){
+        if(lastIdx>=0){
+          const rd=svg.querySelector(`#rd${lastIdx}`);const wd=svg.querySelector(`#wd${lastIdx}`);const hl=svg.querySelector(`#hl${lastIdx}`);
+          if(rd)rd.setAttribute('opacity','0');if(wd)wd.setAttribute('opacity','0');if(hl)hl.setAttribute('opacity','0');
+          lastIdx=-1;
+        }
+        TT.hide();
+      });
+    });
+  }
+
+  if(legendWrap){
+    const tr=months.reduce((a,m)=>a+m.rev,0);
+    const tw=months.reduce((a,m)=>a+m.weight,0);
+    legendWrap.innerHTML=`
+      <div class="trend-legend-item"><div class="trend-legend-dot" style="background:${revC}"></div><span>รายได้รวม — ${tr>=1000?Math.round(tr/1000).toLocaleString('th-TH')+'k':tr.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span></div>
+      <div class="trend-legend-item"><div class="trend-legend-dot" style="background:${wtC}"></div><span>น้ำหนักรวม — ${tw>=1000?(tw/1000).toFixed(2)+' t':tw.toFixed(1)+' กก.'}</span></div>`;
+  }
+}
+function toggleLine(){}
+function setTrendMode(m,el){document.querySelectorAll('.an-toggle').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderDashboard();}
+
+// ══════════════════════════════════════════════
+// v16: KPI CARDS (big style)
+// ══════════════════════════════════════════════
+function renderKPIStrip(filtered,items){
+  const wrap=document.getElementById('kpi-strip');
+  if(!wrap)return;
+  const totalRev=items.reduce((a,i)=>a+i.total,0);
+  const totalW=items.reduce((a,i)=>a+(i.kgWeight||0),0);
+  const orderCount=filtered.length;
+  const totalCO2=getTotalCO2(items);
+  const recycW=items.filter(i=>!isHazardous(i)).reduce((a,i)=>a+(i.kgWeight||0),0);
+  const recycRate=totalW>0?Math.round(recycW/totalW*100):0;
+
+  const kpis=[
+    {icon:'💰',lbl:'รายได้รวม',val:totalRev>=1000?Math.round(totalRev/1000).toLocaleString('th-TH')+'k':totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#1e3a5f',iconBg:'#e6edf8'},
+    {icon:'⚖️',lbl:'น้ำหนักรวม',val:totalW>=1000?(totalW/1000).toFixed(2)+'t':totalW.toFixed(1),sub:totalW>=1000?'ตัน':'กก.',color:'#d97706',iconBg:'#fef3c7'},
+    {icon:'🛒',lbl:'จำนวน Orders',val:orderCount,sub:'รายการ',color:'#2563eb',iconBg:'#dbeafe'},
+    {icon:'🌱',lbl:'CO₂ ที่ประหยัด',val:totalCO2>=1000?(totalCO2/1000).toFixed(1)+'t':Math.round(totalCO2).toLocaleString('th-TH'),sub:'kg CO₂e (IPCC)',color:'#15803d',iconBg:'#dcfce7'},
+  ];
+  wrap.innerHTML=kpis.map(k=>`
+  <div class="kpi-big" style="--kb-color:${k.color};--kb-icon-bg:${k.iconBg}" title="${k.lbl}: ${k.val} ${k.sub}">
+    <div class="kpi-big-icon-wrap">
+      <div>
+        <div class="kpi-big-lbl">${k.lbl}</div>
+        <div class="kpi-big-val" style="color:${k.color}">${k.val}</div>
+        <div class="kpi-big-sub" style="color:${k.color}">${k.sub}</div>
+      </div>
+      <div class="kpi-big-icon">${k.icon}</div>
+    </div>
+  </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// v16: INTERACTIVE DONUT CHART
+// ══════════════════════════════════════════════
+function renderCompositionDonut(items){
+  const wrap=document.getElementById('composition-donut');
+  if(!wrap)return;
+  if(!items.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const byCat={};
+  items.forEach(i=>{const c=i.type.split('.')[0];if(!byCat[c])byCat[c]={w:0,rev:0};byCat[c].w+=i.kgWeight||0;byCat[c].rev+=i.total;});
+  const totalW=Object.values(byCat).reduce((a,v)=>a+v.w,0);
+  if(!totalW){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const sorted=Object.entries(byCat).sort((a,b)=>b[1].w-a[1].w);
+  const cx=90,cy=90,r=68,th=24;
+  let cum=-Math.PI/2, paths='';
+  sorted.forEach(([cat,v])=>{
+    const color=TYPE_COLORS[cat]||'#6B7280';
+    const frac=v.w/totalW; const ang=frac*Math.PI*2; const end=cum+ang;
+    const x1=cx+r*Math.cos(cum),y1=cy+r*Math.sin(cum);
+    const x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
+    const ir=r-th;
+    const ix1=cx+ir*Math.cos(end),iy1=cy+ir*Math.sin(end);
+    const ix2=cx+ir*Math.cos(cum),iy2=cy+ir*Math.sin(cum);
+    const la=ang>Math.PI?1:0;
+    const d=`M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${la} 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${ix1.toFixed(2)},${iy1.toFixed(2)} A${ir},${ir} 0 ${la} 0 ${ix2.toFixed(2)},${iy2.toFixed(2)} Z`;
+    const pct=(frac*100).toFixed(1);
+    const catName=TYPE_NAMES[cat]||cat;
+    const revStr=v.rev.toLocaleString('th-TH',{maximumFractionDigits:0});
+    paths+=`<path class="donut-slice" d="${d}" fill="${color}" stroke="#fff" stroke-width="2"
+      data-name="${esc(catName)}" data-pct="${pct}" data-w="${v.w.toFixed(1)}" data-rev="${revStr}" data-color="${color}"
+      style="transition:opacity .15s,transform .15s;transform-origin:${cx}px ${cy}px"></path>`;
+    cum=end;
+  });
+
+  const legend=sorted.slice(0,8).map(([cat,v])=>{
+    const color=TYPE_COLORS[cat]||'#6B7280';
+    const pct=(v.w/totalW*100).toFixed(1);
+    return`<div class="donut-legend-item" style="padding:2px 5px;margin-bottom:2px;border-radius:5px;cursor:default" title="${TYPE_NAMES[cat]||cat}: ${v.w.toFixed(1)} กก."><div class="donut-legend-left"><div class="donut-legend-dot" style="background:${color}"></div><span class="donut-legend-name" style="font-size:11px">${TYPE_NAMES[cat]||cat}</span></div><span class="donut-legend-pct" style="color:${color};font-size:11px">${pct}%</span></div>`;
+  }).join('');
+
+  const displayVal=totalW>=1000?(totalW/1000).toFixed(1):totalW.toFixed(0);
+  const displayUnit=totalW>=1000?'ตัน':'กก.';
+
+  wrap.innerHTML=`<div class="donut-compact">
+    <div class="donut-chart" style="position:relative;flex-shrink:0">
+      <svg class="donut-svg" viewBox="0 0 180 180" style="width:140px;height:140px">${paths}</svg>
+      <div class="donut-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+        <div class="donut-center-val" id="donut-center-val" style="font-size:16px">${displayVal}</div>
+        <div class="donut-center-lbl" id="donut-center-lbl">${displayUnit}</div>
+      </div>
+    </div>
+    <div class="donut-legend" style="flex:1;min-width:0">${legend}</div>
+  </div>`;
+
+  // Hover interaction on donut slices
+  wrap.querySelectorAll('.donut-slice').forEach(slice=>{
+    slice.addEventListener('mouseenter',function(e){
+      wrap.querySelectorAll('.donut-slice').forEach(s=>s.style.opacity='.45');
+      this.style.opacity='1';
+      this.style.transform=`scale(1.04)`;
+      document.getElementById('donut-center-val').textContent=this.dataset.w+' กก.';
+      document.getElementById('donut-center-lbl').textContent=this.dataset.pct+'%';
+      TT.show(this.dataset.name,[
+        {color:this.dataset.color,label:'น้ำหนัก',val:this.dataset.w+' กก.'},
+        {color:this.dataset.color,label:'สัดส่วน',val:this.dataset.pct+'%'},
+        {color:this.dataset.color,label:'รายได้',val:this.dataset.rev+' ฿'}
+      ],e.clientX,e.clientY);
+    });
+    slice.addEventListener('mousemove',e=>TT.move(e.clientX,e.clientY));
+    slice.addEventListener('mouseleave',function(){
+      wrap.querySelectorAll('.donut-slice').forEach(s=>{s.style.opacity='1';s.style.transform='';});
+      document.getElementById('donut-center-val').textContent=displayVal;
+      document.getElementById('donut-center-lbl').textContent=displayUnit;
+      TT.hide();
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+// v16: INTERACTIVE TYPE BARS
+// ══════════════════════════════════════════════
+function renderTypeBars(items){
+  const wrap=document.getElementById('type-bars');
+  if(!wrap)return;
+  if(!items.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const byType={};
+  items.forEach(i=>{if(!byType[i.type])byType[i.type]={w:0,rev:0};byType[i.type].w+=i.kgWeight||0;byType[i.type].rev+=i.total;});
+  const sorted=Object.entries(byType).sort((a,b)=>b[1].w-a[1].w).slice(0,8);
+  const maxW=Math.max(...sorted.map(([,v])=>v.w),1);
+  wrap.innerHTML=sorted.map(([tp,v])=>{
+    const cat=tp.split('.')[0];const color=TYPE_COLORS[cat]||'#6B7280';
+    const short=tp.replace(/^[\d.]+\s/,'').replace(/\(.*?\)/g,'').trim().substring(0,18);
+    const pct=(v.w/maxW*100).toFixed(1);
+    return`<div class="bar-row" style="margin-bottom:8px">
+      <div class="bar-lbl-row" style="margin-bottom:3px">
+        <span class="bar-name" style="font-size:11px">${esc(short)}</span>
+        <span class="bar-meta" style="font-size:10px">${v.w.toFixed(1)} กก.</span>
+      </div>
+      <div class="bar-track" style="height:6px;border-radius:3px;background:#f1f5f9;overflow:visible;position:relative">
+        <div class="bar-fill-interactive" style="width:${pct}%;height:6px;border-radius:3px;background:${color};cursor:pointer"
+          data-name="${esc(short)}" data-w="${v.w.toFixed(1)}" data-rev="${v.rev.toLocaleString('th-TH',{maximumFractionDigits:0})}" data-pct="${pct}" data-color="${color}"
+          onmouseenter="TT.show(this.dataset.name,[{color:this.dataset.color,label:'น้ำหนัก',val:this.dataset.w+' กก.'},{color:this.dataset.color,label:'รายได้',val:this.dataset.rev+' ฿'},{color:this.dataset.color,label:'สัดส่วน',val:this.dataset.pct+'%'}],event.clientX,event.clientY)"
+          onmousemove="TT.move(event.clientX,event.clientY)"
+          onmouseleave="TT.hide()">
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// v16: INTERACTIVE VENDOR BARS
+// ══════════════════════════════════════════════
+function renderVendorBars(filtered,items){
+  const wrap=document.getElementById('vendor-bars');
+  if(!wrap)return;
+  if(!filtered.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const byV={};
+  filtered.forEach(o=>{
+    if(!byV[o.vendor])byV[o.vendor]={rev:0,w:0,cnt:0};
+    const fi=o.items.filter(i=>inCat(i.type));
+    byV[o.vendor].rev+=fi.reduce((a,i)=>a+i.total,0);
+    byV[o.vendor].w+=fi.reduce((a,i)=>a+(i.kgWeight||0),0);
+    byV[o.vendor].cnt+=1;
+  });
+  const sorted=Object.entries(byV).filter(([,v])=>v.rev>0||v.w>0).sort((a,b)=>b[1].rev-a[1].rev);
+  if(!sorted.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
+  const maxR=Math.max(...sorted.map(([,v])=>v.rev),1);
+  wrap.innerHTML=sorted.map(([name,v],i)=>{
+    const color=VENDOR_COLORS[VENDORS.indexOf(name)%VENDOR_COLORS.length]||VENDOR_COLORS[i%VENDOR_COLORS.length];
+    const pct=(v.rev/maxR*100).toFixed(1);
+    const shortName=name.length>20?name.substring(0,20)+'…':name;
+    return`<div class="bar-row" style="margin-bottom:8px">
+      <div class="bar-lbl-row" style="margin-bottom:3px">
+        <span class="bar-name" style="font-size:11px"><span class="vdot" style="background:${color}"></span>${esc(shortName)}</span>
+        <span class="bar-meta" style="font-size:10px">${v.rev.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span>
+      </div>
+      <div class="bar-track" style="height:6px;border-radius:3px;background:#f1f5f9">
+        <div class="bar-fill-interactive" style="width:${pct}%;height:6px;border-radius:3px;background:${color}"
+          data-name="${esc(name)}" data-rev="${v.rev.toLocaleString('th-TH',{maximumFractionDigits:0})}" data-w="${v.w.toFixed(1)}" data-cnt="${v.cnt}" data-color="${color}"
+          onmouseenter="TT.show(this.dataset.name,[{color:this.dataset.color,label:'รายได้',val:this.dataset.rev+' ฿'},{color:this.dataset.color,label:'น้ำหนัก',val:this.dataset.w+' กก.'},{color:this.dataset.color,label:'Orders',val:this.dataset.cnt+' รายการ'}],event.clientX,event.clientY)"
+          onmousemove="TT.move(event.clientX,event.clientY)"
+          onmouseleave="TT.hide()">
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderInsightCards(filtered,items){
+  const wrap=document.getElementById('insight-row');
+  if(!wrap)return;
+  const totalW=items.reduce((a,i)=>a+(i.kgWeight||0),0);
+  const totalCO2=getTotalCO2(items);
+  const totalEnergy=getTotalEnergy(items);
+  const byType={};
+  items.forEach(i=>{const c=i.type.split('.')[0];if(!byType[c])byType[c]={w:0,co2:0};byType[c].w+=i.kgWeight||0;byType[c].co2+=getItemCO2(i);});
+  const topType=Object.entries(byType).sort((a,b)=>b[1].w-a[1].w)[0];
+  const topCO2=Object.entries(byType).sort((a,b)=>b[1].co2-a[1].co2)[0];
+  const alW=items.filter(i=>i.type.startsWith('3.')).reduce((a,i)=>a+(i.kgWeight||0),0);
+  wrap.innerHTML=[
+    {icon:'🌱',lbl:'CO₂ รวม (IPCC)',val:totalCO2>=1000?(totalCO2/1000).toFixed(2)+' t':Math.round(totalCO2).toLocaleString('th-TH')+' kg',sub:'คำนวณตาม IPCC AR6',bg:'#f0fdf4'},
+    {icon:'⚡',lbl:'พลังงานที่ประหยัด',val:totalEnergy>=1000?(totalEnergy/1000).toFixed(1)+' MWh':Math.round(totalEnergy).toLocaleString('th-TH')+' kWh',sub:topCO2?'CO₂ สูงสุด: '+(CAT_NAMES_TH[topCO2[0]]||topCO2[0]):'-',bg:'#eff6ff'},
+    {icon:'🔩',lbl:'อลูมิเนียม CO₂',val:alW>0?Math.round(alW*9.10).toLocaleString('th-TH')+' kg':'—',sub:alW>0?alW.toFixed(1)+' กก. × 9.10 (IPCC)':'ยังไม่มีข้อมูล',bg:'#fefce8'},
+  ].map(c=>`<div class="insight-card" style="background:${c.bg};border:1px solid var(--border)">
+    <div class="insight-icon">${c.icon}</div>
+    <div class="insight-lbl">${c.lbl}</div>
+    <div class="insight-val">${c.val}</div>
+    <div class="insight-sub">${c.sub}</div>
+  </div>`).join('');
+}
+
+
 function renderDashboard(){
   const filtered=getDashFiltered();
   const items=getCatItems(filtered);
@@ -1588,6 +2395,7 @@ function renderDashboard(){
   }
 
   renderKPIStrip(filtered,items);
+  renderESGKPIs(filtered,items);
   renderTrendChart(filtered);
   renderCompositionDonut(items);
   renderTypeBars(items);
@@ -1596,303 +2404,56 @@ function renderDashboard(){
   renderDashTable(filtered,items);
 }
 
-function renderKPIStrip(filtered,items){
-  const wrap=document.getElementById('kpi-strip');
+// v15: ESG KPI panel — matches screenshot 3 (colored rows with progress bars)
+function renderESGKPIs(filtered,items){
+  const wrap=document.getElementById('esg-kpi-body');
   if(!wrap)return;
-  const totalRev=items.reduce((a,i)=>a+i.total,0);
+  if(!items.length){wrap.innerHTML='<div class="empty-state" style="padding:24px">ยังไม่มีข้อมูล</div>';return;}
+
   const totalW=items.reduce((a,i)=>a+(i.kgWeight||0),0);
-  const orderCount=filtered.length;
-  const avgPerOrder=orderCount?totalRev/orderCount:0;
+  const totalCO2=getTotalCO2(items);
+  const totalEnergy=getTotalEnergy(items);
+  const nonHazW=items.filter(i=>!isHazardous(i)).reduce((a,i)=>a+(i.kgWeight||0),0);
+  const recycRate=totalW>0?(nonHazW/totalW*100):0;
+  const hazW=items.filter(i=>isHazardous(i)).reduce((a,i)=>a+(i.kgWeight||0),0);
 
-  const kpis=[
-    {icon:'',lbl:'รายได้รวม',val:totalRev>=1000?Math.round(totalRev/1000).toLocaleString('th-TH')+'k':totalRev.toLocaleString('th-TH',{maximumFractionDigits:0}),sub:'บาท',color:'#002B6C',bg:'#E6EDF8'},
-    {icon:'',lbl:'น้ำหนักรวม',val:totalW>=1000?(totalW/1000).toFixed(2)+'t':totalW.toFixed(1),sub:totalW>=1000?'ตัน':'กก.',color:'#C9A227',bg:'#FFF7E0'},
-    {icon:'',lbl:'จำนวน Orders',val:orderCount,sub:'Orders',color:'#0050C8',bg:'#DAEAFF'},
-    {icon:'',lbl:'Vendors',val:[...new Set(filtered.map(o=>o.vendor))].length,sub:'ผู้ขาย',color:'#6D3AB5',bg:'#F0EAFC'},
-  ];
-  wrap.innerHTML=kpis.map(k=>`<div class="kpi-s" style="--kc:${k.color}">
-    <div class="kpi-s-icon">${k.icon}</div>
-    <div class="kpi-s-lbl">${k.lbl}</div>
-    <div class="kpi-s-val">${k.val}</div>
-    <div class="kpi-s-sub" style="color:${k.color};font-weight:600">${k.sub}</div>
-  </div>`).join('');
-}
+  // Targets for progress bars
+  const co2Target=50000; const energyTarget=200000; const recycTarget=80;
+  const co2Pct=Math.min(totalCO2/co2Target*100,100);
+  const energyPct=Math.min(totalEnergy/energyTarget*100,100);
+  const recycPct=Math.min(recycRate/recycTarget*100,100);
 
-// MULTI-SERIES TREND CHART - key analytics feature
-function renderTrendChart(filtered){
-  const wrap=document.getElementById('trend-chart-wrap');
-  const legendWrap=document.getElementById('trend-legend');
-  if(!wrap)return;
+  const co2Display=totalCO2>=1000?(totalCO2/1000).toFixed(2)+' t':Math.round(totalCO2).toLocaleString('th-TH');
+  const energyDisplay=totalEnergy>=1000?(totalEnergy/1000).toFixed(1)+' MWh':Math.round(totalEnergy).toLocaleString('th-TH');
 
-  const titleEl=document.getElementById('trend-title');
-  const subEl=document.getElementById('trend-sub');
-
-  // Build time buckets and series per category
-  let buckets=[],seriesMap={};
-
-  if(dPeriod==='day'){
-    // For single day: just show summary
-    const items=getCatItems(filtered);
-    const totalRev=items.reduce((a,i)=>a+i.total,0);
-    const totalW=items.reduce((a,i)=>a+(i.kgWeight||0),0);
-    wrap.innerHTML=`<div style="text-align:center;padding:32px 20px">
-      <div style="font-size:36px;margin-bottom:8px">📅</div>
-      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">${filtered.length} Orders</div>
-      <div style="font-size:14px;color:var(--muted)">${totalW.toFixed(1)} กก. · ${totalRev.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</div>
-    </div>`;
-    if(legendWrap)legendWrap.innerHTML='';
-    if(titleEl)titleEl.textContent='📅 สรุปรายวัน';
-    return;
-  }
-
-  let labels=[];
-  if(dPeriod==='month'){
-    const dim=new Date(parseInt(dFilters.year),parseInt(dFilters.month),0).getDate();
-    labels=Array.from({length:dim},(_,i)=>String(i+1));
-    if(titleEl)titleEl.textContent='📈 แนวโน้มรายวัน';
-    if(subEl)subEl.textContent=MONTHS_FULL[parseInt(dFilters.month)]+' '+(parseInt(dFilters.year)+543);
-  } else if(dPeriod==='year'){
-    labels=MONTHS_TH.slice(1);
-    if(titleEl)titleEl.textContent='📈 แนวโน้มรายเดือน';
-    if(subEl)subEl.textContent='ปี '+(parseInt(dFilters.year)+543);
-  } else {
-    const years=[...new Set(filtered.map(o=>o.date.slice(0,4)))].sort();
-    labels=years.map(y=>String(parseInt(y)+543));
-    if(titleEl)titleEl.textContent='📈 แนวโน้มรายปี';
-    if(subEl)subEl.textContent='ทั้งหมด';
-  }
-
-  // Build series by major category
-  let seriesToShow=[];
-  if(dCat==='all'){
-    // Show each major category as a line
-    seriesToShow=['1','2','3','4','5','6','7','8','9'];
-  } else {
-    const prefixes=WASTE_CATS[dCat].prefixes||[];
-    // Show sub-types within category
-    const allTypes=[...new Set(filtered.flatMap(o=>o.items.filter(i=>inCat(i.type)).map(i=>i.type.split('.')[0])))];
-    seriesToShow=allTypes;
-  }
-
-  // Aggregate data per series per bucket
-  seriesMap={};
-  seriesToShow.forEach(s=>{seriesMap[s]=Array(labels.length).fill(0);});
-
-  filtered.forEach(o=>{
-    const items=o.items.filter(i=>inCat(i.type));
-    items.forEach(item=>{
-      const cat=item.type.split('.')[0];
-      if(!seriesMap[cat])return;
-      let idx=-1;
-      if(dPeriod==='month'){idx=parseInt(o.date.slice(8,10))-1;}
-      else if(dPeriod==='year'){idx=parseInt(o.date.slice(5,7))-1;}
-      else{const years=[...new Set(filtered.map(o=>o.date.slice(0,4)))].sort();idx=years.indexOf(o.date.slice(0,4));}
-      if(idx>=0&&idx<labels.length){
-        seriesMap[cat][idx]+=(trendMode==='weight')?(item.kgWeight||0):item.total;
-      }
-    });
-  });
-
-  // Remove empty series
-  const activeSeries=Object.entries(seriesMap).filter(([,data])=>data.some(v=>v>0));
-
-  if(!activeSeries.length){
-    wrap.innerHTML=`<div class="empty-state">${t('no_data')}</div>`;
-    if(legendWrap)legendWrap.innerHTML='';
-    return;
-  }
-
-  wrap.innerHTML=buildMultiLineChart(activeSeries,labels,trendMode);
-
-  // Legend
-  if(legendWrap){
-    legendWrap.innerHTML=activeSeries.map(([cat])=>{
-      const color=TYPE_COLORS[cat]||'#6B7280';
-      const name=TYPE_NAMES[cat]||cat;
-      const isDim=dimmedLines.has(cat);
-      return`<div class="trend-legend-item${isDim?' dim':''}" onclick="toggleLine('${cat}',this)">
-        <div class="trend-legend-dot" style="background:${color}"></div>
-        <span>${name}</span>
-      </div>`;
-    }).join('');
-  }
-}
-
-function toggleLine(cat,el){
-  if(dimmedLines.has(cat))dimmedLines.delete(cat);
-  else dimmedLines.add(cat);
-  el.classList.toggle('dim',dimmedLines.has(cat));
-  const line=document.getElementById('tline-'+cat);
-  const area=document.getElementById('tarea-'+cat);
-  if(line)line.style.opacity=dimmedLines.has(cat)?'0.08':'1';
-  if(area)area.style.opacity=dimmedLines.has(cat)?'0':'0.12';
-}
-
-function buildMultiLineChart(series,labels,mode){
-  const W=560,H=200,chartH=145,top=16,lp=50,rp=12;
-  const n=labels.length;
-  if(n===0)return'';
-
-  const allVals=series.flatMap(([,d])=>d);
-  const max=Math.max(...allVals,1);
-  const mag=Math.pow(10,Math.floor(Math.log10(max)));
-  const nMax=Math.ceil(max/mag)*mag;
-  const colW=(W-lp-rp)/(n>1?n-1:1);
-
-  // Grid
-  let grid='';
-  for(let g=0;g<=4;g++){
-    const val=(nMax/4)*g;
-    const y=(top+chartH-Math.round((val/nMax)*chartH)).toFixed(1);
-    const lbl=val>=1000000?(val/1000000).toFixed(1)+'M':val>=1000?Math.round(val/1000)+'k':val.toFixed(0);
-    const unit=mode==='revenue'?'฿':'';
-    grid+=`<line x1="${lp}" y1="${y}" x2="${W-rp}" y2="${y}" stroke="${g===0?'#cbd5e1':'#eef0f5'}" stroke-width="${g===0?1.5:1}" stroke-dasharray="${g===0?'none':'3,3'}"/>`;
-    grid+=`<text x="${lp-4}" y="${y}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="monospace" dominant-baseline="middle">${lbl}${unit}</text>`;
-  }
-
-  // X labels
-  let xLabels='';
-  const step=n>20?Math.ceil(n/15):n>12?2:1;
-  labels.forEach((lbl,i)=>{
-    if(i%step===0||i===n-1){
-      const x=(lp+i*colW).toFixed(1);
-      xLabels+=`<text x="${x}" y="${top+chartH+15}" text-anchor="middle" font-size="10" fill="#94a3b8" font-family="monospace">${lbl}</text>`;
-    }
-  });
-
-  // Series paths + areas
-  let paths='',areas='',defs='<defs>';
-  series.forEach(([cat,data])=>{
-    const color=TYPE_COLORS[cat]||'#6B7280';
-    const isDim=dimmedLines.has(cat);
-    let pathD='',areaD='';
-    data.forEach((v,i)=>{
-      const x=(lp+i*colW).toFixed(1);
-      const y=(top+chartH-Math.round((v/nMax)*chartH)).toFixed(1);
-      pathD+=(i===0?'M':'L')+x+','+y+' ';
-      if(i===0)areaD='M'+x+','+(top+chartH)+' L'+x+','+y+' ';
-      else areaD+='L'+x+','+y+' ';
-    });
-    const lastX=(lp+(n-1)*colW).toFixed(1);
-    areaD+='L'+lastX+','+(top+chartH)+' Z';
-    defs+=`<linearGradient id="ag${cat}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".18"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient>`;
-    areas+=`<path id="tarea-${cat}" d="${areaD}" fill="url(#ag${cat})" opacity="${isDim?0:.12}"/>`;
-    paths+=`<path id="tline-${cat}" d="${pathD}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="${isDim?.08:1}"/>`;
-    // Dots on last point only
-    const lastV=data[n-1];
-    if(lastV>0){
-      const lx=(lp+(n-1)*colW).toFixed(1);
-      const ly=(top+chartH-Math.round((lastV/nMax)*chartH)).toFixed(1);
-      paths+=`<circle cx="${lx}" cy="${ly}" r="3" fill="${color}" stroke="#fff" stroke-width="2" opacity="${isDim?.08:1}"/>`;
-    }
-  });
-  defs+='</defs>';
-
-  return`<svg viewBox="0 0 ${W} ${H+20}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">${defs}${grid}${areas}${paths}${xLabels}</svg>`;
-}
-
-function renderCompositionDonut(items){
-  const wrap=document.getElementById('composition-donut');
-  if(!wrap)return;
-  if(!items.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
-  const byCat={};
-  items.forEach(i=>{const c=i.type.split('.')[0];if(!byCat[c])byCat[c]={w:0};byCat[c].w+=i.kgWeight||0;});
-  const totalW=Object.values(byCat).reduce((a,v)=>a+v.w,0);
-  if(!totalW){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
-  const sorted=Object.entries(byCat).sort((a,b)=>b[1].w-a[1].w);
-  const cx=110,cy=110,r=80,th=26;let cum=-Math.PI/2,paths='';
-  sorted.forEach(([cat,v])=>{
-    const color=TYPE_COLORS[cat]||'#6B7280';
-    const frac=v.w/totalW;const ang=frac*Math.PI*2;const end=cum+ang;
-    const x1=cx+r*Math.cos(cum),y1=cy+r*Math.sin(cum);
-    const x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
-    const ir=r-th;
-    const ix1=cx+ir*Math.cos(end),iy1=cy+ir*Math.sin(end);
-    const ix2=cx+ir*Math.cos(cum),iy2=cy+ir*Math.sin(cum);
-    const la=ang>Math.PI?1:0;
-    const d=`M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${la} 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${ix1.toFixed(2)},${iy1.toFixed(2)} A${ir},${ir} 0 ${la} 0 ${ix2.toFixed(2)},${iy2.toFixed(2)} Z`;
-    paths+=`<path d="${d}" fill="${color}" stroke="#fff" stroke-width="2"><title>${TYPE_NAMES[cat]||cat}: ${v.w.toFixed(1)} กก.</title></path>`;
-    cum=end;
-  });
-  const legend=sorted.slice(0,6).map(([cat,v])=>{
-    const color=TYPE_COLORS[cat]||'#6B7280';
-    const pct=(v.w/totalW*100).toFixed(1);
-    return`<div class="donut-legend-item"><div class="donut-legend-left"><div class="donut-legend-dot" style="background:${color}"></div><span class="donut-legend-name">${TYPE_NAMES[cat]||cat}</span></div><span class="donut-legend-pct" style="color:${color}">${pct}%</span></div>`;
-  }).join('');
-  wrap.innerHTML=`<div class="donut-chart"><svg class="donut-svg" viewBox="0 0 220 220">${paths}</svg><div class="donut-center"><div class="donut-center-val">${totalW>=1000?(totalW/1000).toFixed(1)+'t':totalW.toFixed(0)}</div><div class="donut-center-lbl">${totalW>=1000?'ตัน':'กก.'}</div></div></div><div class="donut-legend">${legend}</div>`;
-}
-
-function renderTypeBars(items){
-  const wrap=document.getElementById('type-bars');
-  if(!wrap)return;
-  if(!items.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
-  const byType={};
-  items.forEach(i=>{if(!byType[i.type])byType[i.type]={w:0,rev:0};byType[i.type].w+=i.kgWeight||0;byType[i.type].rev+=i.total;});
-  const sorted=Object.entries(byType).sort((a,b)=>b[1].w-a[1].w).slice(0,10);
-  const maxW=Math.max(...sorted.map(([,v])=>v.w),1);
-  wrap.innerHTML=sorted.map(([tp,v])=>{
-    const cat=tp.split('.')[0];const color=TYPE_COLORS[cat]||'#6B7280';
-    const short=tp.replace(/^[\d.]+\s/,'').replace(/\(.*?\)/g,'').trim().substring(0,22);
-    return`<div class="bar-row"><div class="bar-lbl-row"><span class="bar-name">${esc(short)}</span><span class="bar-meta">${v.w>0?v.w.toFixed(1)+' '+t('kg')+' · ':''}${v.rev.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span></div><div class="bar-track"><div class="bar-fill" style="width:${(v.w/maxW*100).toFixed(1)}%;background:${color}"></div></div></div>`;
-  }).join('');
-}
-
-function renderVendorBars(filtered,items){
-  const wrap=document.getElementById('vendor-bars');
-  if(!wrap)return;
-  if(!filtered.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
-  const byV={};
-  filtered.forEach(o=>{
-    if(!byV[o.vendor])byV[o.vendor]={rev:0,w:0,cnt:0};
-    const fitems=o.items.filter(i=>inCat(i.type));
-    byV[o.vendor].rev+=fitems.reduce((a,i)=>a+i.total,0);
-    byV[o.vendor].w+=fitems.reduce((a,i)=>a+(i.kgWeight||0),0);
-    byV[o.vendor].cnt+=1;
-  });
-  const sorted=Object.entries(byV).filter(([,v])=>v.rev>0||v.w>0).sort((a,b)=>b[1].rev-a[1].rev);
-  if(!sorted.length){wrap.innerHTML='<div class="empty-state">'+t('no_data')+'</div>';return;}
-  const maxR=Math.max(...sorted.map(([,v])=>v.rev),1);
-  wrap.innerHTML=sorted.map(([name,v],i)=>{
-    const color=VENDOR_COLORS[VENDORS.indexOf(name)%VENDOR_COLORS.length]||VENDOR_COLORS[i%VENDOR_COLORS.length];
-    return`<div class="bar-row"><div class="bar-lbl-row"><span class="bar-name"><span class="vdot" style="background:${color}"></span>${esc(name)}</span><span class="bar-meta">${v.cnt} Orders · ${v.w.toFixed(1)} ${t('kg')} · ${v.rev.toLocaleString('th-TH',{maximumFractionDigits:0})} ฿</span></div><div class="bar-track"><div class="bar-fill" style="width:${(v.rev/maxR*100).toFixed(1)}%;background:${color}"></div></div></div>`;
-  }).join('');
-}
-
-function renderInsightCards(filtered,items){
-  const wrap=document.getElementById('insight-row');
-  if(!wrap)return;
-  const totalW=items.reduce((a,i)=>a+(i.kgWeight||0),0);
-  const totalRev=items.reduce((a,i)=>a+i.total,0);
-
-  // Top waste type
-  const byType={};
-  items.forEach(i=>{const c=i.type.split('.')[0];if(!byType[c])byType[c]={w:0};byType[c].w+=i.kgWeight||0;});
-  const topType=Object.entries(byType).sort((a,b)=>b[1].w-a[1].w)[0];
-
-  // Oil: liters conversion
-  const oilItems=items.filter(i=>i.type.startsWith('6.'));
-  const oilKg=oilItems.reduce((a,i)=>a+(i.kgWeight||0),0);
-  const oilLiters=oilKg/0.92;
-
-  // RDF tons
-  const rdfItems=items.filter(i=>i.type.startsWith('9.'));
-  const rdfKg=rdfItems.reduce((a,i)=>a+(i.kgWeight||0),0);
-  const rdfTons=rdfKg/1000;
-
-  // Recycling rate (non-hazardous, non-RDF)
-  const recycW=items.filter(i=>!i.type.startsWith('9.')&&!i.type.startsWith('10.')).reduce((a,i)=>a+(i.kgWeight||0),0);
-  const recycRate=totalW>0?(recycW/totalW*100).toFixed(1):0;
-
-  wrap.innerHTML=[
-    {icon:'',lbl:'ประเภทขยะสูงสุด',val:topType?TYPE_NAMES[topType[0]]||topType[0]:'-',sub:topType?topType[1].w.toFixed(1)+' กก.':'-',bg:'#E6EDF8'},
-    {icon:'',lbl:'น้ำมันที่ใช้แล้ว',val:oilLiters.toFixed(1)+' L',sub:oilKg.toFixed(1)+' กก. (÷0.92)',bg:'#FFF7E0'},
-    {icon:'',lbl:'RDF — Energy Recovery',val:rdfTons.toFixed(3)+' ตัน',sub:rdfKg.toLocaleString('th-TH',{maximumFractionDigits:0})+' กก.',bg:'#FCE8E8'},
-  ].map(c=>`<div class="insight-card" style="--ic-bg:${c.bg}">
-    <div class="insight-icon">${c.icon}</div>
-    <div class="insight-lbl">${c.lbl}</div>
-    <div class="insight-val">${c.val}</div>
-    <div class="insight-sub">${c.sub}</div>
-  </div>`).join('');
+  wrap.innerHTML=`
+  <div class="esg-kpi-item green-bg">
+    <div class="esg-kpi-left">
+      <div class="esg-kpi-label"><span style="color:#15803d">🌱</span> CO₂ ที่ประหยัดได้ (กก.)</div>
+      <div class="esg-kpi-bar-bg" style="background:#bbf7d0"><div class="esg-kpi-bar" style="width:${co2Pct.toFixed(1)}%;background:#16a34a"></div></div>
+    </div>
+    <div class="esg-kpi-val" style="color:#15803d">${co2Display}</div>
+  </div>
+  <div class="esg-kpi-item blue-bg">
+    <div class="esg-kpi-left">
+      <div class="esg-kpi-label"><span style="color:#1d4ed8">⚡</span> พลังงานที่ประหยัด (kWh)</div>
+      <div class="esg-kpi-bar-bg" style="background:#bfdbfe"><div class="esg-kpi-bar" style="width:${energyPct.toFixed(1)}%;background:#2563eb"></div></div>
+    </div>
+    <div class="esg-kpi-val" style="color:#1d4ed8">${energyDisplay}</div>
+  </div>
+  <div class="esg-kpi-item purple-bg">
+    <div class="esg-kpi-left">
+      <div class="esg-kpi-label"><span style="color:#7c3aed">♻️</span> อัตราการรีไซเคิล</div>
+      <div class="esg-kpi-bar-bg" style="background:#ddd6fe"><div class="esg-kpi-bar" style="width:${recycPct.toFixed(1)}%;background:#7c3aed"></div></div>
+    </div>
+    <div class="esg-kpi-val" style="color:#7c3aed">${recycRate.toFixed(1)}%</div>
+  </div>
+  ${hazW>0?`<div class="esg-kpi-item" style="background:#fef2f2">
+    <div class="esg-kpi-left">
+      <div class="esg-kpi-label" style="color:#dc2626">⚠️ ขยะอันตราย (ต้องกำจัดตามกม.)</div>
+    </div>
+    <div class="esg-kpi-val" style="color:#dc2626;font-size:15px">${hazW.toFixed(1)} กก.</div>
+  </div>`:''}`;
 }
 
 function renderDashTable(filtered,items){
@@ -2262,6 +2823,214 @@ function buildOrderSheetData(order){
   return{rows,rowHeights};
 }
 
+
+// ============================================================
+// v14: REPORT / ESG MODULE
+// ============================================================
+
+function initReportTab(){
+  const now=new Date();
+  const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');
+  const firstDay=`${y}-${m}-01`;
+  const lastDay=new Date(y,now.getMonth()+1,0);
+  const lastDayStr=`${y}-${m}-${String(lastDay.getDate()).padStart(2,'0')}`;
+  const fromEl=document.getElementById('rpt-from');
+  const toEl=document.getElementById('rpt-to');
+  if(fromEl&&!fromEl.value)fromEl.value=firstDay;
+  if(toEl&&!toEl.value)toEl.value=lastDayStr;
+}
+
+function getRptFiltered(){
+  const from=document.getElementById('rpt-from').value;
+  const to=document.getElementById('rpt-to').value;
+  if(!from||!to)return orders;
+  return orders.filter(o=>o.date>=from&&o.date<=to);
+}
+
+function renderReport(){
+  const filtered=getRptFiltered();
+  const allItems=filtered.flatMap(o=>o.items||[]);
+
+  // KPI
+  const totalW=allItems.reduce((a,i)=>a+(i.kgWeight||0),0);
+  const totalRev=allItems.reduce((a,i)=>a+i.total,0);
+  const totalCO2=getTotalCO2(allItems);
+  const totalEnergy=getTotalEnergy(allItems);
+  const hazItems=allItems.filter(i=>isHazardous(i));
+  const hazW=hazItems.reduce((a,i)=>a+(i.kgWeight||0),0);
+  const nonHazW=allItems.filter(i=>!isHazardous(i)).reduce((a,i)=>a+(i.kgWeight||0),0);
+  const recycRate=totalW>0?(nonHazW/totalW*100).toFixed(1):0;
+
+  const setEl=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  setEl('rpt-cnt',filtered.length);
+  setEl('rpt-wt',totalW>=1000?(totalW/1000).toFixed(2)+' t':totalW.toFixed(1)+' kg');
+  setEl('rpt-rev',fmtN(totalRev));
+  setEl('rpt-co2',totalCO2>=1000?(totalCO2/1000).toFixed(2)+' t':Math.round(totalCO2).toLocaleString('th-TH')+' kg');
+  setEl('rpt-kwh',totalEnergy>=1000?(totalEnergy/1000).toFixed(1)+' MWh':Math.round(totalEnergy).toLocaleString('th-TH'));
+  setEl('rpt-rrate',recycRate+'%');
+  setEl('rpt-haz',hazW.toFixed(1)+' kg');
+
+  // Hazardous warning
+  const hazWarn=document.getElementById('rpt-haz-warning');
+  if(hazWarn){
+    if(hazW>0){
+      hazWarn.style.display='block';
+      setEl('rpt-haz-count',hazItems.length);
+      setEl('rpt-haz-wt',hazW.toFixed(1));
+    }else{hazWarn.style.display='none';}
+  }
+
+  // Breakdown by category
+  const byCat={};
+  allItems.forEach(i=>{
+    const c=i.type.split('.')[0];
+    if(!byCat[c])byCat[c]={name:CAT_NAMES_TH[c]||c,cnt:0,w:0,rev:0,co2:0,color:RPT_COLORS[c]||'#888'};
+    byCat[c].cnt++;
+    byCat[c].w+=i.kgWeight||0;
+    byCat[c].rev+=i.total;
+    byCat[c].co2+=getItemCO2(i);
+  });
+
+  const sorted=Object.entries(byCat).sort((a,b)=>b[1].w-a[1].w);
+  const tbody=document.getElementById('rpt-type-body');
+  const tfoot=document.getElementById('rpt-type-foot');
+  if(!tbody)return;
+
+  if(!sorted.length){tbody.innerHTML='<tr><td colspan="6" class="empty-state">ไม่มีข้อมูลในช่วงวันที่นี้</td></tr>';tfoot.innerHTML='';return;}
+
+  tbody.innerHTML=sorted.map(([cat,v])=>{
+    const pct=totalW>0?(v.w/totalW*100).toFixed(1):0;
+    const barW=totalW>0?Math.round(v.w/totalW*100):0;
+    const isHaz=cat==='10';
+    return `<tr${isHaz?' style="background:#fff8f8"':''}>
+      <td><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${v.color};margin-right:6px;vertical-align:middle"></span>${isHaz?'<span style="color:var(--red)">⚠️ </span>':''}${esc(v.name)}</td>
+      <td class="num">${v.cnt}</td>
+      <td class="num">${v.w.toFixed(1)}</td>
+      <td class="num rev">${fmtN(v.rev)}</td>
+      <td class="num" style="color:${isHaz?'var(--muted)':'#1a7040'}">${isHaz?'<span title="ไม่นับตาม GHG Protocol">—</span>':Math.round(v.co2).toLocaleString('th-TH')}</td>
+      <td class="num"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:4px;background:#eef0f5;border-radius:2px;min-width:50px"><div style="width:${barW}%;height:4px;background:${v.color};border-radius:2px"></div></div>${pct}%</div></td>
+    </tr>`;
+  }).join('');
+
+  tfoot.innerHTML=`<tr style="font-weight:700;border-top:2px solid var(--border)">
+    <td>รวมทั้งหมด</td>
+    <td class="num">${allItems.length}</td>
+    <td class="num">${totalW.toFixed(1)}</td>
+    <td class="num rev">${fmtN(totalRev)}</td>
+    <td class="num" style="color:#1a7040">${Math.round(totalCO2).toLocaleString('th-TH')}</td>
+    <td class="num">100%</td>
+  </tr>`;
+
+  // GRI 306 box
+  const griBox=document.getElementById('rpt-gri-box');
+  if(griBox){
+    const nonHazCats=sorted.filter(([c])=>GRI306_CAT[c]!=='hazardous');
+    const hazCats=sorted.filter(([c])=>GRI306_CAT[c]==='hazardous');
+    const nonHazTotal=nonHazCats.reduce((a,[,v])=>a+v.w,0);
+    const hazTotal=hazCats.reduce((a,[,v])=>a+v.w,0);
+    griBox.innerHTML=`
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px">GRI 306-3: Non-Hazardous Waste Diverted</div>
+        <div style="font-size:20px;font-weight:700;color:#16a34a;font-family:var(--mono)">${nonHazTotal.toFixed(1)} <span style="font-size:13px">กก.</span></div>
+        <div style="font-size:11px;color:var(--muted)">${nonHazCats.map(([,v])=>v.name).join(' · ')}</div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px">GRI 306-4: Hazardous Waste Disposed</div>
+        <div style="font-size:20px;font-weight:700;color:var(--red);font-family:var(--mono)">${hazTotal.toFixed(1)} <span style="font-size:13px">กก.</span></div>
+        <div style="font-size:11px;color:var(--muted)">ต้องแสดงวิธีกำจัดตาม GRI 306-4: Incineration/Landfill/Recycling</div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);padding-top:8px;border-top:1px solid var(--border)">อ้างอิง: GRI Standards 306:2020 (Waste)</div>`;
+  }
+
+  // SDG box
+  const sdgBox=document.getElementById('rpt-sdg-box');
+  if(sdgBox){
+    const sdgs=[
+      {no:'12',title:'Responsible Consumption',icon:'♻️',desc:`Recycled ${nonHazW.toFixed(0)} kg · Target 12.5 waste reduction`,active:nonHazW>0},
+      {no:'13',title:'Climate Action',icon:'🌡️',desc:`Avoided ${Math.round(totalCO2)} kg CO₂e · Contributing to NDC`,active:totalCO2>0},
+      {no:'11',title:'Sustainable Cities',icon:'🏙️',desc:`Diversion rate: ${recycRate}% · Less landfill pressure`,active:parseFloat(recycRate)>0},
+      {no:'3',title:'Good Health',icon:'⚕️',desc:`${hazItems.length} hazardous items safely managed`,active:hazItems.length>0},
+    ];
+    sdgBox.innerHTML=sdgs.filter(s=>s.active).map(s=>`
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;padding:8px;border-radius:8px;background:var(--bg)">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--ncc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">SDG<br>${s.no}</div>
+        <div><div style="font-size:12px;font-weight:600">${s.icon} SDG ${s.no}: ${s.title}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${s.desc}</div></div>
+      </div>`).join('')||'<div class="empty-state">ไม่มีข้อมูล SDG</div>';
+  }
+}
+
+
+// v15: Success modal functions
+function showSuccessModal(order){
+  var overlay = document.getElementById('success-overlay');
+  if(!overlay) return;
+
+  // Fill content
+  var noEl  = document.getElementById('success-order-no');
+  var detEl = document.getElementById('success-details');
+  var esgEl = document.getElementById('success-esg');
+
+  if(noEl)  noEl.textContent  = order.orderNo || '—';
+  if(detEl) detEl.textContent =
+    (order.vendor||'') + ' · ' +
+    ((order.items||[]).length) + ' รายการ · ' +
+    fmtN(order.totalAmount) + ' ฿ · ' +
+    ((order.totalWeight||0).toFixed(1)) + ' กก.';
+
+  if(esgEl){
+    try{
+      var co2  = getTotalCO2(order.items||[]);
+      var kwh  = getTotalEnergy(order.items||[]);
+      var co2s = co2>=1000 ? (co2/1000).toFixed(2)+' t CO₂e' : Math.round(co2)+' kg CO₂e';
+      var kwhs = kwh>=1000 ? (kwh/1000).toFixed(1)+' MWh'    : Math.round(kwh)+' kWh';
+      esgEl.style.display = 'block';
+      esgEl.innerHTML =
+        '<div style="font-weight:700;margin-bottom:5px">🌱 ผลกระทบ ESG</div>' +
+        '<div>CO₂ ที่ประหยัด: <strong>'+co2s+'</strong> &nbsp;·&nbsp; พลังงาน: <strong>'+kwhs+'</strong></div>';
+    }catch(e){ esgEl.style.display='none'; }
+  }
+
+  // Show: display flex + fade in
+  overlay.style.display  = 'flex';
+  overlay.style.opacity  = '0';
+  setTimeout(function(){ overlay.style.opacity='1'; overlay.style.transition='opacity .2s'; }, 30);
+}
+
+function closeSuccessModal(){
+  var overlay = document.getElementById('success-overlay');
+  if(!overlay) return;
+  overlay.style.opacity = '0';
+  setTimeout(function(){
+    overlay.style.display = 'none';
+    overlay.style.transition = '';
+    // Go to form tab (already reset)
+    var formTab = document.querySelector('.tab[onclick*="form"]');
+    if(formTab) switchTab('form', formTab);
+  }, 220);
+}
+
+
+function exportReportCSV(){
+  const filtered=getRptFiltered();
+  const allItems=filtered.flatMap(o=>o.items.map(i=>({...i,orderNo:o.orderNo,vendor:o.vendor,date:o.date})));
+  const headers=['Order No','วันที่','Vendor','ประเภทขยะ','น้ำหนัก (กก.)','รายได้ (฿)','CO₂ ที่ประหยัด (กก.) IPCC','Energy (kWh)','GRI 306 Category'];
+  const rows=allItems.map(i=>[i.orderNo,i.date,i.vendor,i.type,(i.kgWeight||0).toFixed(2),i.total.toFixed(2),getItemCO2(i).toFixed(4),getItemEnergy(i).toFixed(4),GRI306_CAT[i.type.split('.')[0]]||'non-hazardous']);
+  const csv='﻿'+[headers,...rows].map(r=>r.map(v=>`"${csvSafe(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='ESG_Report_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('✓ Export ESG CSV');
+}
+
+function exportReportJSON(){
+  const filtered=getRptFiltered();
+  const allItems=filtered.flatMap(o=>o.items.map(i=>({...i,orderNo:o.orderNo,vendor:o.vendor,date:o.date,co2Saved_kg_IPCC:getItemCO2(i),energySaved_kWh:getItemEnergy(i),gri306:GRI306_CAT[i.type.split('.')[0]]||'non-hazardous'})));
+  const totalCO2=getTotalCO2(allItems.map(i=>({type:i.type,kgWeight:i.kgWeight})));
+  const summary={generatedAt:new Date().toISOString(),version:'v14',period:{from:document.getElementById('rpt-from').value,to:document.getElementById('rpt-to').value},totalOrders:filtered.length,totalWeight_kg:allItems.reduce((a,i)=>a+(i.kgWeight||0),0),totalRevenue_thb:allItems.reduce((a,i)=>a+i.total,0),totalCO2Saved_kg_IPCC:totalCO2,methodology:'IPCC AR6 + GHG Protocol per-material emission factors',items:allItems};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(summary,null,2)],{type:'application/json'}));
+  a.download='ESG_Report_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  showToast('✓ Export ESG JSON ('+filtered.length+' orders)');
+}
+
 function exportCSV(){
   if(!orders.length){showToast('⚠ '+t('no_data'),true);return;}
   const headers=['Order No','วันที่','Vendor','ทะเบียน','ประเภทขยะ','จำนวน','หน่วย','น้ำหนักกก.','ราคา/หน่วย','ยอดรายการ','ยอด Order','สถานะชำระ','วันรับเงิน','บันทึกโดย','แก้ไขโดย','แก้ไขเมื่อ','หมายเหตุ','ลายเซ็นผู้รับ','ลายเซ็นผู้ขาย','จำนวนเอกสาร'];
@@ -2273,10 +3042,24 @@ function exportCSV(){
   a.download='AMWMS_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('✓ Export CSV');
 }
-function showToast(msg,isErr){const el=document.getElementById('toast');el.textContent=msg;el.style.background=isErr?'#c0392b':'#002B6C';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
+function showToast(msg,isErr){
+  const el=document.getElementById('toast');
+  if(el._toastTimer)clearTimeout(el._toastTimer);
+  el.classList.remove('show');
+  el.style.background=isErr?'#b91c1c':'#15803d';
+  el.innerHTML='<span class="toast-icon">'+(isErr?'⚠':'✓')+'</span><span>'+msg+'</span>';
+  void el.offsetWidth;
+  el.classList.add('show');
+  el._toastTimer=setTimeout(()=>el.classList.remove('show'),isErr?3500:3000);
+}
 
 window.addEventListener('load',function(){
-  autoConnectFirebase();initSignaturePadV2();});
+  autoConnectFirebase(0);initSignaturePadV2();initReportTab();
+  // v15: start on dashboard
+  const dashTab=document.querySelector('.tab[onclick*="summary"]');
+  if(dashTab){switchTab('summary',dashTab);}
+});
+
 </script>
 </body>
 </html>
